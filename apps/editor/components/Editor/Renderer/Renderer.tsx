@@ -22,12 +22,12 @@ const Renderer = () => {
   const tracks = editor.state.getTracks();
   const currentTime = editor.state.getCurrentTime();
 
-  const renderVideoElements = useMemo(
+  const renderVideoClips = useMemo(
     () =>
       tracks
         .map((track) => track.getRenderElementsAtTime(currentTime))
         .flat()
-        .filter((element) => element !== null),
+        .filter((element) => element !== null && element instanceof VideoClip),
     [tracks, currentTime],
   );
 
@@ -70,7 +70,7 @@ const Renderer = () => {
       { canvas?: Image; element?: HTMLVideoElement }
     >();
 
-    (renderVideoElements ?? []).forEach((renderVideo) => {
+    (renderVideoClips ?? []).forEach((renderVideo) => {
       if (!renderVideo.resource) return;
       if (!videoToElement.current.has(renderVideo.id)) {
         newMap.set(renderVideo.id, {
@@ -83,7 +83,7 @@ const Renderer = () => {
     });
 
     videoToElement.current = newMap;
-  }, [renderVideoElements?.length]);
+  }, [renderVideoClips?.length]);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const onPlayPause = useCallback(() => {
@@ -114,7 +114,7 @@ const Renderer = () => {
           height={canvasContainerRef.current?.clientHeight ?? 0}
         >
           <Layer>
-            {renderVideoElements?.map(
+            {renderVideoClips?.map(
               (videoClip) =>
                 videoClip.resource && (
                   <KonvaImage
@@ -142,7 +142,7 @@ const Renderer = () => {
       <PlayControl isPlaying={isPlaying} onPlayPause={onPlayPause} />
 
       <VideoSourceProvider
-        videoClips={renderVideoElements}
+        videoClips={renderVideoClips}
         onElementUpdate={onElementUpdate}
       />
     </div>

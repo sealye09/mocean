@@ -1,10 +1,9 @@
 import React from "react";
 
-import type { BaseElement } from "@video-editor/core";
-import { Clip } from "@video-editor/core/dist/interfaces/Clip";
+import type { VideoClip } from "@video-editor/core";
 
 interface VideoSourceProviderProps {
-  videoClips: Array<Clip<BaseElement>>;
+  videoClips: Array<VideoClip>;
   onElementUpdate: (id: string, element: { element: HTMLVideoElement }) => void;
 }
 
@@ -25,7 +24,7 @@ export const VideoSourceProvider: React.FC<VideoSourceProviderProps> = ({
                 }
               }}
               src={videoClip.resource.fileUrl}
-              hidden={true}
+              hidden
             />
           ),
       )}
