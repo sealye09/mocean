@@ -3,15 +3,13 @@ import { Track } from "./elements/Track.js";
 import type { Video } from "./index.js";
 import { CanvasRender } from "./interfaces/CanvasRender.js";
 import { Clip } from "./interfaces/Clip.js";
+import { VideoClip } from "./elements/clip/VideoClip.js";
 
 class Renderer {
   state: EditorState;
   width: number;
   height: number;
-  fps: number = 30;
-  onVideoPlay: (video: Video) => void;
-  private lastFrameTime: number = 0;
-  private frameInterval: number; // 帧间隔时间(ms)
+  onVideoPlay: (videoClip: VideoClip) => void;
   private animationFrameId: number | null = null;
 
   constructor({
@@ -19,20 +17,16 @@ class Renderer {
     width,
     height,
     onVideoPlay,
-    fps = 30,
   }: {
     state: EditorState;
     width: number;
     height: number;
-    onVideoPlay: (video: Video) => void;
-    fps?: number;
+    onVideoPlay: (videoClip: VideoClip) => void;
   }) {
     this.state = state;
     this.width = width;
     this.height = height;
     this.onVideoPlay = onVideoPlay;
-    this.fps = fps;
-    this.frameInterval = 1000 / fps; // 计算帧间隔
   }
 
   // addVideoToRenderer(id: string) {
@@ -48,24 +42,27 @@ class Renderer {
   //   });
   // }
 
-  // /**
-  //  * 计算视频渲染尺寸
-  //  * @param video 视频
-  //  * @returns 渲染尺寸
-  //  */
-  // calculateDimensions = (video: Video) => {
-  //   const videoRatio = video.width / video.height;
+  /**
+   * 计算视频渲染尺寸
+   * @param video 视频
+   * @returns 渲染尺寸
+   */
+  calculateElementInitPosition = (video: Video) => {
+    const videoRatio = video.width / video.height;
 
-  //   let width = this.width;
-  //   let height = this.width / videoRatio;
+    let width = this.width;
+    let height = this.width / videoRatio;
 
-  //   if (height > this.height) {
-  //     height = this.height;
-  //     width = this.height * videoRatio;
-  //   }
+    if (height > this.height) {
+      height = this.height;
+      width = this.height * videoRatio;
+    }
 
-  //   return { width, height };
-  // };
+    const x = 0;
+    const y = this.height / 2 - height / 2;
+
+    return { width, height, x, y };
+  };
 
   // private animate = (timestamp: number) => {
   //   if (!this.lastFrameTime) {
@@ -96,7 +93,6 @@ class Renderer {
 
   onPlay = () => {
     if (!this.animationFrameId) {
-      this.lastFrameTime = 0;
       this.animationFrameId = requestAnimationFrame(this.animate);
     }
   };

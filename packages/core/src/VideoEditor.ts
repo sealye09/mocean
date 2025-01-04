@@ -6,7 +6,8 @@ import { EditorState } from "./EditorState.js";
 import { Renderer } from "./Renderer.ts";
 import { TimeManager } from "./TimeManager.ts";
 import { VideoProcess } from "./VideoProcess.ts";
-import { Video } from "./index.ts";
+import { VideoClip } from "./elements/clip/VideoClip.ts";
+
 
 const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
@@ -58,7 +59,7 @@ class Editor {
   }: {
     width: number;
     height: number;
-    onVideoPlay: (video: Video) => void;
+    onVideoPlay: (videoClip: VideoClip) => void;
   }) {
     this.renderer = new Renderer({
       state: this.state,
@@ -66,6 +67,8 @@ class Editor {
       height,
       onVideoPlay,
     });
+
+    this.timeManager.setRenderer(this.renderer);
   }
 }
 

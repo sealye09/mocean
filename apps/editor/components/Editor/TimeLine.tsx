@@ -2,6 +2,8 @@ import { useContext } from "react";
 
 import { HiEye, HiEyeSlash, HiLockClosed, HiLockOpen } from "react-icons/hi2";
 
+import type { Track } from "@video-editor/core";
+
 import { EditorContext } from "./index";
 
 const TimeLine = () => {
@@ -12,7 +14,7 @@ const TimeLine = () => {
   const onTrackLockChange = (trackId: string) => {
     const updatedTracks = tracks.map((track) => {
       if (track.id === trackId) {
-        return { ...track, locked: !track.locked };
+        track.locked = !track.locked;
       }
       return track;
     });
@@ -22,7 +24,7 @@ const TimeLine = () => {
   const onTrackVisibilityChange = (trackId: string) => {
     const updatedTracks = tracks.map((track) => {
       if (track.id === trackId) {
-        return { ...track, visible: !track.visible };
+        track.visible = !track.visible;
       }
       return track;
     });
@@ -58,9 +60,9 @@ const TimeLine = () => {
 
       <div className="flex h-full flex-1 flex-col justify-center gap-2">
         {tracks.map((track) =>
-          track.elements.map((element) => (
-            <div key={element.id} className="flex h-20 items-center">
-              {element.id}
+          track.renderElements.map((renderElement) => (
+            <div key={renderElement.id} className="flex h-20 items-center">
+              {renderElement.id}
             </div>
           )),
         )}

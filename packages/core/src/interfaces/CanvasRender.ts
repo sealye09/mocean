@@ -10,6 +10,9 @@ interface CanvasRender {
 
   /**@description 渲染的高度 */
   renderHeight: number;
+
+  /**@description 旋转角度 */
+  rotation: number;
 }
 
 export type { CanvasRender };

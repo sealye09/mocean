@@ -15,17 +15,28 @@ class VideoClip implements Clip, CanvasRender {
   y: number;
   renderWidth: number;
   renderHeight: number;
+  rotation: number;
 
   constructor({
     resourceId,
     name,
     startTimestamp,
     endTimestamp,
+    x,
+    y,
+    renderWidth,
+    renderHeight,
+    rotation,
   }: {
     resourceId: string;
     name: string;
     startTimestamp: number;
     endTimestamp: number;
+    x: number;
+    y: number;
+    renderWidth: number;
+    renderHeight: number;
+    rotation: number;
   }) {
     this.id = uuidv4();
     this.resourceId = resourceId;
@@ -33,6 +44,12 @@ class VideoClip implements Clip, CanvasRender {
     this.startTimestamp = startTimestamp;
     this.endTimestamp = endTimestamp;
     this.type = "video";
+
+    this.x = x;
+    this.y = y;
+    this.renderWidth = renderWidth;
+    this.renderHeight = renderHeight;
+    this.rotation = rotation;
   }
 }
 

@@ -104,11 +104,11 @@ const Renderer = () => {
               (renderVideo) =>
                 renderVideo.video && (
                   <KonvaImage
-                    key={renderVideo.video.id}
-                    x={0}
-                    y={0}
-                    width={renderVideo.video.width}
-                    height={renderVideo.video.height}
+                    key={renderVideo.id}
+                    x={renderVideo.x}
+                    y={renderVideo.y}
+                    width={renderVideo.renderWidth}
+                    height={renderVideo.renderHeight}
                     ref={(node) => {
                       if (node && renderVideo.video) {
                         videoToElement.current.set(renderVideo.video.id, {
