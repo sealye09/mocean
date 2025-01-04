@@ -1,9 +1,6 @@
 import { EditorState } from "./EditorState.js";
-import { Track } from "./elements/Track.js";
-import type { Video } from "./index.js";
-import { CanvasRender } from "./interfaces/CanvasRender.js";
-import { Clip } from "./interfaces/Clip.js";
 import { VideoClip } from "./elements/clip/VideoClip.js";
+import type { Video } from "./index.js";
 
 class Renderer {
   state: EditorState;
@@ -27,7 +24,6 @@ class Renderer {
     this.height = height;
     this.onVideoPlay = onVideoPlay;
   }
-
 
   /**
    * 计算视频渲染尺寸

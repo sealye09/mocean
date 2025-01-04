@@ -20,9 +20,10 @@ const ProcessingVideo = () => (
 const FinishedVideo: React.FC<{
   video: Video;
   onAddClick: (e: React.MouseEvent) => void;
-}> = ({ video, onAddClick }) => (
+  onViewDetail: (video: Video) => void;
+}> = ({ video, onAddClick, onViewDetail }) => (
   <div className="group relative flex w-full flex-1 items-center overflow-hidden rounded-md bg-gray-200">
-    <div className="relative h-4/5 w-full">
+    <div className="relative h-4/5 w-full" onClick={() => onViewDetail(video)}>
       <Image
         className="object-fit h-full w-full"
         src={video.cover}
@@ -60,9 +61,10 @@ const ErrorVideo = () => (
 
 interface VideoItemProps {
   video: Video;
+  onViewDetail: (video: Video) => void;
 }
 
-const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
+const VideoItem: React.FC<VideoItemProps> = ({ video, onViewDetail }) => {
   const editor = useContext(EditorContext)!;
 
   const onAddClick = (e: React.MouseEvent) => {
@@ -74,7 +76,11 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
     <div className="box-border flex h-full w-full flex-col">
       {video.status === "processing" && <ProcessingVideo />}
       {video.status === "finished" && (
-        <FinishedVideo video={video} onAddClick={onAddClick} />
+        <FinishedVideo
+          video={video}
+          onAddClick={onAddClick}
+          onViewDetail={onViewDetail}
+        />
       )}
       {video.status === "error" && <ErrorVideo />}
 

@@ -1,11 +1,17 @@
 import { useContext } from "react";
 
+import type { Video } from "@video-editor/core";
+
 import { EditorContext } from "../index";
 import VideoItem from "./components/VideoItem";
 import VideoUpload from "./components/VideoUpload";
 
 const ElementList = () => {
   const editor = useContext(EditorContext);
+
+  const onViewDetail = (video: Video) => {
+    editor?.state.setActiveVideoId(video.id);
+  };
 
   const onUpload = (file: File) => {
     editor?.videoProcess.onVideoUpload({
@@ -25,7 +31,13 @@ const ElementList = () => {
         <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-4">
           {editor?.state
             .getVideos()
-            .map((video) => <VideoItem key={video.id} video={video} />)}
+            .map((video) => (
+              <VideoItem
+                key={video.id}
+                video={video}
+                onViewDetail={onViewDetail}
+              />
+            ))}
         </div>
       </div>
     </div>
