@@ -1,0 +1,146 @@
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+
+import type { Image } from "konva/lib/shapes/Image";
+import { Image as KonvaImage, Layer, Stage } from "react-konva";
+
+import { VideoClip } from "@video-editor/core";
+
+import { EditorContext } from "..";
+import PlayControl from "../components/PlayControl";
+import { VideoSourceProvider } from "./provider/VideoSourceProvider";
+
+const Renderer = () => {
+  const editor = useContext(EditorContext)!;
+  const videos = editor.state.getVideos();
+
+  const tracks = editor.state.getTracks();
+
+  const currentTime = editor.state.getCurrentTime();
+
+  const renderVideoElements = tracks
+    .map((track) => track.getRenderElementsAtTime(currentTime))
+    .flat()
+    .map((element) => {
+      const video = videos.find((video) => video.id === element.resourceId);
+      return { ...element, video: video || null };
+    });
+
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const videoToElement = useRef<
+    Map<string, { canvas?: Image; element?: HTMLVideoElement }>
+  >(new Map());
+
+  const onVideoPlay = useCallback(
+    (videoClip: VideoClip, currentTime: number) => {
+      const elements = videoToElement.current.get(videoClip.id);
+
+      if (!elements) return;
+      const { element: videoElement, canvas } = elements;
+
+      if (!videoElement || !canvas) {
+        return;
+      }
+
+      if (videoElement.currentTime !== currentTime) {
+        videoElement.currentTime = currentTime;
+      }
+
+      canvas.getLayer()?.batchDraw();
+    },
+    [],
+  );
+
+  useEffect(() => {
+    editor.initRenderer({
+      width: canvasContainerRef.current?.clientWidth ?? 0,
+      height: canvasContainerRef.current?.clientHeight ?? 0,
+      onVideoPlay,
+    });
+  }, [editor]);
+
+  useEffect(() => {
+    const newMap = new Map<
+      string,
+      { canvas?: Image; element?: HTMLVideoElement }
+    >();
+
+    (renderVideoElements ?? []).forEach((renderVideo) => {
+      if (!renderVideo.video) return;
+      if (!videoToElement.current.has(renderVideo.id)) {
+        newMap.set(renderVideo.id, {
+          canvas: undefined,
+          element: undefined,
+        });
+      } else {
+        newMap.set(renderVideo.id, videoToElement.current.get(renderVideo.id)!);
+      }
+    });
+
+    videoToElement.current = newMap;
+  }, [renderVideoElements?.length]);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const onPlayPause = useCallback(() => {
+    if (!isPlaying) {
+      editor.timeManager.startPlay();
+      setIsPlaying(true);
+    } else {
+      editor.timeManager.stopPlay();
+      setIsPlaying(false);
+    }
+  }, [isPlaying, editor.timeManager]);
+
+  const onElementUpdate = useCallback(
+    (id: string, { element }: { element: HTMLVideoElement }) => {
+      videoToElement.current.set(id, {
+        ...videoToElement.current.get(id),
+        element,
+      });
+    },
+    [],
+  );
+
+  return (
+    <div className="flex h-full w-full flex-col">
+      <div className="w-full flex-1" ref={canvasContainerRef}>
+        <Stage
+          width={canvasContainerRef.current?.clientWidth ?? 0}
+          height={canvasContainerRef.current?.clientHeight ?? 0}
+        >
+          <Layer>
+            {renderVideoElements?.map(
+              (videoClip) =>
+                videoClip.video && (
+                  <KonvaImage
+                    key={videoClip.id}
+                    x={videoClip.x}
+                    y={videoClip.y}
+                    width={videoClip.renderWidth}
+                    height={videoClip.renderHeight}
+                    ref={(node) => {
+                      if (node && videoClip.video) {
+                        videoToElement.current.set(videoClip.id, {
+                          ...videoToElement.current.get(videoClip.id),
+                          canvas: node,
+                        });
+                      }
+                    }}
+                    image={videoToElement.current.get(videoClip.id)?.element}
+                  />
+                ),
+            )}
+          </Layer>
+        </Stage>
+      </div>
+
+      <PlayControl isPlaying={isPlaying} onPlayPause={onPlayPause} />
+
+      <VideoSourceProvider
+        videoClips={renderVideoElements}
+        onElementUpdate={onElementUpdate}
+      />
+    </div>
+  );
+};
+
+export default Renderer;

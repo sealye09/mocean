@@ -59,7 +59,7 @@ class Editor {
   }: {
     width: number;
     height: number;
-    onVideoPlay: (videoClip: VideoClip) => void;
+    onVideoPlay: (videoClip: VideoClip , currentTime: number) => void;
   }) {
     this.renderer = new Renderer({
       state: this.state,
