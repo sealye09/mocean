@@ -9,8 +9,7 @@ class Renderer {
   state: EditorState;
   width: number;
   height: number;
-  onVideoPlay: (videoClip: VideoClip) => void;
-  private animationFrameId: number | null = null;
+  onVideoPlay: (videoClip: VideoClip, currentTime: number) => void;
 
   constructor({
     state,
@@ -21,7 +20,7 @@ class Renderer {
     state: EditorState;
     width: number;
     height: number;
-    onVideoPlay: (videoClip: VideoClip) => void;
+    onVideoPlay: (videoClip: VideoClip, currentTime: number) => void;
   }) {
     this.state = state;
     this.width = width;
@@ -29,18 +28,6 @@ class Renderer {
     this.onVideoPlay = onVideoPlay;
   }
 
-  // addVideoToRenderer(id: string) {
-  //   const video = this.state.getVideos().find((video) => video.id === id);
-  //   const { width, height } = this.calculateDimensions(video);
-  //   video.renderWidth = width;
-  //   video.renderHeight = height;
-
-  //   video.y = this.height / 2 - video.renderHeight / 2;
-
-  //   this.state.setState({
-  //     renderingVideoIds: [...this.state.getRenderingList(), id],
-  //   });
-  // }
 
   /**
    * 计算视频渲染尺寸
@@ -63,46 +50,6 @@ class Renderer {
 
     return { width, height, x, y };
   };
-
-  // private animate = (timestamp: number) => {
-  //   if (!this.lastFrameTime) {
-  //     this.lastFrameTime = timestamp;
-  //   }
-
-  //   const elapsed = timestamp - this.lastFrameTime;
-
-  //   // 如果经过的时间大于等于帧间隔，则触发渲染
-  //   if (elapsed >= this.frameInterval) {
-  //     const renderingVideos = this.state
-  //       .getRenderingList()
-  //       .map((id) => this.state.getVideos().find((video) => video.id === id));
-
-  //     renderingVideos.forEach((video) => {
-  //       if (video) this.onVideoPlay(video);
-  //     });
-
-  //     this.lastFrameTime = timestamp - (elapsed % this.frameInterval);
-  //   }
-
-  //   // 继续下一帧
-  //   this.animationFrameId = requestAnimationFrame(this.animate);
-  // };
-
-
-  private animate = (timestamp: number) => {};
-
-  onPlay = () => {
-    if (!this.animationFrameId) {
-      this.animationFrameId = requestAnimationFrame(this.animate);
-    }
-  };
-
-  onPause = () => {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-  };W
 }
 
 export { Renderer };
