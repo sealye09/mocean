@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import type { Image } from "konva/lib/shapes/Image";
 import { Image as KonvaImage, Layer, Stage } from "react-konva";
@@ -17,13 +24,18 @@ const Renderer = () => {
 
   const currentTime = editor.state.getCurrentTime();
 
-  const renderVideoElements = tracks
-    .map((track) => track.getRenderElementsAtTime(currentTime))
-    .flat()
-    .map((element) => {
-      const video = videos.find((video) => video.id === element.resourceId);
-      return { ...element, video: video || null };
-    });
+  const renderVideoElements = useMemo(
+    () =>
+      tracks
+        .map((track) => track.getRenderElementsAtTime(currentTime))
+        .flat()
+        .map((element) => {
+          console.log(element);
+          const video = videos.find((video) => video.id === element.resourceId);
+          return { ...element, video: video || null };
+        }),
+    [tracks, videos, currentTime],
+  );
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const videoToElement = useRef<

@@ -1,7 +1,5 @@
 import React from "react";
 
-import type { Image } from "konva/lib/shapes/Image";
-
 import type { Video, VideoClip } from "@video-editor/core";
 
 interface VideoSourceProviderProps {

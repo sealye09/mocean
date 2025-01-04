@@ -1,8 +1,8 @@
 import { EditorState } from "./EditorState.ts";
-import { Track } from "./elements/Track.ts";
-import { Video } from "./elements/resource/Video.ts";
-import { VideoClip } from "./elements/clip/VideoClip.ts";
 import { Renderer } from "./Renderer.ts";
+import { Track } from "./elements/Track.ts";
+import { VideoClip } from "./elements/clip/VideoClip.ts";
+import { Video } from "./elements/resource/Video.ts";
 
 class TimeManager {
   private state: EditorState;
@@ -23,7 +23,8 @@ class TimeManager {
 
     const track = new Track(`track-${trackList.length + 1}`);
 
-    const { width, height, x, y } = this.renderer!.calculateElementInitPosition(video);
+    const { width, height, x, y } =
+      this.renderer!.calculateElementInitPosition(video);
 
     const videoClip = new VideoClip({
       resourceId: video.id,
@@ -44,6 +45,7 @@ class TimeManager {
 
   private updatePlayTime(deltaTime: number) {
     const currentPlayTime = this.state.getCurrentTime();
+
     // 更新播放时间，将 deltaTime 从毫秒转换为秒
     this.state.setCurrentTime(currentPlayTime + deltaTime / 1000);
     return currentPlayTime;
@@ -53,29 +55,25 @@ class TimeManager {
     const tracks = this.state.getTracks();
     tracks.forEach((track) => {
       track.getRenderElementsAtTime(currentPlayTime).forEach((element) => {
-        if(element.type === 'video'){
+        if (element.type === "video") {
           this.renderer?.onVideoPlay(element, currentPlayTime);
         }
       });
     });
   }
 
-  startPlay(){
+  startPlay() {
     if (this.animationFrameId !== null) {
-      return; // 避免重复启动
+      return;
     }
 
     let lastTime = performance.now();
-    const frameInterval = 1000 / this.state.getFps(); // 每帧的时间间隔（毫秒）
+    const frameInterval = 1000 / this.state.getFps();
 
     const animate = () => {
       const currentTime = performance.now();
       const deltaTime = currentTime - lastTime;
 
-      console.log(currentTime, deltaTime);
-      
-
-      // 如果经过的时间大于等于一帧所需时间，则更新
       if (deltaTime >= frameInterval) {
         const currentPlayTime = this.updatePlayTime(deltaTime);
         this.updateVideoElements(currentPlayTime);
@@ -97,3 +95,4 @@ class TimeManager {
 }
 
 export { TimeManager };
+

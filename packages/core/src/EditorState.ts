@@ -1,7 +1,5 @@
-import { BaseElement } from "./elements/BaseElement.ts";
 import { Track } from "./elements/Track.ts";
 import { Video } from "./elements/resource/Video.ts";
-import { TimelineProcess } from "./interfaces/TimelineProcess.ts";
 
 export interface State {
   /**@description 当前激活的视频Id */
@@ -59,7 +57,6 @@ export abstract class EditorState {
     );
   }
 
-  
   public getUnitTime() {
     return this.getState().unitTime;
   }
