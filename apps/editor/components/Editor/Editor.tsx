@@ -7,7 +7,7 @@ import { Editor as EditorSDK } from "@video-editor/core";
 import ElementList from "./ElementList/ElementList";
 import PropertyEditor from "./PropertyEditor";
 import Renderer from "./Renderer/Renderer";
-import TimeLine from "./TrackList/TrackList";
+import TrackList from "./TrackList/TrackList";
 import { EditorContext, ReducerEditorState, editorStateReducer } from "./index";
 
 const Editor = () => {
@@ -16,7 +16,7 @@ const Editor = () => {
     activeVideoId: "",
     videos: [],
     filesName: [],
-    unitTime: 100,
+    unitTime: 500,
     unitPixelOfTime: 50,
     tracks: [],
     fps: 24,
@@ -52,7 +52,7 @@ const Editor = () => {
         </div>
 
         <div className="flex-1 rounded-md bg-white">
-          <TimeLine />
+          <TrackList />
         </div>
       </div>
     </EditorContext.Provider>
