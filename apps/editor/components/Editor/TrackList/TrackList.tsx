@@ -3,9 +3,10 @@ import { useContext } from "react";
 import type { Track } from "@video-editor/core";
 
 import { EditorContext } from "../index";
+import { TimeLine } from "./components/TimeLine";
 import { TrackControls } from "./components/TrackControls";
 
-const TimeLine = () => {
+const TrackList = () => {
   const editor = useContext(EditorContext)!;
   const tracks = editor.state.getTracks();
 
@@ -53,7 +54,10 @@ const TimeLine = () => {
         ))}
       </div>
 
-      <div className="ml-4 flex h-full flex-1 flex-col justify-center gap-2">
+      <div className="relative ml-4 flex h-full flex-1 flex-col justify-center gap-2">
+        <div className="absolute left-0 top-0 h-[8%] w-full">
+          <TimeLine fontSize={9} />
+        </div>
         {tracks.map((track) =>
           track.renderElements.map((renderElement) => (
             <div key={renderElement.id} className="flex h-20 items-center">
@@ -66,4 +70,4 @@ const TimeLine = () => {
   );
 };
 
-export default TimeLine;
+export default TrackList;
