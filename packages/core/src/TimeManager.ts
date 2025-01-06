@@ -1,5 +1,6 @@
 import { EditorState } from "./EditorState.ts";
 import { Renderer } from "./Renderer.ts";
+import { VideoProcess } from "./VideoProcess.ts";
 import { Track } from "./elements/Track.ts";
 import { VideoClip } from "./elements/clip/VideoClip.ts";
 import { Video } from "./elements/resource/Video.ts";
@@ -7,11 +8,12 @@ import { Video } from "./elements/resource/Video.ts";
 class TimeManager {
   private state: EditorState;
   private renderer?: Renderer;
-
+  private videoProcess: VideoProcess;
   private animationFrameId: number | null = null;
 
-  constructor(state: EditorState) {
+  constructor(state: EditorState, videoProcess: VideoProcess) {
     this.state = state;
+    this.videoProcess = videoProcess;
   }
 
   setRenderer(renderer: Renderer) {
@@ -25,6 +27,10 @@ class TimeManager {
 
     const { width, height, x, y } =
       this.renderer!.calculateElementInitPosition(video);
+
+    this.videoProcess.extractFrames(0, 1000, 24, video).then((frames) => {
+      console.log(frames);
+    });
 
     const videoClip = new VideoClip({
       videoResource: video,
