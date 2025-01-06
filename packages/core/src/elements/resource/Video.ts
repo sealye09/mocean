@@ -29,6 +29,9 @@ class Video implements BaseElement {
   /**@description 封面图片 */
   cover: string;
 
+  /**@description 编解码器 */
+  codec: string;
+
   constructor({
     name,
     fileSize,

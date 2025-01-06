@@ -8,7 +8,6 @@ import { TimeManager } from "./TimeManager.ts";
 import { VideoProcess } from "./VideoProcess.ts";
 import { VideoClip } from "./elements/clip/VideoClip.ts";
 
-
 const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
 class Editor {
@@ -33,7 +32,7 @@ class Editor {
       state: this.state,
     });
 
-    this.timeManager = new TimeManager(this.state);
+    this.timeManager = new TimeManager(this.state, this.videoProcess);
     this.commandManager = new CommandManager();
   }
 
@@ -59,7 +58,7 @@ class Editor {
   }: {
     width: number;
     height: number;
-    onVideoPlay: (videoClip: VideoClip , currentTime: number) => void;
+    onVideoPlay: (videoClip: VideoClip, currentTime: number) => void;
   }) {
     this.renderer = new Renderer({
       state: this.state,
