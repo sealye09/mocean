@@ -1,55 +1,15 @@
 import { useCallback, useContext, useEffect, useRef } from "react";
 
 import { EditorContext } from "../../index";
+import {
+  drawSubScales,
+  drawTimeScale,
+  setupCanvasStyle,
+} from "../utils/canvas";
 
 interface TimeLineProps {
   fontSize?: number;
 }
-
-// 绘制主刻度线
-const drawMainScale = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  height: number,
-) => {
-  ctx.beginPath();
-  ctx.moveTo(x, height);
-  ctx.lineTo(x, height / 2);
-  ctx.stroke();
-};
-
-// 绘制小刻度线
-const drawSubScales = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  unitPixel: number,
-  height: number,
-) => {
-  const subUnitPixel = unitPixel / 5;
-  for (let j = 1; j < 5; j++) {
-    const subX = x + j * subUnitPixel;
-    ctx.beginPath();
-    ctx.moveTo(subX, height);
-    ctx.lineTo(subX, (height * 2) / 3);
-    ctx.stroke();
-  }
-};
-
-// 格式化时间标签
-const formatTimeLabel = (time: number): string => {
-  const seconds = time / 1000;
-  return Number.isInteger(seconds) ? `${seconds}s` : seconds.toFixed(1) + "s";
-};
-
-// 设置画布样式
-const setupCanvasStyle = (ctx: CanvasRenderingContext2D, fontSize: number) => {
-  ctx.strokeStyle = "#94a3b8"; // slate-400
-  ctx.fillStyle = "#000000"; // 文字颜色设置为纯黑
-  ctx.font = `${fontSize}px sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "top";
-  ctx.lineWidth = 1;
-};
 
 export const TimeLine: React.FC<TimeLineProps> = ({ fontSize = 10 }) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -64,37 +24,17 @@ export const TimeLine: React.FC<TimeLineProps> = ({ fontSize = 10 }) => {
     const { clientWidth, clientHeight } = container;
     const dpr = window.devicePixelRatio || 1;
 
-    // 设置 canvas 的显示尺寸
     canvas.style.width = `${clientWidth}px`;
     canvas.style.height = `${clientHeight}px`;
 
-    // 设置 canvas 的实际尺寸，考虑设备像素比
     canvas.width = clientWidth * dpr;
     canvas.height = clientHeight * dpr;
 
-    // 调整 canvas context 的缩放
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.scale(dpr, dpr);
     }
   }, []);
-
-  const drawTimeScale = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      x: number,
-      time: number,
-      height: number,
-    ) => {
-      // 绘制主刻度线
-      drawMainScale(ctx, x, height);
-
-      // 绘制时间标签
-      const label = formatTimeLabel(time);
-      ctx.fillText(label, x, height / 7);
-    },
-    [],
-  );
 
   const drawTimeLine = useCallback(() => {
     const canvasContainer = canvasContainerRef.current;
