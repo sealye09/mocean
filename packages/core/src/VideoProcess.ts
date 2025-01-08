@@ -1,5 +1,6 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import MP4Box from "mp4box.js";
 
 import { EditorState } from "./EditorState.ts";
 import { Video } from "./elements/resource/Video.ts";
@@ -141,118 +142,6 @@ class VideoProcess {
       newVideo,
     ]);
   };
-
-  async extractFrames(
-    startTime: number,
-    endTime: number,
-    count: number,
-    video: Video,
-  ): Promise<ImageData[]> {
-    const frames: ImageData[] = [];
-    const timePoints = this.calculateTimePoints(startTime, endTime, count);
-
-    const decoder = new VideoDecoder({
-      output: (frame) => {
-        const canvas = new OffscreenCanvas(
-          frame.displayWidth,
-          frame.displayHeight,
-        );
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(frame, 0, 0);
-          frames.push(
-            ctx.getImageData(0, 0, frame.displayWidth, frame.displayHeight),
-          );
-        }
-        frame.close();
-      },
-      error: (e) => {},
-    });
-
-    try {
-      // 配置解码器
-      const videoTrack = await this.getVideoTrack(video.fileUrl);
-
-      const config = {
-        codec: video.codec,
-        codedWidth: video.width,
-        codedHeight: video.height,
-      };
-      decoder.configure(config);
-
-      // 对每个时间点进行解码
-      for (const timePoint of timePoints) {
-        const keyFrame = await this.seekAndGetKeyFrame(videoTrack, timePoint);
-
-        console.log(keyFrame);
-
-        if (keyFrame) {
-          decoder.decode(keyFrame);
-        }
-      }
-
-      // 等待所有帧处理完成
-      await decoder.flush();
-      decoder.close();
-
-      return frames;
-    } catch (error) {
-      console.error("Frame extraction failed:", error);
-      throw error;
-    }
-  }
-
-  private async getVideoTrack(fileUrl: string): Promise<MediaStreamTrack> {
-    const video = document.createElement("video");
-    video.src = fileUrl;
-    await video.play();
-    // @ts-expect-error: captureStream exists in modern browsers
-    const stream = video.captureStream() as MediaStream;
-
-    const [videoTrack] = stream.getVideoTracks();
-    video.remove();
-    return videoTrack;
-  }
-
-  private async seekAndGetKeyFrame(
-    track: MediaStreamTrack,
-    timestamp: number,
-  ): Promise<EncodedVideoChunk | null> {
-    // @ts-ignore: MediaStreamTrackProcessor exists in modern browsers
-    const reader = new MediaStreamTrackProcessor({
-      track,
-    }).readable.getReader();
-
-    try {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        // 检查是否达到目标时间戳
-        if (value.timestamp >= timestamp) {
-          return new EncodedVideoChunk({
-            type: "key",
-            timestamp: value.timestamp,
-            duration: value.duration,
-            data: new Uint8Array(value.data),
-          });
-        }
-      }
-    } finally {
-      reader.releaseLock();
-    }
-
-    return null;
-  }
-
-  private calculateTimePoints(
-    start: number,
-    end: number,
-    count: number,
-  ): number[] {
-    const interval = (end - start) / (count - 1);
-    return Array.from({ length: count }, (_, i) => start + interval * i);
-  }
 }
 
 export { VideoProcess };
