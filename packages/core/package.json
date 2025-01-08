@@ -14,19 +14,20 @@
     "@ffmpeg/ffmpeg": "^0.12.6",
     "@ffmpeg/util": "^0.12.1",
     "mitt": "^3.0.1",
+    "mp4box": "^0.5.3",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
     "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
-    "rollup-plugin-dts": "^6.1.1",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "rollup": "^4.28.1",
-    "typescript": "latest",
-    "@trivago/prettier-plugin-sort-imports": "^4.2.0"
+    "rollup-plugin-dts": "^6.1.1",
+    "typescript": "latest"
   }
 }
