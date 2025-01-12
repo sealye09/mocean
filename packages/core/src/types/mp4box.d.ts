@@ -1,4 +1,4 @@
-declare module "mp4box.js" {
+declare module "@webav/mp4box.js" {
   export interface MP4MediaTrack {
     id: number;
     created: Date;

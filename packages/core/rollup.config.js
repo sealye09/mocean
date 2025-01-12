@@ -1,10 +1,9 @@
-import typescript from "@rollup/plugin-typescript";
-import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
 import alias from "@rollup/plugin-alias";
+import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import typescript from "@rollup/plugin-typescript";
 import path from "path";
 // import terser from "@rollup/plugin-terser";
-
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -20,7 +19,13 @@ export default {
     resolve(),
     commonjs(),
   ],
-  external: ["@ffmpeg/ffmpeg", "@ffmpeg/util", "mitt", "uuid"],
+  external: [
+    "@ffmpeg/ffmpeg",
+    "@ffmpeg/util",
+    "mitt",
+    "uuid",
+    "@webav/mp4box.js",
+  ],
   output: {
     dir: "dist",
     format: "esm",
