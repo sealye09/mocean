@@ -1,6 +1,7 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
-import MP4Box from "mp4box.js";
+import MP4Box from "@webav/mp4box.js";
+import type { MP4File } from "@webav/mp4box.js";
 
 import { EditorState } from "./EditorState.ts";
 import { Video } from "./elements/resource/Video.ts";
@@ -14,6 +15,7 @@ declare class MediaStreamTrackProcessor {
 class VideoProcess {
   ffmpeg: FFmpeg;
   state: EditorState;
+  file: MP4File;
 
   private videoDecoder: VideoDecoder;
 
@@ -21,20 +23,7 @@ class VideoProcess {
     this.ffmpeg = ffmpeg;
     this.state = state;
 
-    this.videoDecoder = new VideoDecoder({
-      output: (frame) => {
-        console.log(frame);
-      },
-      error: (error) => {
-        console.error(error);
-      },
-    });
-
-    this.videoDecoder.configure({
-      codec: "h264",
-      codedWidth: 1920,
-      codedHeight: 1080,
-    });
+    this.file = MP4Box.createFile();
   }
 
   private collectFFmpegLogs(): Promise<{

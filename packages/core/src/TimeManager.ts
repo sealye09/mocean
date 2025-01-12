@@ -28,10 +28,6 @@ class TimeManager {
     const { width, height, x, y } =
       this.renderer!.calculateElementInitPosition(video);
 
-    this.videoProcess.extractFrames(0, 1000, 24, video).then((frames) => {
-      console.log(frames);
-    });
-
     const videoClip = new VideoClip({
       videoResource: video,
       name: video.name,
@@ -100,4 +96,3 @@ class TimeManager {
 }
 
 export { TimeManager };
-
