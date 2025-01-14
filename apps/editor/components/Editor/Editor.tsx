@@ -25,9 +25,8 @@ const Editor = () => {
   const storeRef = useRef(new ReducerEditorState(state, dispatch));
 
   useEffect(() => {
-    EditorSDK.build(storeRef.current).then((editor) => {
-      setEditor(editor);
-    });
+    const editor = new EditorSDK(storeRef.current);
+    setEditor(editor);
   }, []);
 
   useEffect(() => {

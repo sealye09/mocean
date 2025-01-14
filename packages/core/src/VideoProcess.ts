@@ -57,13 +57,16 @@ class VideoProcess {
           return;
         }
 
+        console.log("onReady", videoTrack);
+
         const width = videoTrack.track_width;
         const height = videoTrack.track_height;
-        // 计算帧率：timescale / duration 得到每秒的帧数
-        const frameRate = videoTrack.timescale / videoTrack.duration;
+        // 计算帧率：总帧数 / 总时长（秒），并取整到个位数
+        const totalSeconds = videoTrack.duration / videoTrack.timescale;
+        const frameRate = Math.round(videoTrack.nb_samples / totalSeconds);
         // 时长需要转换为秒
         const duration = videoTrack.duration / videoTrack.timescale;
-        const createTime = new Date(info.created);
+        const createTime = new Date(videoTrack.created);
         const codec = videoTrack.codec;
 
         // 获取封面

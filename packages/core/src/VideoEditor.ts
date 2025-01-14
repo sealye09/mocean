@@ -23,11 +23,6 @@ class Editor {
     this.commandManager = new CommandManager();
   }
 
-  static async build(store: EditorState) {
-    const editor = new Editor(store);
-    return editor;
-  }
-
   initRenderer({
     width,
     height,
