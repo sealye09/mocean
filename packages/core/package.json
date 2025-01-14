@@ -11,8 +11,6 @@
   ],
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.6",
-    "@ffmpeg/util": "^0.12.1",
     "mitt": "^3.0.1",
     "uuid": "^11.0.3",
     "@webav/mp4box.js": "0.5.4-fenghen"
@@ -31,4 +29,3 @@
     "typescript": "latest"
   }
 }
-
