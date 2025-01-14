@@ -1,5 +1,5 @@
 import MP4Box from "@webav/mp4box.js";
-import type { MP4ArrayBuffer, MP4File, MP4Sample } from "@webav/mp4box.js";
+import type { MP4ArrayBuffer, MP4File, TrakBoxParser } from "@webav/mp4box.js";
 
 import { EditorState } from "./EditorState.ts";
 import { Video } from "./elements/resource/Video.ts";
@@ -15,7 +15,7 @@ class VideoProcess {
   /**
    * 获取视频封面
    */
-  private async getVideoCover(videoUrl: string): Promise<string> {
+  private getVideoCover(videoUrl: string): Promise<string> {
     return new Promise((resolve) => {
       const video = document.createElement("video");
       video.src = videoUrl;
@@ -32,6 +32,26 @@ class VideoProcess {
   }
 
   /**
+   * 解析视频编解码器描述信息
+   */
+  private parseVideoCodecDesc(track: TrakBoxParser): Uint8Array {
+    for (const entry of track.mdia.minf.stbl.stsd.entries) {
+      // @ts-expect-error
+      const box = entry.avcC ?? entry.hvcC ?? entry.av1C ?? entry.vpcC;
+      if (box != null) {
+        const stream = new MP4Box.DataStream(
+          undefined,
+          0,
+          MP4Box.DataStream.BIG_ENDIAN,
+        );
+        box.write(stream);
+        return new Uint8Array(stream.buffer.slice(8));
+      }
+    }
+    throw Error("avcC, hvcC, av1C or VPX not found");
+  }
+
+  /**
    * 获取视频基本信息
    */
   private async getVideoBaseInfo(fileUrl: string): Promise<{
@@ -41,10 +61,19 @@ class VideoProcess {
     duration: number;
     createTime: Date;
     codec: string;
-    cover: string;
   }> {
     return new Promise((resolve, reject) => {
       const mp4File = MP4Box.createFile();
+      let width: number;
+      let height: number;
+      let frameRate: number;
+      let duration: number;
+      let createTime: Date;
+      let codec: string;
+      let description: Uint8Array;
+      const videoFrames: VideoFrame[] = [];
+
+      let decoder: VideoDecoder;
 
       mp4File.onError = (error) => {
         reject(new Error(error));
@@ -57,39 +86,70 @@ class VideoProcess {
           return;
         }
 
-        console.log("onReady", videoTrack);
+        width = videoTrack.track_width;
+        height = videoTrack.track_height;
 
-        const width = videoTrack.track_width;
-        const height = videoTrack.track_height;
-        // 计算帧率：总帧数 / 总时长（秒），并取整到个位数
         const totalSeconds = videoTrack.duration / videoTrack.timescale;
-        const frameRate = Math.round(videoTrack.nb_samples / totalSeconds);
-        // 时长需要转换为秒
-        const duration = videoTrack.duration / videoTrack.timescale;
-        const createTime = new Date(videoTrack.created);
-        const codec = videoTrack.codec;
+        frameRate = Math.round(videoTrack.nb_samples / totalSeconds);
 
-        // 获取封面
-        const cover = await this.getVideoCover(fileUrl);
+        duration = videoTrack.duration / videoTrack.timescale;
+        createTime = new Date(videoTrack.created);
+        codec = videoTrack.codec;
 
-        resolve({
-          width,
-          height,
-          frameRate,
-          duration,
-          createTime,
-          codec,
-          cover,
+        description = this.parseVideoCodecDesc(
+          mp4File.getTrackById(videoTrack.id),
+        );
+
+        decoder = new VideoDecoder({
+          output: (chunk) => {
+            videoFrames.push(chunk);
+          },
+          error: (error) => {
+            reject(new Error(error.message));
+          },
         });
+
+        decoder.configure({
+          codec,
+          description,
+          codedHeight: height,
+          codedWidth: width,
+        });
+
+        mp4File.setExtractionOptions(videoTrack.id, "video", {
+          nbSamples: 100,
+        });
+        mp4File.start();
       };
 
-      // 开始获取文件
+      mp4File.onSamples = (id, user, samples) => {
+        for (const sample of samples) {
+          decoder.decode(
+            new EncodedVideoChunk({
+              type: sample.is_sync ? "key" : "delta",
+              timestamp: sample.cts,
+              duration: sample.duration,
+              data: sample.data,
+            }),
+          );
+        }
+      };
+
       fetch(fileUrl)
         .then((response) => response.arrayBuffer())
         .then((buffer) => {
           const arrayBuffer = buffer as MP4ArrayBuffer;
           arrayBuffer.fileStart = 0;
           mp4File.appendBuffer(arrayBuffer);
+
+          resolve({
+            width,
+            height,
+            frameRate,
+            duration,
+            createTime,
+            codec,
+          });
         })
         .catch(reject);
     });
@@ -106,8 +166,10 @@ class VideoProcess {
     this.state.setVideos([...this.state.getVideos(), newVideo]);
 
     try {
-      const { width, height, frameRate, duration, createTime, codec, cover } =
+      const { width, height, frameRate, duration, createTime, codec } =
         await this.getVideoBaseInfo(newVideo.fileUrl);
+
+      const cover = await this.getVideoCover(newVideo.fileUrl);
 
       newVideo.width = width;
       newVideo.height = height;
@@ -128,10 +190,7 @@ class VideoProcess {
     ]);
   };
 
-  /**
-   * 快速解析 MP4 文件，避免一次性加载过大数据
-   */
-  async quickParseMP4(fileUrl: string): Promise<EncodedVideoChunk[]> {
+  async quickParseMP4(video: Video): Promise<EncodedVideoChunk[]> {
     return new Promise((resolve, reject) => {
       const mp4File = MP4Box.createFile();
       const chunks: EncodedVideoChunk[] = [];
@@ -160,10 +219,11 @@ class VideoProcess {
               data: sample.data,
             }),
         );
+
         chunks.push(...newChunks);
       };
 
-      fetch(fileUrl)
+      fetch(video.fileUrl)
         .then((response) => response.arrayBuffer())
         .then((buffer) => {
           const arrayBuffer = buffer as MP4ArrayBuffer;
