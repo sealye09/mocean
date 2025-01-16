@@ -190,52 +190,6 @@ class VideoProcess {
     ]);
   };
 
-  async quickParseMP4(video: Video): Promise<EncodedVideoChunk[]> {
-    return new Promise((resolve, reject) => {
-      const mp4File = MP4Box.createFile();
-      const chunks: EncodedVideoChunk[] = [];
-
-      mp4File.onError = (error) => {
-        reject(new Error(error));
-      };
-
-      mp4File.onReady = (info) => {
-        const videoTrack = info.videoTracks[0];
-        if (videoTrack) {
-          mp4File.setExtractionOptions(videoTrack.id, null, {
-            nbSamples: 100,
-          });
-          mp4File.start();
-        }
-      };
-
-      mp4File.onSamples = (id, user, samples) => {
-        const newChunks = samples.map(
-          (sample) =>
-            new EncodedVideoChunk({
-              type: sample.is_sync ? "key" : "delta",
-              timestamp: sample.cts,
-              duration: sample.duration,
-              data: sample.data,
-            }),
-        );
-
-        chunks.push(...newChunks);
-      };
-
-      fetch(video.fileUrl)
-        .then((response) => response.arrayBuffer())
-        .then((buffer) => {
-          const arrayBuffer = buffer as MP4ArrayBuffer;
-          arrayBuffer.fileStart = 0;
-          mp4File.appendBuffer(arrayBuffer);
-          resolve(chunks);
-        })
-        .catch(reject);
-    });
-  }
-
-  // 在不需要时清理资源
   public dispose() {
     if (this.file) {
       this.file.flush();

@@ -7,4 +7,3 @@ export * from "./elements/resource/Video.ts";
 export * from "./elements/clip/VideoClip.ts";
 export * from "./elements/Track.ts";
 export * from "./elements/BaseElement.ts";
-export * from "./utils/index.ts";
