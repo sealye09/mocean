@@ -61,6 +61,7 @@ class VideoProcess {
     duration: number;
     createTime: Date;
     codec: string;
+    videoFrames: VideoFrame[];
   }> {
     return new Promise((resolve, reject) => {
       const mp4File = MP4Box.createFile();
@@ -74,6 +75,10 @@ class VideoProcess {
       const videoFrames: VideoFrame[] = [];
 
       let decoder: VideoDecoder;
+
+      const BATCH_SIZE = 100;
+      let currentSamples = 0;
+      let totalSamples = 0;
 
       mp4File.onError = (error) => {
         reject(new Error(error));
@@ -91,6 +96,7 @@ class VideoProcess {
 
         const totalSeconds = videoTrack.duration / videoTrack.timescale;
         frameRate = Math.round(videoTrack.nb_samples / totalSeconds);
+        totalSamples = videoTrack.nb_samples;
 
         duration = videoTrack.duration / videoTrack.timescale;
         createTime = new Date(videoTrack.created);
@@ -103,6 +109,21 @@ class VideoProcess {
         decoder = new VideoDecoder({
           output: (chunk) => {
             videoFrames.push(chunk);
+
+            if (currentSamples >= totalSamples) {
+              mp4File.stop();
+              decoder.flush();
+
+              resolve({
+                width,
+                height,
+                frameRate,
+                duration,
+                createTime,
+                codec,
+                videoFrames,
+              });
+            }
           },
           error: (error) => {
             reject(new Error(error.message));
@@ -117,12 +138,13 @@ class VideoProcess {
         });
 
         mp4File.setExtractionOptions(videoTrack.id, "video", {
-          nbSamples: 100,
+          nbSamples: BATCH_SIZE,
         });
         mp4File.start();
       };
 
       mp4File.onSamples = (id, user, samples) => {
+        currentSamples += samples.length;
         for (const sample of samples) {
           decoder.decode(
             new EncodedVideoChunk({
@@ -135,21 +157,16 @@ class VideoProcess {
         }
       };
 
+      mp4File.onFlush = () => {
+        console.log("flush");
+      };
+
       fetch(fileUrl)
         .then((response) => response.arrayBuffer())
         .then((buffer) => {
           const arrayBuffer = buffer as MP4ArrayBuffer;
           arrayBuffer.fileStart = 0;
           mp4File.appendBuffer(arrayBuffer);
-
-          resolve({
-            width,
-            height,
-            frameRate,
-            duration,
-            createTime,
-            codec,
-          });
         })
         .catch(reject);
     });
@@ -166,8 +183,17 @@ class VideoProcess {
     this.state.setVideos([...this.state.getVideos(), newVideo]);
 
     try {
-      const { width, height, frameRate, duration, createTime, codec } =
-        await this.getVideoBaseInfo(newVideo.fileUrl);
+      const {
+        width,
+        height,
+        frameRate,
+        duration,
+        createTime,
+        codec,
+        videoFrames,
+      } = await this.getVideoBaseInfo(newVideo.fileUrl);
+
+      console.log(videoFrames);
 
       const cover = await this.getVideoCover(newVideo.fileUrl);
 
