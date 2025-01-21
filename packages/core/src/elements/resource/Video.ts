@@ -2,6 +2,12 @@ import { v4 as uuidv4 } from "uuid";
 
 import type { BaseElement } from "../BaseElement.js";
 
+export interface DecodedFrame {
+  frame: VideoFrame;
+  duration: number;
+  timestamp: number;
+}
+
 class Video implements BaseElement {
   id: string;
 
@@ -32,6 +38,8 @@ class Video implements BaseElement {
   /**@description 编解码器 */
   codec: string;
 
+  videoFrame: DecodedFrame[];
+
   constructor({
     name,
     fileSize,
@@ -43,6 +51,7 @@ class Video implements BaseElement {
     createTime,
     duration,
     cover,
+    videoFrame,
   }: {
     name?: string;
     fileSize?: number;
@@ -54,6 +63,7 @@ class Video implements BaseElement {
     createTime?: Date;
     duration?: number;
     cover?: string;
+    videoFrame?: DecodedFrame[];
   } = {}) {
     this.id = uuidv4();
     this.status = "processing";
@@ -69,6 +79,7 @@ class Video implements BaseElement {
     this.cover = cover || "";
     this.width = width || 0;
     this.height = height || 0;
+    this.videoFrame = videoFrame || [];
   }
 }
 
