@@ -8,6 +8,7 @@ import type {
 
 import { EditorState } from "./EditorState.ts";
 import { Video } from "./elements/resource/Video.ts";
+import { DecodedFrame } from "./elements/resource/Video.ts";
 
 interface VideoInfo {
   width: number;
@@ -18,12 +19,6 @@ interface VideoInfo {
   codec: string;
   description: Uint8Array;
   samples: MP4Sample[];
-}
-
-interface DecodedFrame {
-  img: ImageBitmap;
-  duration: number;
-  timestamp: number;
 }
 
 class VideoProcess {
@@ -183,9 +178,8 @@ class VideoProcess {
       const decoder = new VideoDecoder({
         output: async (frame) => {
           try {
-            const bitmap = await createImageBitmap(frame);
             decodedFrames.push({
-              img: bitmap,
+              frame,
               duration: frame.duration,
               timestamp: frame.timestamp,
             });
@@ -311,8 +305,6 @@ class VideoProcess {
         videoFrames,
       } = await this.getVideoBaseInfo(newVideo.fileUrl);
 
-      console.log(videoFrames);
-
       const cover = await this.getVideoCover(newVideo.fileUrl);
 
       newVideo.width = width;
@@ -323,6 +315,7 @@ class VideoProcess {
       newVideo.cover = cover;
       newVideo.codec = codec;
       newVideo.status = "finished";
+      newVideo.videoFrame = videoFrames;
     } catch (error) {
       console.error("Failed to process video:", error);
       newVideo.status = "error";
