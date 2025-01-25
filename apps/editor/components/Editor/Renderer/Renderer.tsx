@@ -32,12 +32,12 @@ const Renderer = () => {
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const videoToElement = useRef<
-    Map<string, { canvas?: Image; imageBitmap?: CanvasImageSource }>
+    Map<string, { canvas?: Image; imageBitmap?: ImageBitmap }>
   >(new Map());
-  const frameToImageBitmapCache = useRef<Map<number, ImageBitmap>>(new Map());
 
   const onVideoPlay = useCallback(
     (videoClip: VideoClip, currentTime: number) => {
+      console.log("onVideoPlay", videoClip, currentTime);
       const elements = videoToElement.current.get(videoClip.id);
       if (!elements?.canvas) return;
 
@@ -45,10 +45,15 @@ const Renderer = () => {
       const currentFrame = videoClip.resource?.videoFrame.find(
         (frame) =>
           frame.timestamp <= currentTime &&
-          frame.timestamp + frame.duration > currentTime,
+          (frame.duration ?? 0) + frame.timestamp > currentTime,
       );
 
       if (currentFrame) {
+        videoToElement.current.set(videoClip.id, {
+          ...videoToElement.current.get(videoClip.id),
+          imageBitmap: currentFrame.imageBitmap,
+        });
+
         // 更新画布
         elements.canvas.getLayer()?.batchDraw();
       }
@@ -67,62 +72,29 @@ const Renderer = () => {
   useEffect(() => {
     const newMap = new Map<
       string,
-      { canvas?: Image; element?: CanvasImageSource }
+      { canvas?: Image; imageBitmap?: ImageBitmap }
     >();
 
-    (renderVideoClips ?? []).forEach((renderVideo) => {
-      if (!renderVideo.resource) return;
-      if (!videoToElement.current.has(renderVideo.id)) {
-        newMap.set(renderVideo.id, {
-          canvas: undefined,
-          element: undefined,
+    renderVideoClips.forEach((videoClip) => {
+      if (!videoClip.resource?.videoFrame) return;
+
+      // 直接使用解码阶段生成的ImageBitmap
+      const currentFrame = videoClip.resource.videoFrame.find(
+        (frame) =>
+          frame.timestamp <= currentTime &&
+          frame.timestamp + (frame.duration ?? 0) > currentTime,
+      );
+
+      if (currentFrame) {
+        newMap.set(videoClip.id, {
+          canvas: videoToElement.current.get(videoClip.id)?.canvas,
+          imageBitmap: currentFrame.imageBitmap,
         });
-      } else {
-        newMap.set(renderVideo.id, videoToElement.current.get(renderVideo.id)!);
       }
     });
 
     videoToElement.current = newMap;
-  }, [renderVideoClips?.length]);
-
-  // 处理视频帧的逻辑
-  useEffect(() => {
-    const processVideoFrame = async (videoClip: VideoClip) => {
-      if (!videoClip.resource?.videoFrame) return;
-
-      for (const frame of videoClip.resource.videoFrame) {
-        // 检查缓存中是否已有该帧的 ImageBitmap
-        if (!frameToImageBitmapCache.current.has(frame.timestamp)) {
-          try {
-            const imageBitmap = await createImageBitmap(frame.frame);
-            frameToImageBitmapCache.current.set(frame.timestamp, imageBitmap);
-
-            // 更新到 KonvaImage
-            videoToElement.current.set(videoClip.id, {
-              ...videoToElement.current.get(videoClip.id),
-              imageBitmap: imageBitmap,
-            });
-          } catch (error) {
-            console.error("Failed to create ImageBitmap:", error);
-          } finally {
-            // 释放 VideoFrame 资源
-            frame.frame.close();
-          }
-        }
-      }
-    };
-
-    renderVideoClips.forEach(processVideoFrame);
-
-    // 清理函数
-    return () => {
-      // 清理缓存的 ImageBitmap
-      frameToImageBitmapCache.current.forEach((bitmap) => {
-        bitmap.close();
-      });
-      frameToImageBitmapCache.current.clear();
-    };
-  }, [renderVideoClips]);
+  }, [currentTime, renderVideoClips]);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const onPlayPause = useCallback(() => {

@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import type { BaseElement } from "../BaseElement.js";
 
 export interface DecodedFrame {
-  frame: VideoFrame;
-  duration: number;
+  imageBitmap: ImageBitmap;
+  duration: number | null;
   timestamp: number;
 }
 
