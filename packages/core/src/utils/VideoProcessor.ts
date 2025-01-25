@@ -6,6 +6,8 @@ import type {
   TrakBoxParser,
 } from "@webav/mp4box.js";
 
+import type { DecodedFrame } from "../elements/resource/Video.js";
+
 /**
  * 视频信息接口
  */
@@ -18,15 +20,6 @@ export interface VideoInfo {
   codec: string;
   description: Uint8Array;
   samples: MP4Sample[];
-}
-
-/**
- * 解码后的视频帧接口
- */
-export interface DecodedFrame {
-  frame: VideoFrame;
-  duration: number | null;
-  timestamp: number;
 }
 
 /**
@@ -74,7 +67,7 @@ export class VideoProcessor {
         if (!videoTrack) {
           reject(new Error("No video track found"));
           return;
-        }
+        }        
 
         const width = videoTrack.track_width;
         const height = videoTrack.track_height;
@@ -163,20 +156,22 @@ export class VideoProcessor {
       const decoder = new VideoDecoder({
         output: async (frame) => {
           try {
+            const imageBitmap = await createImageBitmap(frame);
             decodedFrames.push({
-              frame,
+              imageBitmap,
               duration: frame.duration,
               timestamp: frame.timestamp,
             });
-
+            
             frame.close();
-            lastDecodeTime = Date.now();
+            lastDecodeTime = Date.now();  
 
             if (decodedFrames.length % 10 === 0) {
               console.log(`Decoded frames: ${decodedFrames.length}`);
             }
           } catch (error) {
             console.warn("Failed to create bitmap:", error);
+            frame.close();
           }
         },
         error: (error) => {
