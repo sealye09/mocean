@@ -67,7 +67,7 @@ export class VideoProcessor {
         if (!videoTrack) {
           reject(new Error("No video track found"));
           return;
-        }        
+        }
 
         const width = videoTrack.track_width;
         const height = videoTrack.track_height;
@@ -159,16 +159,12 @@ export class VideoProcessor {
             const imageBitmap = await createImageBitmap(frame);
             decodedFrames.push({
               imageBitmap,
-              duration: frame.duration,
-              timestamp: frame.timestamp,
+              duration: frame.duration / 1000, // 将微秒转换为毫秒
+              timestamp: frame.timestamp / 1000, // 将微秒转换为毫秒
             });
-            
-            frame.close();
-            lastDecodeTime = Date.now();  
 
-            if (decodedFrames.length % 10 === 0) {
-              console.log(`Decoded frames: ${decodedFrames.length}`);
-            }
+            frame.close();
+            lastDecodeTime = Date.now();
           } catch (error) {
             console.warn("Failed to create bitmap:", error);
             frame.close();
@@ -203,6 +199,7 @@ export class VideoProcessor {
 
         for (let i = start; i < end; i++) {
           const sample = videoInfo.samples[i];
+
           try {
             decoder.decode(
               new EncodedVideoChunk({
