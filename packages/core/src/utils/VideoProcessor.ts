@@ -20,6 +20,7 @@ export interface VideoInfo {
   codec: string;
   description: Uint8Array;
   samples: MP4Sample[];
+  timescale: number;
 }
 
 /**
@@ -79,6 +80,7 @@ export class VideoProcessor {
         const description = this.parseVideoCodecDesc(
           mp4File.getTrackById(videoTrack.id),
         );
+        const timescale = videoTrack.timescale;
 
         mp4File.setExtractionOptions(videoTrack.id, null, {
           nbSamples: videoTrack.nb_samples,
@@ -99,6 +101,7 @@ export class VideoProcessor {
               codec,
               description,
               samples,
+              timescale,
             });
           }
         };
@@ -159,8 +162,8 @@ export class VideoProcessor {
             const imageBitmap = await createImageBitmap(frame);
             decodedFrames.push({
               imageBitmap,
-              duration: frame.duration / 1000, // 将微秒转换为毫秒
-              timestamp: frame.timestamp / 1000, // 将微秒转换为毫秒
+              duration: frame.duration / 1000000, // 将微秒转换为秒
+              timestamp: frame.timestamp / 1000000, // 将微秒转换为秒
             });
 
             frame.close();
@@ -199,13 +202,14 @@ export class VideoProcessor {
 
         for (let i = start; i < end; i++) {
           const sample = videoInfo.samples[i];
-
           try {
+            // 将sample的时间从timescale单位转换为微秒
+            const microsPerTimeScale = 1000000 / videoInfo.timescale;
             decoder.decode(
               new EncodedVideoChunk({
                 type: sample.is_sync ? "key" : "delta",
-                timestamp: sample.cts,
-                duration: sample.duration,
+                timestamp: sample.cts * microsPerTimeScale,
+                duration: sample.duration * microsPerTimeScale,
                 data: sample.data,
               }),
             );
