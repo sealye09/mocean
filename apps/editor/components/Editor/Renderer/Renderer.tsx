@@ -37,9 +37,10 @@ const Renderer = () => {
 
   const onVideoPlay = useCallback(
     (videoClip: VideoClip, currentTime: number) => {
-      console.log("onVideoPlay", videoClip, currentTime);
       const elements = videoToElement.current.get(videoClip.id);
       if (!elements?.canvas) return;
+
+      const findFrameStartTime = performance.now();
 
       // 找到当前时间对应的帧
       const currentFrame = videoClip.resource?.videoFrame.find(
@@ -48,7 +49,14 @@ const Renderer = () => {
           (frame.duration ?? 0) + frame.timestamp > currentTime,
       );
 
+      const findFrameEndTime = performance.now();
+
       if (currentFrame) {
+        // 获取帧的序号
+        const frameIndex = videoClip.resource?.videoFrame.indexOf(currentFrame);
+
+        const drawStartTime = performance.now();
+
         videoToElement.current.set(videoClip.id, {
           ...videoToElement.current.get(videoClip.id),
           imageBitmap: currentFrame.imageBitmap,
@@ -56,6 +64,16 @@ const Renderer = () => {
 
         // 更新画布
         elements.canvas.getLayer()?.batchDraw();
+
+        const drawEndTime = performance.now();
+
+        console.log(
+          `Current Time: ${currentTime.toFixed(3)}s\n`,
+          `Frame ${frameIndex} (Duration: ${(currentFrame.duration ?? 0).toFixed(3)}s) Performance Metrics:\n`,
+          `Find Frame Time: ${(findFrameEndTime - findFrameStartTime).toFixed(2)}ms\n`,
+          `Draw Frame Time: ${(drawEndTime - drawStartTime).toFixed(2)}ms\n`,
+          `Total Time: ${(drawEndTime - findFrameStartTime).toFixed(2)}ms`,
+        );
       }
     },
     [],
@@ -69,32 +87,49 @@ const Renderer = () => {
     });
   }, [editor, onVideoPlay]);
 
-  useEffect(() => {
-    const newMap = new Map<
-      string,
-      { canvas?: Image; imageBitmap?: ImageBitmap }
-    >();
+  // useEffect(() => {
+  //   const newMap = new Map<
+  //     string,
+  //     { canvas?: Image; imageBitmap?: ImageBitmap }
+  //   >();
 
-    renderVideoClips.forEach((videoClip) => {
-      if (!videoClip.resource?.videoFrame) return;
+  //   const findFrameStartTime = performance.now();
 
-      // 直接使用解码阶段生成的ImageBitmap
-      const currentFrame = videoClip.resource.videoFrame.find(
-        (frame) =>
-          frame.timestamp <= currentTime &&
-          frame.timestamp + (frame.duration ?? 0) > currentTime,
-      );
+  //   renderVideoClips.forEach((videoClip) => {
+  //     if (!videoClip.resource?.videoFrame) return;
 
-      if (currentFrame) {
-        newMap.set(videoClip.id, {
-          canvas: videoToElement.current.get(videoClip.id)?.canvas,
-          imageBitmap: currentFrame.imageBitmap,
-        });
-      }
-    });
+  //     // 直接使用解码阶段生成的ImageBitmap
+  //     const currentFrame = videoClip.resource.videoFrame.find(
+  //       (frame) =>
+  //         frame.timestamp <= currentTime &&
+  //         frame.timestamp + (frame.duration ?? 0) > currentTime,
+  //     );
 
-    videoToElement.current = newMap;
-  }, [currentTime, renderVideoClips]);
+  //     const findFrameEndTime = performance.now();
+
+  //     if (currentFrame) {
+  //       const frameIndex = videoClip.resource.videoFrame.indexOf(currentFrame);
+
+  //       const drawStartTime = performance.now();
+
+  //       newMap.set(videoClip.id, {
+  //         canvas: videoToElement.current.get(videoClip.id)?.canvas,
+  //         imageBitmap: currentFrame.imageBitmap,
+  //       });
+
+  //       const drawEndTime = performance.now();
+
+  //       console.log(
+  //         `Frame ${frameIndex} Performance Metrics (useEffect):\n`,
+  //         `Find Frame Time: ${(findFrameEndTime - findFrameStartTime).toFixed(2)}ms\n`,
+  //         `Draw Frame Time: ${(drawEndTime - drawStartTime).toFixed(2)}ms\n`,
+  //         `Total Time: ${(drawEndTime - findFrameStartTime).toFixed(2)}ms`,
+  //       );
+  //     }
+  //   });
+
+  //   videoToElement.current = newMap;
+  // }, [currentTime, renderVideoClips]);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const onPlayPause = useCallback(() => {
