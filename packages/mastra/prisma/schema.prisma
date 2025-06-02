@@ -1,0 +1,315 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["driverAdapters"]
+  moduleFormat    = "esm"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 助手模型
+model Assistant {
+  id                   String  @id @default(uuid())
+  name                 String
+  prompt               String
+  type                 String  @default("assistant")
+  emoji                String?
+  description          String?
+  enableWebSearch      Boolean @default(false)
+  webSearchProviderId  String?
+  enableGenerateImage  Boolean @default(false)
+  knowledgeRecognition String? // 'off' 或 'on'
+
+  // 关系
+  model          Model?               @relation("AssistantModel", fields: [modelId], references: [id])
+  modelId        String?
+  defaultModel   Model?               @relation("AssistantDefaultModel", fields: [defaultModelId], references: [id])
+  defaultModelId String?
+  settings       AssistantSettings?
+  topics         Topic[]
+  knowledgeBases KnowledgeBase[]
+  mcpServers     MCPAssistantServer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 智能体模型
+model Agent {
+  id                   String  @id @default(uuid())
+  name                 String
+  prompt               String
+  type                 String  @default("agent")
+  emoji                String?
+  description          String?
+  groupJson            Json? // 存储String[]
+  enableWebSearch      Boolean @default(false)
+  webSearchProviderId  String?
+  enableGenerateImage  Boolean @default(false)
+  knowledgeRecognition String? // 'off' 或 'on'
+
+  // 关系
+  settings       AssistantSettings?
+  topics         Topic[]
+  knowledgeBases KnowledgeBase[]
+  mcpServers     MCPAgentServer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 主题模型
+model Topic {
+  id                   String  @id @default(uuid())
+  name                 String
+  prompt               String?
+  pinned               Boolean @default(false)
+  isNameManuallyEdited Boolean @default(false)
+
+  // 关系
+  assistant   Assistant? @relation(fields: [assistantId], references: [id])
+  assistantId String?
+  agent       Agent?     @relation(fields: [agentId], references: [id])
+  agentId     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 文件类型
+model FileType {
+  id          String @id @default(uuid())
+  name        String
+  origin_name String
+  path        String
+  size        Int
+  ext         String
+  type        String // FileTypes 枚举值
+  count       Int
+  tokens      Int?
+
+  created_at DateTime @default(now())
+}
+
+// 模型
+model Model {
+  id          String  @id
+  provider    String
+  name        String
+  group       String
+  owned_by    String?
+  description String?
+  typeJson    Json // 存储String[]
+
+  // 关系
+  assistants           Assistant[]         @relation("AssistantModel")
+  defaultForAssistants Assistant[]         @relation("AssistantDefaultModel")
+  knowledgeBases       KnowledgeBase[]
+  assistantSettings    AssistantSettings[] @relation("SettingsDefaultModel")
+  rerankFor            KnowledgeBase[]     @relation("RerankModel")
+}
+
+// 助手设置
+model AssistantSettings {
+  id               String   @id @default(uuid())
+  contextCount     Int
+  temperature      Float
+  topP             Float
+  maxTokens        Int?
+  enableMaxTokens  Boolean  @default(false)
+  streamOutput     Boolean  @default(true)
+  hideMessages     Boolean  @default(false)
+  customParameters Json? // 自定义参数
+  reasoning_effort String? // 'low', 'medium', 'high', 'auto'
+  qwenThinkMode    Boolean?
+  toolUseMode      String? // 'function' 或 'prompt'
+
+  // 关系
+  assistant      Assistant? @relation(fields: [assistantId], references: [id])
+  assistantId    String?    @unique
+  agent          Agent?     @relation(fields: [agentId], references: [id])
+  agentId        String?    @unique
+  defaultModel   Model?     @relation("SettingsDefaultModel", fields: [defaultModelId], references: [id])
+  defaultModelId String?
+}
+
+// 知识库
+model KnowledgeBase {
+  id            String  @id @default(uuid())
+  name          String
+  dimensions    Int
+  description   String?
+  documentCount Int?
+  chunkSize     Int?
+  chunkOverlap  Int?
+  threshold     Float?
+  version       Int
+
+  // 关系
+  assistants    Assistant[]
+  agents        Agent[]
+  model         Model           @relation(fields: [modelId], references: [id])
+  modelId       String
+  rerankModel   Model?          @relation("RerankModel", fields: [rerankModelId], references: [id])
+  rerankModelId String?
+  items         KnowledgeItem[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// 知识项
+model KnowledgeItem {
+  id                 String  @id @default(uuid())
+  uniqueId           String?
+  uniqueIdsJson      Json? // 存储String[]
+  type               String // KnowledgeItemType 枚举值
+  content            Json // string 或 FileType
+  remark             String?
+  processingStatus   String? // ProcessingStatus 枚举值
+  processingProgress Float?
+  processingError    String?
+  retryCount         Int?
+
+  // 关系
+  knowledgeBase KnowledgeBase @relation(fields: [baseId], references: [id])
+  baseId        String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// MCP服务器
+model MCPServer {
+  id                String  @id @default(uuid())
+  name              String
+  type              String? // 'stdio' | 'sse' | 'inMemory' | 'streamableHttp'
+  description       String?
+  baseUrl           String?
+  command           String?
+  registryUrl       String?
+  argsJson          Json? // 存储String[]
+  env               Json? // Record<string, string>
+  isActive          Boolean @default(false)
+  disabledToolsJson Json? // 存储String[]
+  configSample      Json? // MCPConfigSample
+  headers           Json? // Record<string, string>
+  searchKey         String?
+  provider          String? // 提供者名称
+  providerUrl       String? // 提供者网站或文档的URL
+  logoUrl           String? // 服务器logo的URL
+  tagsJson          Json? // 存储String[]
+  timeout           Int? // 请求超时时间(秒)
+
+  // 关系
+  tools                MCPTool[]
+  prompts              MCPPrompt[]
+  assistants           MCPAssistantServer[]
+  agents               MCPAgentServer[]
+  resources            MCPResource[]
+  configSampleRelation MCPConfigSample?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Assistant和MCPServer的多对多关系
+model MCPAssistantServer {
+  assistant   Assistant @relation(fields: [assistantId], references: [id])
+  assistantId String
+  mcpServer   MCPServer @relation(fields: [mcpServerId], references: [id])
+  mcpServerId String
+
+  @@id([assistantId, mcpServerId])
+}
+
+// Agent和MCPServer的多对多关系
+model MCPAgentServer {
+  agent       Agent     @relation(fields: [agentId], references: [id])
+  agentId     String
+  mcpServer   MCPServer @relation(fields: [mcpServerId], references: [id])
+  mcpServerId String
+
+  @@id([agentId, mcpServerId])
+}
+
+// MCP工具
+model MCPTool {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  inputSchema Json // MCPToolInputSchema
+
+  // 关系
+  server   MCPServer @relation(fields: [serverId], references: [id])
+  serverId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// MCP提示
+model MCPPrompt {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  arguments   Json? // MCPPromptArguments[]
+
+  // 关系
+  server   MCPServer @relation(fields: [serverId], references: [id])
+  serverId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// MCP资源
+model MCPResource {
+  id          String  @id @default(uuid())
+  uri         String
+  name        String
+  description String?
+  mimeType    String?
+  size        Int?
+  text        String?
+  blob        String?
+
+  // 关系
+  server   MCPServer @relation(fields: [serverId], references: [id])
+  serverId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 配置样本
+model MCPConfigSample {
+  id       String @id @default(uuid())
+  command  String
+  argsJson Json? // 存储String[]
+  env      Json? // Record<string, string>
+
+  // 关系
+  server   MCPServer @relation(fields: [serverId], references: [id])
+  serverId String    @unique
+}
+
+// 快速短语
+model QuickPhrase {
+  id      String @id @default(uuid())
+  title   String
+  content String
+  order   Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
