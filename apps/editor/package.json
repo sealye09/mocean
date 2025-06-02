@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "eslint": "^9.15.0",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
+    "@mocean/eslint-config": "workspace:*",
+    "@mocean/typescript-config": "workspace:*",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/node": "^20",
     "@types/react": "18.3.1",

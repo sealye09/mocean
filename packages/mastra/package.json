@@ -24,11 +24,15 @@
     "zod": "^3.25.30"
   },
   "devDependencies": {
+    "@mocean/eslint-config": "workspace:*",
+    "@mocean/typescript-config": "workspace:*",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/node": "^20.17.6",
+    "eslint": "^9.15.0",
     "mastra": "^0.10.0",
     "prisma": "^6.8.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
 }
+
