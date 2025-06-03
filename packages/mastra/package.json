@@ -10,15 +10,10 @@
     "fix": "eslint --fix ."
   },
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
     "./prismaType": {
       "import": "./generated/prisma/models.ts",
       "types": "./generated/prisma/models.ts"
-    },
-    "./package.json": "./package.json"
+    }
   },
   "keywords": [],
   "author": "",
