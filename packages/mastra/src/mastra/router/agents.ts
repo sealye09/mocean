@@ -6,8 +6,12 @@ export const agentsRouter = registerApiRoute("/get-agents", {
   method: "GET",
 
   handler: async (req) => {
-    const agents = await getAgents();
+    try {
+      const agents = await getAgents();
 
-    return req.json(agents);
+      return req.json(agents);
+    } catch (error) {
+      return req.json({ error }, 500);
+    }
   },
 });

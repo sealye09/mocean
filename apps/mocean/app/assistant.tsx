@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 
@@ -10,6 +12,12 @@ export const Assistant = () => {
   const runtime = useChatRuntime({
     api: "/api/chat",
   });
+
+  useEffect(() => {
+    fetch("http://localhost:4111/get-agents").then((res) => {
+      console.log(res);
+    });
+  }, []);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
