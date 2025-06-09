@@ -146,3 +146,154 @@ export const agentsRouter = [
   updateAgentRouter,
   deleteAgentRouter,
 ];
+
+/**
+ * API 请求示例
+ *
+ * 1. 获取所有代理
+ * GET /agents
+ *
+ * 示例请求：
+ * ```javascript
+ * const response = await fetch('http://localhost:4111/agents', {
+ *   method: 'GET',
+ *   headers: {
+ *     'Content-Type': 'application/json'
+ *   }
+ * });
+ * const agents = await response.json();
+ * ```
+ *
+ * 响应示例：
+ * ```json
+ * [
+ *   {
+ *     "id": "agent-123",
+ *     "name": "客服助手",
+ *     "description": "专业的客服代理",
+ *     "prompt": "你是一个专业的客服助手...",
+ *     "type": "customer_service",
+ *     "emoji": "🤖",
+ *     "enableWebSearch": true,
+ *     "createdAt": "2024-01-01T00:00:00.000Z"
+ *   }
+ * ]
+ * ```
+ *
+ * 2. 根据ID获取单个代理
+ * GET /agents/:id
+ *
+ * 示例请求：
+ * ```javascript
+ * const response = await fetch('http://localhost:4111/agents/agent-123', {
+ *   method: 'GET',
+ *   headers: {
+ *     'Content-Type': 'application/json'
+ *   }
+ * });
+ * const agent = await response.json();
+ * ```
+ *
+ * 3. 创建新代理
+ * POST /agents
+ *
+ * 示例请求：
+ * ```javascript
+ * const response = await fetch('http://localhost:4111/agents', {
+ *   method: 'POST',
+ *   headers: {
+ *     'Content-Type': 'application/json'
+ *   },
+ *   body: JSON.stringify({
+ *     name: "销售助手",
+ *     description: "专业的销售代理",
+ *     prompt: "你是一个专业的销售助手，擅长产品推荐和客户沟通...",
+ *     type: "sales",
+ *     emoji: "💼",
+ *     enableWebSearch: false,
+ *     enableGenerateImage: true,
+ *     knowledgeRecognition: true
+ *   })
+ * });
+ * const newAgent = await response.json();
+ * ```
+ *
+ * 4. 更新代理
+ * PUT /agents/:id
+ *
+ * 示例请求：
+ * ```javascript
+ * const response = await fetch('http://localhost:4111/agents/agent-123', {
+ *   method: 'PUT',
+ *   headers: {
+ *     'Content-Type': 'application/json'
+ *   },
+ *   body: JSON.stringify({
+ *     name: "高级客服助手",
+ *     description: "升级版的客服代理",
+ *     prompt: "你是一个高级客服助手，具备更强的问题解决能力...",
+ *     enableWebSearch: true,
+ *     enableGenerateImage: false
+ *   })
+ * });
+ * const updatedAgent = await response.json();
+ * ```
+ *
+ * 5. 删除代理
+ * DELETE /agents/:id
+ *
+ * 示例请求：
+ * ```javascript
+ * const response = await fetch('http://localhost:4111/agents/agent-123', {
+ *   method: 'DELETE',
+ *   headers: {
+ *     'Content-Type': 'application/json'
+ *   }
+ * });
+ * const deletedAgent = await response.json();
+ * ```
+ *
+ * 错误响应示例：
+ * ```json
+ * {
+ *   "error": "代理不存在"
+ * }
+ * ```
+ *
+ * 使用 curl 命令示例：
+ *
+ * 获取所有代理：
+ * ```bash
+ * curl -X GET http://localhost:4111/agents \
+ *   -H "Content-Type: application/json"
+ * ```
+ *
+ * 创建代理：
+ * ```bash
+ * curl -X POST http://localhost:4111/agents \
+ *   -H "Content-Type: application/json" \
+ *   -d '{
+ *     "name": "测试代理",
+ *     "description": "这是一个测试代理",
+ *     "prompt": "你是一个测试助手",
+ *     "type": "general",
+ *     "emoji": "🧪"
+ *   }'
+ * ```
+ *
+ * 更新代理：
+ * ```bash
+ * curl -X PUT http://localhost:4111/agents/agent-123 \
+ *   -H "Content-Type: application/json" \
+ *   -d '{
+ *     "name": "更新后的代理",
+ *     "description": "更新后的描述"
+ *   }'
+ * ```
+ *
+ * 删除代理：
+ * ```bash
+ * curl -X DELETE http://localhost:4111/agents/agent-123 \
+ *   -H "Content-Type: application/json"
+ * ```
+ */
