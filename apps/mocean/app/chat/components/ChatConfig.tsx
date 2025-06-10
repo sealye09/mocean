@@ -5,6 +5,7 @@ import { AgentModel } from "@mocean/mastra/prismaType";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import AssistantSelect from "./AssistantSelect";
+import TopicSelect from "./TopicSelect";
 
 const ChatConfig = ({ agentList }: { agentList: AgentModel[] }) => {
   const tabsConfig = [
@@ -33,7 +34,9 @@ const ChatConfig = ({ agentList }: { agentList: AgentModel[] }) => {
       <TabsContent value="assistant">
         <AssistantSelect agentList={agentList} />
       </TabsContent>
-      <TabsContent value="topic">Change your password here.</TabsContent>
+      <TabsContent value="topic">
+        <TopicSelect />
+      </TabsContent>
       <TabsContent value="setting">Change your setting here.</TabsContent>
     </Tabs>
   );

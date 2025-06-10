@@ -61,7 +61,7 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@mocean/eslint-config": "workspace:*",
