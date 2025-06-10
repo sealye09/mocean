@@ -1,6 +1,9 @@
+import { useApi } from "@mocean/mastra/apiClient";
 import { AgentModel } from "@mocean/mastra/prismaType";
 
 const AssistantSelect = ({ agentList }: { agentList: AgentModel[] }) => {
+  const { agents } = useApi();
+
   const defaultAssistant: AgentModel = {
     id: "1",
     name: "默认助手",
