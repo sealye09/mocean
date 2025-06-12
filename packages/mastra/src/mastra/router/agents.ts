@@ -6,7 +6,7 @@ import {
   getAgentById,
   getAgents,
   updateAgent,
-} from "../prisma/agents";
+} from "../prisma/agent";
 
 /**
  * 获取所有代理的路由处理器
@@ -134,6 +134,25 @@ const deleteAgentRouter = registerApiRoute("/agents/:id", {
     }
   },
 });
+
+// const chatWithAgent = registerApiRoute("/agents/chat", {
+//   method: "POST",
+//   handler: async (c) => {
+//     const { agentId, message } = (await c.req.json()) as {
+//       agentId: string;
+//       message: string;
+//     };
+//     const agent = await getAgentById(agentId);
+
+//     return DynamicAgent.stream(message, {
+//       runtimeContext: createCommonRunTime({
+//         name: agent.name,
+//         instructions: agent.prompt,
+//         model: agent.
+//       }),
+//     });
+//   },
+// });
 
 /**
  * 代理相关路由的导出数组

@@ -1,0 +1,145 @@
+import { AssistantModel } from "generated/prisma/models";
+
+import { prisma } from "./index";
+
+/**
+ * 获取所有助手
+ * @description 从数据库中获取所有助手的列表
+ * @returns 包含所有助手信息的数组
+ */
+const getAssistants = async () => {
+  const assistants = await prisma.assistant.findMany({
+    include: {
+      model: true,
+      defaultModel: true,
+      settings: true,
+    },
+  });
+  return assistants;
+};
+
+/**
+ * 根据ID获取单个助手
+ * @description 通过助手ID从数据库中获取特定助手的详细信息
+ * @param id - 助手的唯一标识符
+ * @returns 助手对象，如果不存在则返回null
+ */
+const getAssistantById = async (id: string) => {
+  const assistant = await prisma.assistant.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      model: true,
+      defaultModel: true,
+      settings: true,
+      topics: true,
+      knowledgeBases: true,
+      mcpServers: true,
+    },
+  });
+  return assistant;
+};
+
+/**
+ * 创建新助手
+ * @description 在数据库中创建一个新的助手记录
+ * @param assistant - 包含助手信息的对象，包括名称、描述、提示词等必要字段
+ * @returns 新创建的助手对象，包含生成的ID和时间戳
+ */
+const createAssistant = async (
+  assistant: Pick<
+    AssistantModel,
+    | "name"
+    | "prompt"
+    | "type"
+    | "emoji"
+    | "description"
+    | "enableWebSearch"
+    | "webSearchProviderId"
+    | "enableGenerateImage"
+    | "knowledgeRecognition"
+    | "modelId"
+    | "defaultModelId"
+  >,
+) => {
+  const newAssistant = await prisma.assistant.create({
+    data: {
+      ...assistant,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    include: {
+      model: true,
+      defaultModel: true,
+      settings: true,
+    },
+  });
+  return newAssistant;
+};
+
+/**
+ * 更新助手信息
+ * @description 根据助手ID更新数据库中的助手信息
+ * @param id - 要更新的助手的唯一标识符
+ * @param assistant - 包含更新信息的对象，包括名称、描述、提示词等字段
+ * @returns 更新后的助手对象
+ */
+const updateAssistant = async (
+  id: string,
+  assistant: Partial<
+    Pick<
+      AssistantModel,
+      | "name"
+      | "prompt"
+      | "type"
+      | "emoji"
+      | "description"
+      | "enableWebSearch"
+      | "webSearchProviderId"
+      | "enableGenerateImage"
+      | "knowledgeRecognition"
+      | "modelId"
+      | "defaultModelId"
+    >
+  >,
+) => {
+  const updatedAssistant = await prisma.assistant.update({
+    where: {
+      id,
+    },
+    data: {
+      ...assistant,
+      updatedAt: new Date(),
+    },
+    include: {
+      model: true,
+      defaultModel: true,
+      settings: true,
+    },
+  });
+  return updatedAssistant;
+};
+
+/**
+ * 删除助手
+ * @description 根据助手ID从数据库中删除指定的助手
+ * @param id - 要删除的助手的唯一标识符
+ * @returns 被删除的助手对象
+ */
+const deleteAssistant = async (id: string) => {
+  const deletedAssistant = await prisma.assistant.delete({
+    where: {
+      id,
+    },
+  });
+  return deletedAssistant;
+};
+
+export {
+  getAssistants,
+  getAssistantById,
+  createAssistant,
+  updateAssistant,
+  deleteAssistant,
+};
