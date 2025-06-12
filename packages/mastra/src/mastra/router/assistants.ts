@@ -1,12 +1,21 @@
+import { RuntimeContext } from "@mastra/core/di";
 import { registerApiRoute } from "@mastra/core/server";
+import { z } from "zod";
 
+import { DynamicAgent } from "../agents/dynamicAgent";
 import {
+  chatWithAssistantSchema,
   createAssistant,
+  createAssistantSchema,
   deleteAssistant,
   getAssistantById,
+  getAssistantWithModelByAssistantId,
   getAssistants,
+  idParamSchema,
   updateAssistant,
+  updateAssistantSchema,
 } from "../prisma/assistant";
+import { createCommonRunTime } from "../runtime/CommonRunTime";
 
 /**
  * 获取所有助手的路由处理器
@@ -39,7 +48,11 @@ const getAssistantByIdRouter = registerApiRoute("/assistants/:id", {
   method: "GET",
   handler: async (c) => {
     try {
-      const id = c.req.param("id");
+      // 参数校验
+      const { id } = idParamSchema.parse({
+        id: c.req.param("id"),
+      });
+
       const assistant = await getAssistantById(id);
 
       if (!assistant) {
@@ -53,7 +66,19 @@ const getAssistantByIdRouter = registerApiRoute("/assistants/:id", {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "参数校验失败",
+            details: error.errors,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
       return new Response(JSON.stringify({ error: "获取助手失败" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -71,13 +96,29 @@ const createAssistantRouter = registerApiRoute("/assistants", {
   method: "POST",
   handler: async (c) => {
     try {
-      const assistantData = await c.req.json();
+      const rawData = await c.req.json();
+
+      // 参数校验
+      const assistantData = createAssistantSchema.parse(rawData);
+
       const newAssistant = await createAssistant(assistantData);
       return new Response(JSON.stringify(newAssistant), {
         status: 201,
         headers: { "Content-Type": "application/json" },
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "参数校验失败",
+            details: error.errors,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
       return new Response(JSON.stringify({ error: "创建助手失败" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -95,14 +136,32 @@ const updateAssistantRouter = registerApiRoute("/assistants/:id", {
   method: "PUT",
   handler: async (c) => {
     try {
-      const id = c.req.param("id");
-      const assistantData = await c.req.json();
+      // 参数校验
+      const { id } = idParamSchema.parse({
+        id: c.req.param("id"),
+      });
+
+      const rawData = await c.req.json();
+      const assistantData = updateAssistantSchema.parse(rawData);
+
       const updatedAssistant = await updateAssistant(id, assistantData);
       return new Response(JSON.stringify(updatedAssistant), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "参数校验失败",
+            details: error.errors,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
       return new Response(JSON.stringify({ error: "更新助手失败" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -120,14 +179,81 @@ const deleteAssistantRouter = registerApiRoute("/assistants/:id", {
   method: "DELETE",
   handler: async (c) => {
     try {
-      const id = c.req.param("id");
+      // 参数校验
+      const { id } = idParamSchema.parse({
+        id: c.req.param("id"),
+      });
+
       const deletedAssistant = await deleteAssistant(id);
       return new Response(JSON.stringify(deletedAssistant), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "参数校验失败",
+            details: error.errors,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
       return new Response(JSON.stringify({ error: "删除助手失败" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  },
+});
+
+/**
+ * 与助手聊天的路由处理器
+ * @description 与指定助手进行对话
+ * @param c - Mastra上下文对象，包含请求信息
+ */
+const chatWithAssistant = registerApiRoute("/assistants/chat", {
+  method: "POST",
+  handler: async (c) => {
+    try {
+      const rawData = await c.req.json();
+
+      // 参数校验
+      const { assistantId, message } = chatWithAssistantSchema.parse(rawData);
+
+      const assistant = await getAssistantWithModelByAssistantId(assistantId);
+
+      if (!assistant) {
+        return new Response(JSON.stringify({ error: "助手不存在" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return DynamicAgent.stream(message, {
+        runtimeContext: createCommonRunTime({
+          name: assistant.name,
+          instructions: assistant.prompt,
+          model: assistant.model.name,
+        }) as RuntimeContext,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "参数校验失败",
+            details: error.errors,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+      return new Response(JSON.stringify({ error: "聊天请求失败" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -145,156 +271,5 @@ export const assistantsRouter = [
   createAssistantRouter,
   updateAssistantRouter,
   deleteAssistantRouter,
+  chatWithAssistant,
 ];
-
-/**
- * API 请求示例
- *
- * 1. 获取所有助手
- * GET /assistants
- *
- * 示例请求：
- * ```javascript
- * const response = await fetch('http://localhost:4111/assistants', {
- *   method: 'GET',
- *   headers: {
- *     'Content-Type': 'application/json'
- *   }
- * });
- * const assistants = await response.json();
- * ```
- *
- * 响应示例：
- * ```json
- * [
- *   {
- *     "id": "assistant-123",
- *     "name": "客服助手",
- *     "description": "专业的客服助手",
- *     "prompt": "你是一个专业的客服助手...",
- *     "type": "assistant",
- *     "emoji": "🤖",
- *     "enableWebSearch": true,
- *     "modelId": "model-456",
- *     "createdAt": "2024-01-01T00:00:00.000Z"
- *   }
- * ]
- * ```
- *
- * 2. 根据ID获取单个助手
- * GET /assistants/:id
- *
- * 示例请求：
- * ```javascript
- * const response = await fetch('http://localhost:4111/assistants/assistant-123', {
- *   method: 'GET',
- *   headers: {
- *     'Content-Type': 'application/json'
- *   }
- * });
- * const assistant = await response.json();
- * ```
- *
- * 3. 创建新助手
- * POST /assistants
- *
- * 示例请求：
- * ```javascript
- * const response = await fetch('http://localhost:4111/assistants', {
- *   method: 'POST',
- *   headers: {
- *     'Content-Type': 'application/json'
- *   },
- *   body: JSON.stringify({
- *     name: "销售助手",
- *     description: "专业的销售助手",
- *     prompt: "你是一个专业的销售助手，擅长产品推荐和客户沟通...",
- *     type: "assistant",
- *     emoji: "💼",
- *     enableWebSearch: false,
- *     enableGenerateImage: true,
- *     knowledgeRecognition: "on"
- *   })
- * });
- * const newAssistant = await response.json();
- * ```
- *
- * 4. 更新助手
- * PUT /assistants/:id
- *
- * 示例请求：
- * ```javascript
- * const response = await fetch('http://localhost:4111/assistants/assistant-123', {
- *   method: 'PUT',
- *   headers: {
- *     'Content-Type': 'application/json'
- *   },
- *   body: JSON.stringify({
- *     name: "高级客服助手",
- *     description: "升级版的客服助手",
- *     prompt: "你是一个高级客服助手，具备更强的问题解决能力...",
- *     enableWebSearch: true,
- *     enableGenerateImage: false
- *   })
- * });
- * const updatedAssistant = await response.json();
- * ```
- *
- * 5. 删除助手
- * DELETE /assistants/:id
- *
- * 示例请求：
- * ```javascript
- * const response = await fetch('http://localhost:4111/assistants/assistant-123', {
- *   method: 'DELETE',
- *   headers: {
- *     'Content-Type': 'application/json'
- *   }
- * });
- * const deletedAssistant = await response.json();
- * ```
- *
- * 错误响应示例：
- * ```json
- * {
- *   "error": "助手不存在"
- * }
- * ```
- *
- * 使用 curl 命令示例：
- *
- * 获取所有助手：
- * ```bash
- * curl -X GET http://localhost:4111/assistants \
- *   -H "Content-Type: application/json"
- * ```
- *
- * 创建助手：
- * ```bash
- * curl -X POST http://localhost:4111/assistants \
- *   -H "Content-Type: application/json" \
- *   -d '{
- *     "name": "测试助手",
- *     "description": "这是一个测试助手",
- *     "prompt": "你是一个测试助手",
- *     "type": "assistant",
- *     "emoji": "🧪"
- *   }'
- * ```
- *
- * 更新助手：
- * ```bash
- * curl -X PUT http://localhost:4111/assistants/assistant-123 \
- *   -H "Content-Type: application/json" \
- *   -d '{
- *     "name": "更新后的助手",
- *     "description": "更新后的描述"
- *   }'
- * ```
- *
- * 删除助手：
- * ```bash
- * curl -X DELETE http://localhost:4111/assistants/assistant-123 \
- *   -H "Content-Type: application/json"
- * ```
- */

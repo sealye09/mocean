@@ -1,6 +1,50 @@
-import { AssistantModel } from "generated/prisma/models";
+import { z } from "zod";
 
 import { prisma } from "./index";
+
+/**
+ * 助手相关的zod校验schemas
+ */
+const createAssistantSchema = z.object({
+  name: z.string().min(1, "助手名称不能为空"),
+  prompt: z.string().min(1, "提示词不能为空"),
+  type: z.string().optional().default("assistant"),
+  emoji: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  enableWebSearch: z.boolean().optional().default(false),
+  webSearchProviderId: z.string().nullable().optional(),
+  enableGenerateImage: z.boolean().optional().default(false),
+  knowledgeRecognition: z.string().nullable().optional(),
+  modelId: z.string().nullable().optional(),
+  defaultModelId: z.string().nullable().optional(),
+});
+
+const updateAssistantSchema = z.object({
+  name: z.string().min(1, "助手名称不能为空").optional(),
+  prompt: z.string().min(1, "提示词不能为空").optional(),
+  type: z.string().optional(),
+  emoji: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  enableWebSearch: z.boolean().optional(),
+  webSearchProviderId: z.string().nullable().optional(),
+  enableGenerateImage: z.boolean().optional(),
+  knowledgeRecognition: z.string().nullable().optional(),
+  modelId: z.string().nullable().optional(),
+  defaultModelId: z.string().nullable().optional(),
+});
+
+const idParamSchema = z.object({
+  id: z.string().uuid("无效的助手ID格式"),
+});
+
+const chatWithAssistantSchema = z.object({
+  assistantId: z.string().uuid("无效的助手ID格式"),
+  message: z.string().min(1, "消息内容不能为空"),
+});
+
+// zod类型推导
+type CreateAssistantInput = z.infer<typeof createAssistantSchema>;
+type UpdateAssistantInput = z.infer<typeof updateAssistantSchema>;
 
 /**
  * 获取所有助手
@@ -47,28 +91,13 @@ const getAssistantById = async (id: string) => {
  * @param assistant - 包含助手信息的对象，包括名称、描述、提示词等必要字段
  * @returns 新创建的助手对象，包含生成的ID和时间戳
  */
-const createAssistant = async (
-  assistant: Pick<
-    AssistantModel,
-    | "name"
-    | "prompt"
-    | "type"
-    | "emoji"
-    | "description"
-    | "enableWebSearch"
-    | "webSearchProviderId"
-    | "enableGenerateImage"
-    | "knowledgeRecognition"
-    | "modelId"
-    | "defaultModelId"
-  >,
-) => {
+const createAssistant = async (assistant: CreateAssistantInput) => {
   const newAssistant = await prisma.assistant.create({
     data: {
       ...assistant,
       createdAt: new Date(),
       updatedAt: new Date(),
-    },
+    } as Parameters<typeof prisma.assistant.create>[0]["data"],
     include: {
       model: true,
       defaultModel: true,
@@ -85,25 +114,7 @@ const createAssistant = async (
  * @param assistant - 包含更新信息的对象，包括名称、描述、提示词等字段
  * @returns 更新后的助手对象
  */
-const updateAssistant = async (
-  id: string,
-  assistant: Partial<
-    Pick<
-      AssistantModel,
-      | "name"
-      | "prompt"
-      | "type"
-      | "emoji"
-      | "description"
-      | "enableWebSearch"
-      | "webSearchProviderId"
-      | "enableGenerateImage"
-      | "knowledgeRecognition"
-      | "modelId"
-      | "defaultModelId"
-    >
-  >,
-) => {
+const updateAssistant = async (id: string, assistant: UpdateAssistantInput) => {
   const updatedAssistant = await prisma.assistant.update({
     where: {
       id,
@@ -136,10 +147,35 @@ const deleteAssistant = async (id: string) => {
   return deletedAssistant;
 };
 
+/**
+ * 根据助手ID获取助手及其关联的模型信息
+ * @description 通过助手ID获取助手详细信息，包括关联的模型
+ * @param assistantId - 助手的唯一标识符
+ * @returns 包含模型信息的助手对象
+ */
+const getAssistantWithModelByAssistantId = async (assistantId: string) => {
+  const assistant = await prisma.assistant.findUnique({
+    where: {
+      id: assistantId,
+    },
+    include: {
+      model: true,
+      defaultModel: true,
+      settings: true,
+    },
+  });
+  return assistant;
+};
+
 export {
   getAssistants,
   getAssistantById,
   createAssistant,
   updateAssistant,
   deleteAssistant,
+  getAssistantWithModelByAssistantId,
+  createAssistantSchema,
+  updateAssistantSchema,
+  idParamSchema,
+  chatWithAssistantSchema,
 };
