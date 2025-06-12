@@ -1,4 +1,5 @@
 import { agentsApiMethods, useAgentsApi } from "./agents-client";
+import { assistantsApiMethods, useAssistantsApi } from "./assistants-client";
 
 /**
  * API 客户端统一导出
@@ -16,12 +17,22 @@ export {
   type ApiClientConfig,
 } from "./agents-client";
 
+// 助手相关API
+export {
+  AssistantsApiClient,
+  assistantsApi,
+  assistantsApiMethods,
+  useAssistantsApi,
+  type AssistantInput,
+} from "./assistants-client";
+
 /**
  * 所有API方法的统一导出
  * @description 方便前端一次性导入所有API方法
  */
 export const api = {
   agents: agentsApiMethods,
+  assistants: assistantsApiMethods,
 };
 
 /**
@@ -30,6 +41,7 @@ export const api = {
  */
 export const useApi = () => ({
   agents: useAgentsApi(),
+  assistants: useAssistantsApi(),
 });
 
 /**

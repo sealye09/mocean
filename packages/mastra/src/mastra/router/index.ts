@@ -1,5 +1,6 @@
 import { agentsRouter } from "./agents";
+import { assistantsRouter } from "./assistants";
 
-const apiRoutes = [...agentsRouter];
+const apiRoutes = [...agentsRouter, ...assistantsRouter];
 
 export { apiRoutes };

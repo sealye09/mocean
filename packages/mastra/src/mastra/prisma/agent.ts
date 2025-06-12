@@ -1,6 +1,6 @@
 import { AgentModel } from "generated/prisma/models";
 
-import { prisma } from "../index";
+import { prisma } from "./index";
 
 /**
  * 获取所有代理
