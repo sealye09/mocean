@@ -17,7 +17,7 @@ const TopicSelect = () => {
   }, [activeAssistant]);
 
   return (
-    <div>
+    <div className="h-full w-full">
       <ThreadList />
     </div>
   );
