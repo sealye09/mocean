@@ -1,6 +1,8 @@
 /// <reference lib="dom" />
 
 export const BASE_URL = "http://localhost:4111";
+export const PREFIX = "/customApi";
+export const API_URL = `${BASE_URL}${PREFIX}`;
 
 /**
  * API 响应的基础类型
@@ -36,7 +38,7 @@ export abstract class BaseApiClient {
   protected defaultHeaders: Record<string, string>;
 
   constructor(config: ApiClientConfig = {}) {
-    this.baseUrl = config.baseUrl || BASE_URL;
+    this.baseUrl = config.baseUrl || API_URL;
     this.defaultHeaders = {
       "Content-Type": "application/json",
       ...config.headers,
