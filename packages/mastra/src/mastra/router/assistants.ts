@@ -16,12 +16,12 @@ import {
   updateAssistantSchema,
 } from "../prisma/assistant";
 import { createCommonRunTime } from "../runtime/CommonRunTime";
-
+import { PREFIX } from "../api/base-client";
 /**
  * 获取所有助手的路由处理器
  * @description 返回系统中所有可用的助手列表
  */
-const getAssistantsRouter = registerApiRoute("/assistants", {
+const getAssistantsRouter = registerApiRoute(`${PREFIX}/assistants`, {
   method: "GET",
   handler: async () => {
     try {
@@ -30,8 +30,8 @@ const getAssistantsRouter = registerApiRoute("/assistants", {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } catch {
-      return new Response(JSON.stringify({ error: "获取助手列表失败" }), {
+    } catch (error) {
+      return new Response(JSON.stringify({ error, message: "获取助手列表失败" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -44,7 +44,7 @@ const getAssistantsRouter = registerApiRoute("/assistants", {
  * @description 通过助手ID获取特定助手的详细信息
  * @param c - Mastra上下文对象，包含请求信息
  */
-const getAssistantByIdRouter = registerApiRoute("/assistants/:id", {
+const getAssistantByIdRouter = registerApiRoute(`${PREFIX}/assistants/:id`, {
   method: "GET",
   handler: async (c) => {
     try {
@@ -79,7 +79,7 @@ const getAssistantByIdRouter = registerApiRoute("/assistants/:id", {
           },
         );
       }
-      return new Response(JSON.stringify({ error: "获取助手失败" }), {
+      return new Response(JSON.stringify({ error, message: "获取助手失败" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -92,7 +92,7 @@ const getAssistantByIdRouter = registerApiRoute("/assistants/:id", {
  * @description 接收助手数据并在系统中创建新的助手
  * @param c - Mastra上下文对象，包含请求信息
  */
-const createAssistantRouter = registerApiRoute("/assistants", {
+const createAssistantRouter = registerApiRoute(`${PREFIX}/assistants`, {
   method: "POST",
   handler: async (c) => {
     try {
@@ -132,7 +132,7 @@ const createAssistantRouter = registerApiRoute("/assistants", {
  * @description 接收助手ID和更新数据，修改指定助手的信息
  * @param c - Mastra上下文对象，包含请求信息
  */
-const updateAssistantRouter = registerApiRoute("/assistants/:id", {
+const updateAssistantRouter = registerApiRoute(`${PREFIX}/assistants/:id`, {
   method: "PUT",
   handler: async (c) => {
     try {
@@ -175,7 +175,7 @@ const updateAssistantRouter = registerApiRoute("/assistants/:id", {
  * @description 根据助手ID删除指定的助手
  * @param c - Mastra上下文对象，包含请求信息
  */
-const deleteAssistantRouter = registerApiRoute("/assistants/:id", {
+const deleteAssistantRouter = registerApiRoute(`${PREFIX}/assistants/:id`, {
   method: "DELETE",
   handler: async (c) => {
     try {
@@ -215,7 +215,7 @@ const deleteAssistantRouter = registerApiRoute("/assistants/:id", {
  * @description 与指定助手进行对话
  * @param c - Mastra上下文对象，包含请求信息
  */
-const chatWithAssistant = registerApiRoute("/assistants/chat", {
+const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
   method: "POST",
   handler: async (c) => {
     try {
