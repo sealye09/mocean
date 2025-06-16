@@ -135,6 +135,7 @@ const deleteAgentRouter = registerApiRoute("/agents/:id", {
   },
 });
 
+
 // const chatWithAgent = registerApiRoute("/agents/chat", {
 //   method: "POST",
 //   handler: async (c) => {

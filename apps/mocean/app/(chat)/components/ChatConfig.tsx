@@ -7,7 +7,7 @@ import { AssistantModel } from "@mocean/mastra/prismaType";
 import { useStore } from "@/app/store/useStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import AssistantSelect from "./Assistant";
+import AssistantSelect from "./assistant/Assistant";
 import TopicSelect from "./TopicSelect";
 
 const ChatConfig = () => {
