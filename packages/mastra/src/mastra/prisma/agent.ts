@@ -1,6 +1,49 @@
+import { z } from "zod";
+
 import { AgentModel } from "generated/prisma/models";
 
 import { prisma } from "./index";
+
+/**
+ * 代理相关的zod校验schemas
+ */
+const createAgentSchema = z.object({
+  name: z.string().min(1, "代理名称不能为空"),
+  prompt: z.string().min(1, "提示词不能为空"),
+  type: z.string().optional().default("agent"),
+  emoji: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  groupJson: z.string().nullable().optional(),
+  enableWebSearch: z.boolean().optional().default(false),
+  webSearchProviderId: z.string().nullable().optional(),
+  enableGenerateImage: z.boolean().optional().default(false),
+  knowledgeRecognition: z.string().nullable().optional(),
+});
+
+const updateAgentSchema = z.object({
+  name: z.string().min(1, "代理名称不能为空").optional(),
+  prompt: z.string().min(1, "提示词不能为空").optional(),
+  type: z.string().optional(),
+  emoji: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  groupJson: z.string().nullable().optional(),
+  enableWebSearch: z.boolean().optional(),
+  webSearchProviderId: z.string().nullable().optional(),
+  enableGenerateImage: z.boolean().optional(),
+  knowledgeRecognition: z.string().nullable().optional(),
+});
+
+const idParamSchema = z.object({
+  id: z.string().min(1, "代理ID不能为空"),
+});
+
+const groupParamSchema = z.object({
+  group: z.string().min(1, "分组不能为空"),
+});
+
+// zod类型推导
+type CreateAgentInput = z.infer<typeof createAgentSchema>;
+type UpdateAgentInput = z.infer<typeof updateAgentSchema>;
 
 /**
  * 获取所有代理
@@ -8,7 +51,14 @@ import { prisma } from "./index";
  * @returns 包含所有代理信息的数组
  */
 const getAgents = async () => {
-  const agents = await prisma.agent.findMany();
+  const agents = await prisma.agent.findMany({
+    include: {
+      settings: true,
+      topics: true,
+      knowledgeBases: true,
+      mcpServers: true,
+    },
+  });
   return agents;
 };
 
@@ -23,36 +73,41 @@ const getAgentById = async (id: string) => {
     where: {
       id,
     },
+    include: {
+      settings: true,
+      topics: true,
+      knowledgeBases: true,
+      mcpServers: true,
+    },
   });
   return agent;
 };
 
+const getAgentByGroup = async (group: string) => {
+  const agents = await prisma.agent.findMany({
+    where: {
+      groupJson: {
+        string_contains: group,
+      },
+    },
+  });
+  return agents;
+};
 /**
  * 创建新代理
  * @description 在数据库中创建一个新的代理记录
  * @param agent - 包含代理信息的对象，包括名称、描述、提示词等必要字段
  * @returns 新创建的代理对象，包含生成的ID和时间戳
  */
-const createAgent = async (
-  agent: Pick<
-    AgentModel,
-    | "name"
-    | "description"
-    | "prompt"
-    | "type"
-    | "emoji"
-    | "groupJson"
-    | "enableWebSearch"
-    | "webSearchProviderId"
-    | "enableGenerateImage"
-    | "knowledgeRecognition"
-  >,
-) => {
+const createAgent = async (agent: CreateAgentInput) => {
   const newAgent = await prisma.agent.create({
     data: {
       ...agent,
       createdAt: new Date(),
       updatedAt: new Date(),
+    } as Parameters<typeof prisma.agent.create>[0]["data"],
+    include: {
+      settings: true,
     },
   });
   return newAgent;
@@ -65,22 +120,7 @@ const createAgent = async (
  * @param agent - 包含更新信息的对象，包括名称、描述、提示词等字段
  * @returns 更新后的代理对象
  */
-const updateAgent = async (
-  id: string,
-  agent: Pick<
-    AgentModel,
-    | "name"
-    | "description"
-    | "prompt"
-    | "type"
-    | "emoji"
-    | "groupJson"
-    | "enableWebSearch"
-    | "webSearchProviderId"
-    | "enableGenerateImage"
-    | "knowledgeRecognition"
-  >,
-) => {
+const updateAgent = async (id: string, agent: UpdateAgentInput) => {
   const updatedAgent = await prisma.agent.update({
     where: {
       id,
@@ -88,6 +128,9 @@ const updateAgent = async (
     data: {
       ...agent,
       updatedAt: new Date(),
+    },
+    include: {
+      settings: true,
     },
   });
   return updatedAgent;
@@ -108,4 +151,34 @@ const deleteAgent = async (id: string) => {
   return deletedAgent;
 };
 
-export { getAgents, getAgentById, createAgent, updateAgent, deleteAgent };
+/**
+ * 根据代理ID获取代理及其关联的设置信息
+ * @description 通过代理ID获取代理详细信息，包括关联的设置
+ * @param agentId - 代理的唯一标识符
+ * @returns 包含设置信息的代理对象
+ */
+const getAgentWithSettingsByAgentId = async (agentId: string) => {
+  const agent = await prisma.agent.findUnique({
+    where: {
+      id: agentId,
+    },
+    include: {
+      settings: true,
+    },
+  });
+  return agent;
+};
+
+export {
+  getAgents,
+  getAgentById,
+  getAgentByGroup,
+  createAgent,
+  updateAgent,
+  deleteAgent,
+  getAgentWithSettingsByAgentId,
+  createAgentSchema,
+  updateAgentSchema,
+  idParamSchema,
+  groupParamSchema,
+};
