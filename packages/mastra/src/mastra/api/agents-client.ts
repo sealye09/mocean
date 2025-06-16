@@ -76,6 +76,15 @@ export class AgentsApiClient extends BaseApiClient {
   async deleteAgent(id: string): Promise<ApiResponse<AgentModel>> {
     return this.delete<AgentModel>(`/agents/${id}`);
   }
+
+  /**
+   * 根据分组获取代理
+   * @description 根据分组获取代理
+   * @param group - 分组
+   */
+  async getAgentByGroup(group: string): Promise<ApiResponse<AgentModel[]>> {
+    return this.get<AgentModel[]>(`/agents/group/${group}`);
+  }
 }
 
 /**
@@ -118,6 +127,12 @@ export const agentsApiMethods = {
    * @param id - 代理ID
    */
   deleteAgent: (id: string) => agentsApi.deleteAgent(id),
+
+  /**
+   * 根据分组获取代理
+   * @param group - 分组
+   */
+  getAgentByGroup: (group: string) => agentsApi.getAgentByGroup(group),
 };
 
 /**
@@ -131,5 +146,6 @@ export const useAgentsApi = () => {
     createAgent: agentsApi.createAgent.bind(agentsApi),
     updateAgent: agentsApi.updateAgent.bind(agentsApi),
     deleteAgent: agentsApi.deleteAgent.bind(agentsApi),
+    getAgentByGroup: agentsApi.getAgentByGroup.bind(agentsApi),
   };
 };
