@@ -1,5 +1,7 @@
 import { agentsApiMethods, useAgentsApi } from "./agents-client";
 import { assistantsApiMethods, useAssistantsApi } from "./assistants-client";
+import { modelsApiMethods, useModelsApi } from "./models-client";
+import { providersApiMethods, useProvidersApi } from "./providers-client";
 
 export { BASE_URL } from "./base-client";
 
@@ -33,6 +35,26 @@ export {
   type AssistantInput,
 } from "./assistants-client";
 
+// 提供商相关API
+export {
+  ProvidersApiClient,
+  providersApi,
+  providersApiMethods,
+  useProvidersApi,
+  type ProviderInput,
+} from "./providers-client";
+
+// 模型相关API
+export {
+  ModelsApiClient,
+  modelsApi,
+  modelsApiMethods,
+  useModelsApi,
+  type ModelInput,
+  type ModelCreateInput,
+  type BatchCreateResult,
+} from "./models-client";
+
 /**
  * 所有API方法的统一导出
  * @description 方便前端一次性导入所有API方法
@@ -40,6 +62,8 @@ export {
 export const api = {
   agents: agentsApiMethods,
   assistants: assistantsApiMethods,
+  providers: providersApiMethods,
+  models: modelsApiMethods,
 };
 
 /**
@@ -49,4 +73,6 @@ export const api = {
 export const useApi = () => ({
   agents: useAgentsApi(),
   assistants: useAssistantsApi(),
+  providers: useProvidersApi(),
+  models: useModelsApi(),
 });
