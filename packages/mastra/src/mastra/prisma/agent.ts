@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { AgentModel } from "generated/prisma/models";
-
 import { prisma } from "./index";
 
 /**
