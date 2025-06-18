@@ -30,6 +30,7 @@ export type ModelMinAggregateOutputType = {
   group: string | null
   owned_by: string | null
   description: string | null
+  providerId: string | null
 }
 
 export type ModelMaxAggregateOutputType = {
@@ -39,6 +40,7 @@ export type ModelMaxAggregateOutputType = {
   group: string | null
   owned_by: string | null
   description: string | null
+  providerId: string | null
 }
 
 export type ModelCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type ModelCountAggregateOutputType = {
   owned_by: number
   description: number
   typeJson: number
+  providerId: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type ModelMinAggregateInputType = {
   group?: true
   owned_by?: true
   description?: true
+  providerId?: true
 }
 
 export type ModelMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type ModelMaxAggregateInputType = {
   group?: true
   owned_by?: true
   description?: true
+  providerId?: true
 }
 
 export type ModelCountAggregateInputType = {
@@ -79,6 +84,7 @@ export type ModelCountAggregateInputType = {
   owned_by?: true
   description?: true
   typeJson?: true
+  providerId?: true
   _all?: true
 }
 
@@ -162,6 +168,7 @@ export type ModelGroupByOutputType = {
   owned_by: string | null
   description: string | null
   typeJson: runtime.JsonValue
+  providerId: string | null
   _count: ModelCountAggregateOutputType | null
   _min: ModelMinAggregateOutputType | null
   _max: ModelMaxAggregateOutputType | null
@@ -193,6 +200,8 @@ export type ModelWhereInput = {
   owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
   description?: Prisma.StringNullableFilter<"Model"> | string | null
   typeJson?: Prisma.JsonFilter<"Model">
+  providerId?: Prisma.StringNullableFilter<"Model"> | string | null
+  providerRelation?: Prisma.XOR<Prisma.ProviderNullableScalarRelationFilter, Prisma.ProviderWhereInput> | null
   assistants?: Prisma.AssistantListRelationFilter
   defaultForAssistants?: Prisma.AssistantListRelationFilter
   knowledgeBases?: Prisma.KnowledgeBaseListRelationFilter
@@ -208,6 +217,8 @@ export type ModelOrderByWithRelationInput = {
   owned_by?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   typeJson?: Prisma.SortOrder
+  providerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  providerRelation?: Prisma.ProviderOrderByWithRelationInput
   assistants?: Prisma.AssistantOrderByRelationAggregateInput
   defaultForAssistants?: Prisma.AssistantOrderByRelationAggregateInput
   knowledgeBases?: Prisma.KnowledgeBaseOrderByRelationAggregateInput
@@ -226,6 +237,8 @@ export type ModelWhereUniqueInput = Prisma.AtLeast<{
   owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
   description?: Prisma.StringNullableFilter<"Model"> | string | null
   typeJson?: Prisma.JsonFilter<"Model">
+  providerId?: Prisma.StringNullableFilter<"Model"> | string | null
+  providerRelation?: Prisma.XOR<Prisma.ProviderNullableScalarRelationFilter, Prisma.ProviderWhereInput> | null
   assistants?: Prisma.AssistantListRelationFilter
   defaultForAssistants?: Prisma.AssistantListRelationFilter
   knowledgeBases?: Prisma.KnowledgeBaseListRelationFilter
@@ -241,6 +254,7 @@ export type ModelOrderByWithAggregationInput = {
   owned_by?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   typeJson?: Prisma.SortOrder
+  providerId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ModelCountOrderByAggregateInput
   _max?: Prisma.ModelMaxOrderByAggregateInput
   _min?: Prisma.ModelMinOrderByAggregateInput
@@ -257,6 +271,7 @@ export type ModelScalarWhereWithAggregatesInput = {
   owned_by?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
   typeJson?: Prisma.JsonWithAggregatesFilter<"Model">
+  providerId?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
 }
 
 export type ModelCreateInput = {
@@ -267,6 +282,7 @@ export type ModelCreateInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderCreateNestedOneWithoutModelsInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
@@ -282,6 +298,7 @@ export type ModelUncheckedCreateInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
@@ -297,6 +314,7 @@ export type ModelUpdateInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderUpdateOneWithoutModelsNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
@@ -312,6 +330,7 @@ export type ModelUncheckedUpdateInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
@@ -327,6 +346,7 @@ export type ModelCreateManyInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
 }
 
 export type ModelUpdateManyMutationInput = {
@@ -347,6 +367,17 @@ export type ModelUncheckedUpdateManyInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type ModelListRelationFilter = {
+  every?: Prisma.ModelWhereInput
+  some?: Prisma.ModelWhereInput
+  none?: Prisma.ModelWhereInput
+}
+
+export type ModelOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ModelNullableScalarRelationFilter = {
@@ -362,6 +393,7 @@ export type ModelCountOrderByAggregateInput = {
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
   typeJson?: Prisma.SortOrder
+  providerId?: Prisma.SortOrder
 }
 
 export type ModelMaxOrderByAggregateInput = {
@@ -371,6 +403,7 @@ export type ModelMaxOrderByAggregateInput = {
   group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  providerId?: Prisma.SortOrder
 }
 
 export type ModelMinOrderByAggregateInput = {
@@ -380,11 +413,54 @@ export type ModelMinOrderByAggregateInput = {
   group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  providerId?: Prisma.SortOrder
 }
 
 export type ModelScalarRelationFilter = {
   is?: Prisma.ModelWhereInput
   isNot?: Prisma.ModelWhereInput
+}
+
+export type ModelCreateNestedManyWithoutProviderRelationInput = {
+  create?: Prisma.XOR<Prisma.ModelCreateWithoutProviderRelationInput, Prisma.ModelUncheckedCreateWithoutProviderRelationInput> | Prisma.ModelCreateWithoutProviderRelationInput[] | Prisma.ModelUncheckedCreateWithoutProviderRelationInput[]
+  connectOrCreate?: Prisma.ModelCreateOrConnectWithoutProviderRelationInput | Prisma.ModelCreateOrConnectWithoutProviderRelationInput[]
+  createMany?: Prisma.ModelCreateManyProviderRelationInputEnvelope
+  connect?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+}
+
+export type ModelUncheckedCreateNestedManyWithoutProviderRelationInput = {
+  create?: Prisma.XOR<Prisma.ModelCreateWithoutProviderRelationInput, Prisma.ModelUncheckedCreateWithoutProviderRelationInput> | Prisma.ModelCreateWithoutProviderRelationInput[] | Prisma.ModelUncheckedCreateWithoutProviderRelationInput[]
+  connectOrCreate?: Prisma.ModelCreateOrConnectWithoutProviderRelationInput | Prisma.ModelCreateOrConnectWithoutProviderRelationInput[]
+  createMany?: Prisma.ModelCreateManyProviderRelationInputEnvelope
+  connect?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+}
+
+export type ModelUpdateManyWithoutProviderRelationNestedInput = {
+  create?: Prisma.XOR<Prisma.ModelCreateWithoutProviderRelationInput, Prisma.ModelUncheckedCreateWithoutProviderRelationInput> | Prisma.ModelCreateWithoutProviderRelationInput[] | Prisma.ModelUncheckedCreateWithoutProviderRelationInput[]
+  connectOrCreate?: Prisma.ModelCreateOrConnectWithoutProviderRelationInput | Prisma.ModelCreateOrConnectWithoutProviderRelationInput[]
+  upsert?: Prisma.ModelUpsertWithWhereUniqueWithoutProviderRelationInput | Prisma.ModelUpsertWithWhereUniqueWithoutProviderRelationInput[]
+  createMany?: Prisma.ModelCreateManyProviderRelationInputEnvelope
+  set?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  disconnect?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  delete?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  connect?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  update?: Prisma.ModelUpdateWithWhereUniqueWithoutProviderRelationInput | Prisma.ModelUpdateWithWhereUniqueWithoutProviderRelationInput[]
+  updateMany?: Prisma.ModelUpdateManyWithWhereWithoutProviderRelationInput | Prisma.ModelUpdateManyWithWhereWithoutProviderRelationInput[]
+  deleteMany?: Prisma.ModelScalarWhereInput | Prisma.ModelScalarWhereInput[]
+}
+
+export type ModelUncheckedUpdateManyWithoutProviderRelationNestedInput = {
+  create?: Prisma.XOR<Prisma.ModelCreateWithoutProviderRelationInput, Prisma.ModelUncheckedCreateWithoutProviderRelationInput> | Prisma.ModelCreateWithoutProviderRelationInput[] | Prisma.ModelUncheckedCreateWithoutProviderRelationInput[]
+  connectOrCreate?: Prisma.ModelCreateOrConnectWithoutProviderRelationInput | Prisma.ModelCreateOrConnectWithoutProviderRelationInput[]
+  upsert?: Prisma.ModelUpsertWithWhereUniqueWithoutProviderRelationInput | Prisma.ModelUpsertWithWhereUniqueWithoutProviderRelationInput[]
+  createMany?: Prisma.ModelCreateManyProviderRelationInputEnvelope
+  set?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  disconnect?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  delete?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  connect?: Prisma.ModelWhereUniqueInput | Prisma.ModelWhereUniqueInput[]
+  update?: Prisma.ModelUpdateWithWhereUniqueWithoutProviderRelationInput | Prisma.ModelUpdateWithWhereUniqueWithoutProviderRelationInput[]
+  updateMany?: Prisma.ModelUpdateManyWithWhereWithoutProviderRelationInput | Prisma.ModelUpdateManyWithWhereWithoutProviderRelationInput[]
+  deleteMany?: Prisma.ModelScalarWhereInput | Prisma.ModelScalarWhereInput[]
 }
 
 export type ModelCreateNestedOneWithoutAssistantsInput = {
@@ -465,6 +541,75 @@ export type ModelUpdateOneWithoutRerankForNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ModelUpdateToOneWithWhereWithoutRerankForInput, Prisma.ModelUpdateWithoutRerankForInput>, Prisma.ModelUncheckedUpdateWithoutRerankForInput>
 }
 
+export type ModelCreateWithoutProviderRelationInput = {
+  id: string
+  provider: string
+  name: string
+  group: string
+  owned_by?: string | null
+  description?: string | null
+  typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
+  defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
+  knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
+  assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
+  rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
+}
+
+export type ModelUncheckedCreateWithoutProviderRelationInput = {
+  id: string
+  provider: string
+  name: string
+  group: string
+  owned_by?: string | null
+  description?: string | null
+  typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
+  defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
+  knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
+  assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
+  rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
+}
+
+export type ModelCreateOrConnectWithoutProviderRelationInput = {
+  where: Prisma.ModelWhereUniqueInput
+  create: Prisma.XOR<Prisma.ModelCreateWithoutProviderRelationInput, Prisma.ModelUncheckedCreateWithoutProviderRelationInput>
+}
+
+export type ModelCreateManyProviderRelationInputEnvelope = {
+  data: Prisma.ModelCreateManyProviderRelationInput | Prisma.ModelCreateManyProviderRelationInput[]
+}
+
+export type ModelUpsertWithWhereUniqueWithoutProviderRelationInput = {
+  where: Prisma.ModelWhereUniqueInput
+  update: Prisma.XOR<Prisma.ModelUpdateWithoutProviderRelationInput, Prisma.ModelUncheckedUpdateWithoutProviderRelationInput>
+  create: Prisma.XOR<Prisma.ModelCreateWithoutProviderRelationInput, Prisma.ModelUncheckedCreateWithoutProviderRelationInput>
+}
+
+export type ModelUpdateWithWhereUniqueWithoutProviderRelationInput = {
+  where: Prisma.ModelWhereUniqueInput
+  data: Prisma.XOR<Prisma.ModelUpdateWithoutProviderRelationInput, Prisma.ModelUncheckedUpdateWithoutProviderRelationInput>
+}
+
+export type ModelUpdateManyWithWhereWithoutProviderRelationInput = {
+  where: Prisma.ModelScalarWhereInput
+  data: Prisma.XOR<Prisma.ModelUpdateManyMutationInput, Prisma.ModelUncheckedUpdateManyWithoutProviderRelationInput>
+}
+
+export type ModelScalarWhereInput = {
+  AND?: Prisma.ModelScalarWhereInput | Prisma.ModelScalarWhereInput[]
+  OR?: Prisma.ModelScalarWhereInput[]
+  NOT?: Prisma.ModelScalarWhereInput | Prisma.ModelScalarWhereInput[]
+  id?: Prisma.StringFilter<"Model"> | string
+  provider?: Prisma.StringFilter<"Model"> | string
+  name?: Prisma.StringFilter<"Model"> | string
+  group?: Prisma.StringFilter<"Model"> | string
+  owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
+  description?: Prisma.StringNullableFilter<"Model"> | string | null
+  typeJson?: Prisma.JsonFilter<"Model">
+  providerId?: Prisma.StringNullableFilter<"Model"> | string | null
+}
+
 export type ModelCreateWithoutAssistantsInput = {
   id: string
   provider: string
@@ -473,6 +618,7 @@ export type ModelCreateWithoutAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderCreateNestedOneWithoutModelsInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
@@ -487,6 +633,7 @@ export type ModelUncheckedCreateWithoutAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -506,6 +653,7 @@ export type ModelCreateWithoutDefaultForAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderCreateNestedOneWithoutModelsInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
@@ -520,6 +668,7 @@ export type ModelUncheckedCreateWithoutDefaultForAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -550,6 +699,7 @@ export type ModelUpdateWithoutAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderUpdateOneWithoutModelsNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
@@ -564,6 +714,7 @@ export type ModelUncheckedUpdateWithoutAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -589,6 +740,7 @@ export type ModelUpdateWithoutDefaultForAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderUpdateOneWithoutModelsNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
@@ -603,6 +755,7 @@ export type ModelUncheckedUpdateWithoutDefaultForAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -617,6 +770,7 @@ export type ModelCreateWithoutAssistantSettingsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderCreateNestedOneWithoutModelsInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
@@ -631,6 +785,7 @@ export type ModelUncheckedCreateWithoutAssistantSettingsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
@@ -661,6 +816,7 @@ export type ModelUpdateWithoutAssistantSettingsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderUpdateOneWithoutModelsNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
@@ -675,6 +831,7 @@ export type ModelUncheckedUpdateWithoutAssistantSettingsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
@@ -689,6 +846,7 @@ export type ModelCreateWithoutKnowledgeBasesInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderCreateNestedOneWithoutModelsInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
@@ -703,6 +861,7 @@ export type ModelUncheckedCreateWithoutKnowledgeBasesInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -722,6 +881,7 @@ export type ModelCreateWithoutRerankForInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderCreateNestedOneWithoutModelsInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
@@ -736,6 +896,7 @@ export type ModelUncheckedCreateWithoutRerankForInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: string | null
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
@@ -766,6 +927,7 @@ export type ModelUpdateWithoutKnowledgeBasesInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderUpdateOneWithoutModelsNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
@@ -780,6 +942,7 @@ export type ModelUncheckedUpdateWithoutKnowledgeBasesInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -805,6 +968,7 @@ export type ModelUpdateWithoutRerankForInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerRelation?: Prisma.ProviderUpdateOneWithoutModelsNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
@@ -819,10 +983,61 @@ export type ModelUncheckedUpdateWithoutRerankForInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
+}
+
+export type ModelCreateManyProviderRelationInput = {
+  id: string
+  provider: string
+  name: string
+  group: string
+  owned_by?: string | null
+  description?: string | null
+  typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+}
+
+export type ModelUpdateWithoutProviderRelationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
+  owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
+  defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
+  knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
+  assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
+  rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
+}
+
+export type ModelUncheckedUpdateWithoutProviderRelationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
+  owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
+  defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
+  knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
+  assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
+  rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
+}
+
+export type ModelUncheckedUpdateManyWithoutProviderRelationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
+  owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
 
@@ -900,6 +1115,8 @@ export type ModelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  providerId?: boolean
+  providerRelation?: boolean | Prisma.Model$providerRelationArgs<ExtArgs>
   assistants?: boolean | Prisma.Model$assistantsArgs<ExtArgs>
   defaultForAssistants?: boolean | Prisma.Model$defaultForAssistantsArgs<ExtArgs>
   knowledgeBases?: boolean | Prisma.Model$knowledgeBasesArgs<ExtArgs>
@@ -916,6 +1133,8 @@ export type ModelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  providerId?: boolean
+  providerRelation?: boolean | Prisma.Model$providerRelationArgs<ExtArgs>
 }, ExtArgs["result"]["model"]>
 
 export type ModelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -926,6 +1145,8 @@ export type ModelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  providerId?: boolean
+  providerRelation?: boolean | Prisma.Model$providerRelationArgs<ExtArgs>
 }, ExtArgs["result"]["model"]>
 
 export type ModelSelectScalar = {
@@ -936,10 +1157,12 @@ export type ModelSelectScalar = {
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  providerId?: boolean
 }
 
-export type ModelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "name" | "group" | "owned_by" | "description" | "typeJson", ExtArgs["result"]["model"]>
+export type ModelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "name" | "group" | "owned_by" | "description" | "typeJson" | "providerId", ExtArgs["result"]["model"]>
 export type ModelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  providerRelation?: boolean | Prisma.Model$providerRelationArgs<ExtArgs>
   assistants?: boolean | Prisma.Model$assistantsArgs<ExtArgs>
   defaultForAssistants?: boolean | Prisma.Model$defaultForAssistantsArgs<ExtArgs>
   knowledgeBases?: boolean | Prisma.Model$knowledgeBasesArgs<ExtArgs>
@@ -947,12 +1170,17 @@ export type ModelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   rerankFor?: boolean | Prisma.Model$rerankForArgs<ExtArgs>
   _count?: boolean | Prisma.ModelCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type ModelIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type ModelIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ModelIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  providerRelation?: boolean | Prisma.Model$providerRelationArgs<ExtArgs>
+}
+export type ModelIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  providerRelation?: boolean | Prisma.Model$providerRelationArgs<ExtArgs>
+}
 
 export type $ModelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Model"
   objects: {
+    providerRelation: Prisma.$ProviderPayload<ExtArgs> | null
     assistants: Prisma.$AssistantPayload<ExtArgs>[]
     defaultForAssistants: Prisma.$AssistantPayload<ExtArgs>[]
     knowledgeBases: Prisma.$KnowledgeBasePayload<ExtArgs>[]
@@ -967,6 +1195,7 @@ export type $ModelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     owned_by: string | null
     description: string | null
     typeJson: runtime.JsonValue
+    providerId: string | null
   }, ExtArgs["result"]["model"]>
   composites: {}
 }
@@ -1361,6 +1590,7 @@ readonly fields: ModelFieldRefs;
  */
 export interface Prisma__ModelClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  providerRelation<T extends Prisma.Model$providerRelationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$providerRelationArgs<ExtArgs>>): Prisma.Prisma__ProviderClient<runtime.Types.Result.GetResult<Prisma.$ProviderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   assistants<T extends Prisma.Model$assistantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$assistantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssistantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   defaultForAssistants<T extends Prisma.Model$defaultForAssistantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$defaultForAssistantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssistantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   knowledgeBases<T extends Prisma.Model$knowledgeBasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$knowledgeBasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KnowledgeBasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1402,6 +1632,7 @@ export interface ModelFieldRefs {
   readonly owned_by: Prisma.FieldRef<"Model", 'String'>
   readonly description: Prisma.FieldRef<"Model", 'String'>
   readonly typeJson: Prisma.FieldRef<"Model", 'Json'>
+  readonly providerId: Prisma.FieldRef<"Model", 'String'>
 }
     
 
@@ -1649,6 +1880,10 @@ export type ModelCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many Models.
    */
   data: Prisma.ModelCreateManyInput | Prisma.ModelCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ModelIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1719,6 +1954,10 @@ export type ModelUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many Models to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ModelIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1785,6 +2024,25 @@ export type ModelDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Models to delete.
    */
   limit?: number
+}
+
+/**
+ * Model.providerRelation
+ */
+export type Model$providerRelationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Provider
+   */
+  select?: Prisma.ProviderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Provider
+   */
+  omit?: Prisma.ProviderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProviderInclude<ExtArgs> | null
+  where?: Prisma.ProviderWhereInput
 }
 
 /**

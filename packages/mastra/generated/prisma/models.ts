@@ -7,6 +7,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Provider.ts'
 export type * from './models/Assistant.ts'
 export type * from './models/Agent.ts'
 export type * from './models/Topic.ts'

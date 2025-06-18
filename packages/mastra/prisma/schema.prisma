@@ -16,6 +16,47 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// 枚举类型定义
+enum ProviderType {
+  openai
+  openai_compatible
+  anthropic
+  gemini
+  qwenlm
+  azure_openai
+}
+
+enum ModelType {
+  text
+  vision
+  embedding
+  reasoning
+  function_calling
+  web_search
+}
+
+// Provider模型
+model Provider {
+  id                       String       @id @default(uuid())
+  type                     ProviderType
+  name                     String
+  apiKey                   String
+  apiHost                  String
+  apiVersion               String?
+  enabled                  Boolean      @default(true)
+  isSystem                 Boolean      @default(false)
+  isAuthed                 Boolean      @default(false)
+  rateLimit                Int?
+  isNotSupportArrayContent Boolean      @default(false)
+  notes                    String?
+
+  // 关系
+  models Model[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // 助手模型
 model Assistant {
   id                   String  @id @default(uuid())
@@ -108,9 +149,11 @@ model Model {
   group       String
   owned_by    String?
   description String?
-  typeJson    Json // 存储String[]
+  typeJson    Json // 存储ModelType[]
 
   // 关系
+  providerRelation     Provider?           @relation(fields: [providerId], references: [id])
+  providerId           String?
   assistants           Assistant[]         @relation("AssistantModel")
   defaultForAssistants Assistant[]         @relation("AssistantDefaultModel")
   knowledgeBases       KnowledgeBase[]

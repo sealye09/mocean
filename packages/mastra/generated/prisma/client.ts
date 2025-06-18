@@ -26,8 +26,8 @@ export * as $Enums from './enums.ts'
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Assistants
- * const assistants = await prisma.assistant.findMany()
+ * // Fetch zero or more Providers
+ * const providers = await prisma.provider.findMany()
  * ```
  * 
  * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
@@ -41,6 +41,11 @@ export { Prisma }
 path.join(__dirname, "query_engine-windows.dll.node")
 path.join(process.cwd(), "generated/prisma/query_engine-windows.dll.node")
 
+/**
+ * Model Provider
+ * 
+ */
+export type Provider = Prisma.ProviderModel
 /**
  * Model Assistant
  * 
@@ -122,4 +127,8 @@ export type MCPConfigSample = Prisma.MCPConfigSampleModel
  */
 export type QuickPhrase = Prisma.QuickPhraseModel
 
+export type ProviderType = $Enums.ProviderType
+export const ProviderType = $Enums.ProviderType
 
+export type ModelType = $Enums.ModelType
+export const ModelType = $Enums.ModelType
