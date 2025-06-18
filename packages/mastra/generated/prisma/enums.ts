@@ -7,7 +7,25 @@
 *
 * 🟢 You can import this file directly.
 */
+export const ProviderType = {
+  openai: 'openai',
+  openai_compatible: 'openai_compatible',
+  anthropic: 'anthropic',
+  gemini: 'gemini',
+  qwenlm: 'qwenlm',
+  azure_openai: 'azure_openai'
+} as const
+
+export type ProviderType = (typeof ProviderType)[keyof typeof ProviderType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const ModelType = {
+  text: 'text',
+  vision: 'vision',
+  embedding: 'embedding',
+  reasoning: 'reasoning',
+  function_calling: 'function_calling',
+  web_search: 'web_search'
+} as const
+
+export type ModelType = (typeof ModelType)[keyof typeof ModelType]
