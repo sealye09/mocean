@@ -3,7 +3,7 @@ import { assistantsApiMethods, useAssistantsApi } from "./assistants-client";
 import { modelsApiMethods, useModelsApi } from "./models-client";
 import { providersApiMethods, useProvidersApi } from "./providers-client";
 
-export { BASE_URL } from "./base-client";
+export { API_URL } from "./base-client";
 
 /**
  * API 客户端统一导出

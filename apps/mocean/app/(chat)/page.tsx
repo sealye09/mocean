@@ -2,26 +2,22 @@
 
 import { useEffect } from "react";
 
-import { useAssistantsApi } from "@mocean/mastra/apiClient";
-import { AssistantModel } from "@mocean/mastra/prismaType";
-
 import { Thread } from "@/components/thread";
-import useCustomRequest from "@/hooks/useCustomRequest";
+import { useAssistantsSWR } from "@/hooks/useAssistantsSWR";
 
 import { useStore } from "../store/useStore";
 
 export default function Chat() {
-  const { getAssistants } = useAssistantsApi();
+  const { assistants, isLoading, error } = useAssistantsSWR();
   const { setAssistantList } = useStore();
 
-  const { request } = useCustomRequest();
-
-  const defaultAssistant: AssistantModel = {
+  // 默认助手配置
+  const defaultAssistant = {
     id: "1",
     name: "默认助手",
     description: "我是默认助手，你可以和我对话",
     prompt: "",
-    type: "assistant",
+    type: "assistant" as const,
     emoji: "",
     enableWebSearch: false,
     webSearchProviderId: "",
@@ -33,14 +29,29 @@ export default function Chat() {
     updatedAt: new Date(),
   };
 
+  // 统一处理数据更新
   useEffect(() => {
-    request(getAssistants()).then((res) => {
-      if (!res) return;
-      setAssistantList([...res.data, defaultAssistant]);
-    });
-  }, []);
+    if (error) {
+      console.error("获取助手列表失败:", error);
+      // 即使出错也显示默认助手
+      setAssistantList([defaultAssistant]);
+    } else if (assistants && assistants.length > 0) {
+      setAssistantList([...assistants, defaultAssistant]);
+    } else if (!isLoading) {
+      // 如果没有数据且不在加载中，只设置默认助手
+      setAssistantList([defaultAssistant]);
+    }
+  }, [assistants, isLoading, error, setAssistantList]);
 
-  // 直接返回聊天界面，不再进行跳转
+  // 加载状态显示
+  if (isLoading) {
+    return (
+      <div className="flex h-full flex-1 items-center justify-center">
+        <div className="text-muted-foreground">加载中...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex-1">
       <Thread />

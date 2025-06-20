@@ -7,7 +7,7 @@ import {
   type ChatModelAdapter,
   useLocalRuntime,
 } from "@assistant-ui/react";
-import { BASE_URL } from "@mocean/mastra/apiClient";
+import { API_URL } from "@mocean/mastra/apiClient";
 
 import { useStore } from "../store/useStore";
 
@@ -16,7 +16,7 @@ const MyModelAdapter: ChatModelAdapter = {
     const { activeAssistant } = useStore.getState();
 
     // TODO replace with your own API
-    const result = await fetch(`${BASE_URL}/assistants/chat`, {
+    const result = await fetch(`${API_URL}/assistants/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
