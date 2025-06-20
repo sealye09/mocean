@@ -1,0 +1,14 @@
+{
+  "id": "1",
+  "name": "默认助手",
+  "description": "我是默认助手，你可以和我对话",
+  "prompt": "",
+  "type": "assistant",
+  "emoji": "",
+  "enableWebSearch": false,
+  "webSearchProviderId": "",
+  "enableGenerateImage": false,
+  "knowledgeRecognition": "",
+  "modelId": "",
+  "defaultModelId": ""
+}

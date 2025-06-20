@@ -80,10 +80,13 @@ const getAgentByIdRouter = registerApiRoute(`${PREFIX}/agents/:id`, {
           },
         );
       }
-      return new Response(JSON.stringify({ error, message: "获取智能体失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error, message: "获取智能体失败" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
   },
 });
@@ -211,30 +214,36 @@ const deleteAgentRouter = registerApiRoute(`${PREFIX}/agents/:id`, {
   },
 });
 
-const getAgentByGroupRouter = registerApiRoute(`${PREFIX}/agents/group/:group`, {
-  method: "GET",
-  handler: async (c) => {
-    try {
-      const { group } = groupParamSchema.parse(c.req.param("group"));
-      const agents = await getAgentByGroup(group);
-      if (!agents) {
-        return new Response(JSON.stringify({ error: "分组不存在" }), {
-          status: 404,
+const getAgentByGroupRouter = registerApiRoute(
+  `${PREFIX}/agents/group/:group`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
+        const { group } = groupParamSchema.parse(c.req.param("group"));
+        const agents = await getAgentByGroup(group);
+        if (!agents) {
+          return new Response(JSON.stringify({ error: "分组不存在" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response(JSON.stringify(agents), {
+          status: 200,
           headers: { "Content-Type": "application/json" },
         });
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ error, message: "获取智能体失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       }
-      return new Response(JSON.stringify(agents), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: "获取智能体失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    },
   },
-});
+);
 
 /**
 /**
