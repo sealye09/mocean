@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "fix": "eslint --fix .",
     "import-agents": "tsx scripts/import-agents.ts",
-    "import-providers-models": "tsx scripts/import-providers-models.ts"
+    "import-providers-models": "tsx scripts/import-providers-models.ts",
+    "import-assistants": "tsx scripts/import-assistants.ts"
   },
   "exports": {
     "./prismaType": {

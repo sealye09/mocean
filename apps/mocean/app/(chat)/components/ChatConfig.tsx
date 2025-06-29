@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { useRouter } from "next/navigation";
+
 import { AssistantModel } from "@mocean/mastra/prismaType";
 
 import { useStore } from "@/app/store/useStore";
@@ -11,6 +13,8 @@ import TopicSelect from "./TopicSelect";
 import AssistantSelect from "./assistant/Assistant";
 
 const ChatConfig = () => {
+  const router = useRouter();
+
   const tabsConfig = [
     {
       value: "assistant",
@@ -35,6 +39,9 @@ const ChatConfig = () => {
   const onAssistantSelect = (assistant: AssistantModel) => {
     setActiveTab(tabsConfig[1]?.value || "topic");
     setActiveAssistant(assistant);
+
+    // 跳轉到聊天詳情頁
+    router.push(`${assistant.id}`);
   };
   return (
     <Tabs
