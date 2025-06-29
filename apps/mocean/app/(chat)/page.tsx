@@ -2,44 +2,24 @@
 
 import { useEffect } from "react";
 
-import { Thread } from "@/components/thread";
+import { useStore } from "@/app/store/useStore";
 import { useAssistantsSWR } from "@/hooks/useAssistantsSWR";
-
-import { useStore } from "../store/useStore";
 
 export default function Chat() {
   const { assistants, isLoading, error } = useAssistantsSWR();
   const { setAssistantList } = useStore();
 
-  // 默认助手配置
-  const defaultAssistant = {
-    id: "1",
-    name: "默认助手",
-    description: "我是默认助手，你可以和我对话",
-    prompt: "",
-    type: "assistant" as const,
-    emoji: "",
-    enableWebSearch: false,
-    webSearchProviderId: "",
-    enableGenerateImage: false,
-    knowledgeRecognition: "",
-    modelId: "",
-    defaultModelId: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
   // 统一处理数据更新
   useEffect(() => {
     if (error) {
       console.error("获取助手列表失败:", error);
-      // 即使出错也显示默认助手
-      setAssistantList([defaultAssistant]);
+      // 出错时设置空列表
+      setAssistantList([]);
     } else if (assistants && assistants.length > 0) {
-      setAssistantList([...assistants, defaultAssistant]);
+      setAssistantList(assistants);
     } else if (!isLoading) {
-      // 如果没有数据且不在加载中，只设置默认助手
-      setAssistantList([defaultAssistant]);
+      // 如果没有数据且不在加载中，设置空列表
+      setAssistantList([]);
     }
   }, [assistants, isLoading, error, setAssistantList]);
 
@@ -54,7 +34,7 @@ export default function Chat() {
 
   return (
     <div className="h-full flex-1">
-      <Thread />
+      <div>選擇助手</div>
     </div>
   );
 }

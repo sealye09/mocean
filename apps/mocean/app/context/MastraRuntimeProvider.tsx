@@ -2,8 +2,6 @@
 
 import type { ReactNode } from "react";
 
-import { useRouter } from "next/router";
-
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { API_URL } from "@mocean/mastra/apiClient";
 
@@ -14,7 +12,6 @@ export function MyRuntimeProvider({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const { push } = useRouter();
   const runtime = useMastraRuntime({
     api: `${API_URL}/assistants/chat`,
     onCreateThread: (threadId) => {
