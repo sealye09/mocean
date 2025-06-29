@@ -37,7 +37,9 @@
     "@mastra/libsql": "^0.10.0",
     "@mastra/loggers": "^0.10.0",
     "@mastra/memory": "^0.10.0",
-    "zod": "^3.25.30"
+    "zod": "^3.25.30",
+    "ai": "^4.3.16"
+
   },
   "devDependencies": {
     "@mocean/eslint-config": "workspace:*",

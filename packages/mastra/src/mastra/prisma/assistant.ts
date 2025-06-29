@@ -1,3 +1,4 @@
+import { UIMessage } from "ai";
 import { z } from "zod";
 
 import { prisma } from "./index";
@@ -33,14 +34,21 @@ const updateAssistantSchema = z.object({
   defaultModelId: z.string().nullable().optional(),
 });
 
+// 提取 experimental_prepareRequestBody 返回值类型
+export type PrepareRequestBodyReturnType = {
+  id: string;
+  threadId: string;
+  messages: UIMessage[];
+  assistantId?: string;
+  requestBody: Record<string, unknown>;
+  requestData: Record<string, unknown>;
+};
+
 const idParamSchema = z.object({
   id: z.string().uuid("无效的助手ID格式"),
 });
 
-const chatWithAssistantSchema = z.object({
-  assistantId: z.string().uuid("无效的助手ID格式"),
-  message: z.string().min(1, "消息内容不能为空"),
-});
+const chatWithAssistantSchema = z.custom<PrepareRequestBodyReturnType>();
 
 // zod类型推导
 type CreateAssistantInput = z.infer<typeof createAssistantSchema>;

@@ -2,52 +2,25 @@
 
 import type { ReactNode } from "react";
 
-import {
-  AssistantRuntimeProvider,
-  type ChatModelAdapter,
-  useLocalRuntime,
-} from "@assistant-ui/react";
+import { useRouter } from "next/router";
+
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { API_URL } from "@mocean/mastra/apiClient";
 
-import { useStore } from "../store/useStore";
-
-const MyModelAdapter: ChatModelAdapter = {
-  async run({ messages, abortSignal }) {
-    const { activeAssistant } = useStore.getState();
-
-    // TODO replace with your own API
-    const result = await fetch(`${API_URL}/assistants/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // forward the messages in the chat to the API
-      body: JSON.stringify({
-        messages,
-        assistantId: activeAssistant?.id,
-      }),
-      // if the user hits the "cancel" button or escape keyboard key, cancel the request
-      signal: abortSignal,
-    });
-
-    const data = await result.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.text,
-        },
-      ],
-    };
-  },
-};
+import { useMastraRuntime } from "@/hooks/use-mastra-runtime";
 
 export function MyRuntimeProvider({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const runtime = useLocalRuntime(MyModelAdapter);
+  const { push } = useRouter();
+  const runtime = useMastraRuntime({
+    api: `${API_URL}/assistants/chat`,
+    onCreateThread: (threadId) => {
+      console.log("onCreateThread", threadId);
+    },
+  });
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
