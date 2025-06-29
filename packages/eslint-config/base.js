@@ -38,7 +38,6 @@ export const config = [
       "prettier/prettier": [
         "error",
         {
-          endOfLine: "lf",
           printWidth: 80,
           tabWidth: 2,
           useTabs: false,

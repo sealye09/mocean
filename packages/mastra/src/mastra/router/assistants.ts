@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
 import { PREFIX } from "../api/base-client";
+import config from "../config";
 import {
   chatWithAssistantSchema,
   createAssistant,
@@ -226,7 +227,8 @@ const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
       const rawData = await c.req.json();
 
       // 参数校验
-      const { assistantId, message } = chatWithAssistantSchema.parse(rawData);
+      const { assistantId, messages, threadId } =
+        chatWithAssistantSchema.parse(rawData);
 
       const assistant = await getAssistantWithModelByAssistantId(assistantId);
 
@@ -237,7 +239,9 @@ const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
         });
       }
 
-      const stream = DynamicAgent.stream(message, {
+      const stream = DynamicAgent.stream(messages, {
+        threadId,
+        resourceId: config.resourceId,
         runtimeContext: createCommonRunTime({
           name: assistant.name,
           instructions: assistant.prompt,
