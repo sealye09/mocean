@@ -249,7 +249,7 @@ const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
         }) as RuntimeContext,
       });
 
-      return stream.toTextStreamResponse();
+      return stream.toDataStreamResponse();
     } catch (error) {
       console.error(error);
       if (error instanceof z.ZodError) {
