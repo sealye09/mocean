@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import { RuntimeContext } from "@mastra/core/di";
 
@@ -17,11 +17,16 @@ export const DynamicAgent = new Agent({
   },
 
   model: async ({ runtimeContext }) => {
-    const fullTypeRuntimeContext =
-      runtimeContext as RuntimeContext<CommonRunTimeType>;
+    // const fullTypeRuntimeContext =
+    //   runtimeContext as RuntimeContext<CommonRunTimeType>;
 
-    const model = fullTypeRuntimeContext.get("model");
+    const openaiProvider = createOpenAI({
+      baseURL: process.env.OPENAI_API_BASE_URL,
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-    return openai(model);
+    const model = openaiProvider(process.env.OPENAI_API_MODEL ?? "gpt-4o");
+
+    return model;
   },
 });

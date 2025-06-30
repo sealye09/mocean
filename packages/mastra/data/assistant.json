@@ -2,7 +2,7 @@
   "id": "1",
   "name": "默认助手",
   "description": "我是默认助手，你可以和我对话",
-  "prompt": "",
+  "prompt": "你是一个助手，你可以回答用户的问题，也可以帮助用户完成任务",
   "type": "assistant",
   "emoji": "",
   "enableWebSearch": false,

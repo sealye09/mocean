@@ -1,0 +1,8 @@
+---
+description: 方法生成时必须遵守该方法
+globs:
+alwaysApply: false
+---
+生成的方法要尽可能的满足单一职责
+
+函数名不能使用 handle 开头, 如需使用 请使用 on 开头
