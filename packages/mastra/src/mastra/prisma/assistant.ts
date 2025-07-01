@@ -44,12 +44,8 @@ export type PrepareRequestBodyReturnType = {
   requestData: Record<string, unknown>;
 };
 
-const idParamSchema = z.object({
-  id: z.string().uuid("无效的助手ID格式"),
-});
-
 const assistantIdParamSchema = z.object({
-  assistantId: z.string().uuid("无效的助手ID格式"),
+  assistantId: z.string().min(1, "助手ID不能为空"),
 });
 
 const chatWithAssistantSchema = z.custom<PrepareRequestBodyReturnType>();
@@ -188,7 +184,6 @@ export {
   getAssistantWithModelByAssistantId,
   createAssistantSchema,
   updateAssistantSchema,
-  idParamSchema,
   chatWithAssistantSchema,
   assistantIdParamSchema,
 };

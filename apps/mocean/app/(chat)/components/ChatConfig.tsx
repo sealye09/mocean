@@ -59,9 +59,11 @@ const ChatConfig = () => {
       <TabsContent value="assistant" className="flex-1">
         <AssistantSelect onClick={onAssistantSelect} />
       </TabsContent>
-      <TabsContent value="topic">
+
+      <TabsContent value="topic" className="flex-1">
         <TopicSelect />
       </TabsContent>
+
       <TabsContent value="setting">Change your setting here.</TabsContent>
     </Tabs>
   );

@@ -42,10 +42,12 @@ export class AssistantsApiClient extends BaseApiClient {
   /**
    * 根据ID获取单个助手
    * @description 通过助手ID获取特定助手的详细信息
-   * @param id - 助手的唯一标识符
+   * @param assistantId - 助手的唯一标识符
    */
-  async getAssistantById(id: string): Promise<ApiResponse<AssistantModel>> {
-    return this.get<AssistantModel>(`/assistants/${id}`);
+  async getAssistantById(
+    assistantId: string,
+  ): Promise<ApiResponse<AssistantModel>> {
+    return this.get<AssistantModel>(`/assistants/${assistantId}`);
   }
 
   /**
@@ -62,31 +64,34 @@ export class AssistantsApiClient extends BaseApiClient {
   /**
    * 更新助手信息
    * @description 更新指定助手的信息
-   * @param id - 助手的唯一标识符
+   * @param assistantId - 助手的唯一标识符
    * @param assistantData - 更新的助手信息
    */
   async updateAssistant(
-    id: string,
+    assistantId: string,
     assistantData: Partial<AssistantInput>,
   ): Promise<ApiResponse<AssistantModel>> {
-    return this.put<AssistantModel>(`/assistants/${id}`, assistantData);
+    return this.put<AssistantModel>(
+      `/assistants/${assistantId}`,
+      assistantData,
+    );
   }
 
   /**
    * 删除助手
    * @description 删除指定的助手
-   * @param id - 助手的唯一标识符
+   * @param assistantId - 助手的唯一标识符
    */
-  async deleteAssistant(id: string): Promise<ApiResponse<AssistantModel>> {
-    return this.delete<AssistantModel>(`/assistants/${id}`);
+  async deleteAssistant(
+    assistantId: string,
+  ): Promise<ApiResponse<AssistantModel>> {
+    return this.delete<AssistantModel>(`/assistants/${assistantId}`);
   }
 
   async getAssistantThreads(
     assistantId: string,
   ): Promise<ApiResponse<StorageThreadType[]>> {
-    return this.get<StorageThreadType[]>(
-      `/assistants/history?assistantId=${assistantId}`,
-    );
+    return this.get<StorageThreadType[]>(`/assistants/history/${assistantId}`);
   }
 }
 
@@ -107,9 +112,10 @@ export const assistantsApiMethods = {
 
   /**
    * 根据ID获取助手
-   * @param id - 助手ID
+   * @param assistantId - 助手ID
    */
-  getAssistantById: (id: string) => assistantsApi.getAssistantById(id),
+  getAssistantById: (assistantId: string) =>
+    assistantsApi.getAssistantById(assistantId),
 
   /**
    * 创建助手
@@ -120,17 +126,20 @@ export const assistantsApiMethods = {
 
   /**
    * 更新助手
-   * @param id - 助手ID
+   * @param assistantId - 助手ID
    * @param assistantData - 更新数据
    */
-  updateAssistant: (id: string, assistantData: Partial<AssistantInput>) =>
-    assistantsApi.updateAssistant(id, assistantData),
+  updateAssistant: (
+    assistantId: string,
+    assistantData: Partial<AssistantInput>,
+  ) => assistantsApi.updateAssistant(assistantId, assistantData),
 
   /**
    * 删除助手
-   * @param id - 助手ID
+   * @param assistantId - 助手ID
    */
-  deleteAssistant: (id: string) => assistantsApi.deleteAssistant(id),
+  deleteAssistant: (assistantId: string) =>
+    assistantsApi.deleteAssistant(assistantId),
 
   /**
    * 获取助手历史记录

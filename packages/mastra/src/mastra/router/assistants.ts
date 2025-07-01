@@ -4,8 +4,8 @@ import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
 import { PREFIX } from "../api/base-client";
-import { mastra } from "../index";
 import {
+  assistantIdParamSchema,
   chatWithAssistantSchema,
   createAssistant,
   createAssistantSchema,
@@ -13,7 +13,6 @@ import {
   getAssistantById,
   getAssistantWithModelByAssistantId,
   getAssistants,
-  idParamSchema,
   updateAssistant,
   updateAssistantSchema,
 } from "../prisma/assistant";
@@ -49,48 +48,54 @@ const getAssistantsRouter = registerApiRoute(`${PREFIX}/assistants`, {
  * @description 通过助手ID获取特定助手的详细信息
  * @param c - Mastra上下文对象，包含请求信息
  */
-const getAssistantByIdRouter = registerApiRoute(`${PREFIX}/assistants/:id`, {
-  method: "GET",
-  handler: async (c) => {
-    try {
-      // 参数校验
-      const { id } = idParamSchema.parse({
-        id: c.req.param("id"),
-      });
+const getAssistantByIdRouter = registerApiRoute(
+  `${PREFIX}/assistants/:assistantId`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
+        // 参数校验
+        const { assistantId } = assistantIdParamSchema.parse({
+          assistantId: c.req.param("assistantId"),
+        });
 
-      const assistant = await getAssistantById(id);
+        const assistant = await getAssistantById(assistantId);
 
-      if (!assistant) {
-        return new Response(JSON.stringify({ error: "助手不存在" }), {
-          status: 404,
+        if (!assistant) {
+          return new Response(JSON.stringify({ error: "助手不存在" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify(assistant), {
+          status: 200,
           headers: { "Content-Type": "application/json" },
         });
-      }
-
-      return new Response(JSON.stringify(assistant), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.errors,
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
         return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            details: error.errors,
-          }),
+          JSON.stringify({ error, message: "获取助手失败" }),
           {
-            status: 400,
+            status: 500,
             headers: { "Content-Type": "application/json" },
           },
         );
       }
-      return new Response(JSON.stringify({ error, message: "获取助手失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    },
   },
-});
+);
 
 /**
  * 创建新助手的路由处理器
@@ -137,83 +142,98 @@ const createAssistantRouter = registerApiRoute(`${PREFIX}/assistants`, {
  * @description 接收助手ID和更新数据，修改指定助手的信息
  * @param c - Mastra上下文对象，包含请求信息
  */
-const updateAssistantRouter = registerApiRoute(`${PREFIX}/assistants/:id`, {
-  method: "PUT",
-  handler: async (c) => {
-    try {
-      // 参数校验
-      const { id } = idParamSchema.parse({
-        id: c.req.param("id"),
-      });
+const updateAssistantRouter = registerApiRoute(
+  `${PREFIX}/assistants/:assistantId`,
+  {
+    method: "PUT",
+    handler: async (c) => {
+      try {
+        // 参数校验
+        const { assistantId } = assistantIdParamSchema.parse({
+          assistantId: c.req.param("assistantId"),
+        });
 
-      const rawData = await c.req.json();
-      const assistantData = updateAssistantSchema.parse(rawData);
+        const rawData = await c.req.json();
+        const assistantData = updateAssistantSchema.parse(rawData);
 
-      const updatedAssistant = await updateAssistant(id, assistantData);
-      return new Response(JSON.stringify(updatedAssistant), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+        const updatedAssistant = await updateAssistant(
+          assistantId,
+          assistantData,
+        );
+        return new Response(JSON.stringify(updatedAssistant), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.errors,
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
         return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            details: error.errors,
-          }),
+          JSON.stringify({ error, message: "更新助手失败" }),
           {
-            status: 400,
+            status: 500,
             headers: { "Content-Type": "application/json" },
           },
         );
       }
-      return new Response(JSON.stringify({ error: "更新助手失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    },
   },
-});
+);
 
 /**
  * 删除助手的路由处理器
  * @description 根据助手ID删除指定的助手
  * @param c - Mastra上下文对象，包含请求信息
  */
-const deleteAssistantRouter = registerApiRoute(`${PREFIX}/assistants/:id`, {
-  method: "DELETE",
-  handler: async (c) => {
-    try {
-      // 参数校验
-      const { id } = idParamSchema.parse({
-        id: c.req.param("id"),
-      });
+const deleteAssistantRouter = registerApiRoute(
+  `${PREFIX}/assistants/:assistantId`,
+  {
+    method: "DELETE",
+    handler: async (c) => {
+      try {
+        // 参数校验
+        const { assistantId } = assistantIdParamSchema.parse({
+          assistantId: c.req.param("assistantId"),
+        });
 
-      const deletedAssistant = await deleteAssistant(id);
-      return new Response(JSON.stringify(deletedAssistant), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+        const deletedAssistant = await deleteAssistant(assistantId);
+        return new Response(JSON.stringify(deletedAssistant), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.errors,
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
         return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            details: error.errors,
-          }),
+          JSON.stringify({ error, message: "删除助手失败" }),
           {
-            status: 400,
+            status: 500,
             headers: { "Content-Type": "application/json" },
           },
         );
       }
-      return new Response(JSON.stringify({ error: "删除助手失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    },
   },
-});
+);
 
 /**
  * 与助手聊天的路由处理器
@@ -272,34 +292,50 @@ const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
   },
 });
 
-const getAssistantThreads = registerApiRoute(`${PREFIX}/assistants/history`, {
-  method: "GET",
-  handler: async (c) => {
-    try {
-      const rawData = await c.req.json();
+const getAssistantThreads = registerApiRoute(
+  `${PREFIX}/assistants/history/:assistantId`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
+        const { assistantId } = assistantIdParamSchema.parse({
+          assistantId: c.req.param("assistantId"),
+        });
 
-      const { assistantId } = chatWithAssistantSchema.parse(rawData);
+        const memory = DynamicAgent.getMemory();
 
-      const memory = mastra.getAgent("DynamicAgent").getMemory();
+        const threads = await memory.getThreadsByResourceId({
+          resourceId: assistantId,
+        });
 
-      const threads = await memory.getThreadsByResourceId({
-        resourceId: assistantId,
-      });
-
-      return new Response(JSON.stringify(threads), {
-        status: 200,
-      });
-    } catch (error) {
-      return new Response(
-        JSON.stringify({ error, message: "获取助手历史记录失败" }),
-        {
-          status: 500,
+        return new Response(JSON.stringify(threads), {
+          status: 200,
           headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.errors,
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
+        return new Response(
+          JSON.stringify({ error, message: "获取助手历史记录失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+    },
   },
-});
+);
 
 /**
  * 助手相关路由的导出数组
