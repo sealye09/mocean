@@ -5,6 +5,8 @@ import { providersApiMethods, useProvidersApi } from "./providers-client";
 
 export { API_URL } from "./base-client";
 
+export { StorageThreadType } from "@mastra/core";
+
 /**
  * API 客户端统一导出
  * @description 提供所有API客户端的统一入口

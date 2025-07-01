@@ -1,24 +1,18 @@
-import { useEffect } from "react";
-
-import { useApi } from "@mocean/mastra/apiClient";
-
 import { useStore } from "@/app/store/useStore";
-import { ThreadList } from "@/components/thread-list";
+import { useAssistantThreadsSWR } from "@/hooks/useAssistantsSWR";
+
+import ThreadList from "./thead/ThreadList";
 
 const TopicSelect = () => {
   const { activeAssistant } = useStore();
 
-  const { topicList, setTopicList } = useStore();
-
-  useEffect(() => {
-    if (activeAssistant) {
-      // setTopicList(activeAssistant.topicList);
-    }
-  }, [activeAssistant]);
+  const { threads } = useAssistantThreadsSWR(activeAssistant?.id || null);
 
   return (
     <div className="h-full w-full">
-      <ThreadList />
+      123
+      {threads.length}
+      <ThreadList threads={threads || []} />
     </div>
   );
 };

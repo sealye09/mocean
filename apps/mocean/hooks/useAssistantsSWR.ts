@@ -67,6 +67,39 @@ export function useAssistantSWR(id: string | null) {
 }
 
 /**
+ * 获取助手线程列表 - 使用 SWR
+ * @param assistantId - 助手的唯一标识符（为空时不发起请求）
+ * @returns 包含线程数据、加载状态、错误信息和刷新方法的对象
+ */
+export function useAssistantThreadsSWR(assistantId: string | null) {
+  const { getAssistantThreads } = useAssistantsApi();
+
+  const { data, error, isLoading, mutate } = useSWR(
+    assistantId ? `assistant-threads-${assistantId}` : null,
+    async () => {
+      if (!assistantId) return [];
+      const result = await getAssistantThreads(assistantId);
+      return result?.data || [];
+    },
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000, // 30秒内的重复请求会被去重（线程数据更新频率较高）
+      errorRetryCount: 3,
+      errorRetryInterval: 3000,
+    },
+  );
+
+  return {
+    threads: data || [],
+    isLoading,
+    error,
+    refresh: mutate,
+  };
+}
+
+/**
  * 增强的助手 API hooks - 结合 CRUD 操作和 SWR 缓存
  */
 export function useAssistantsWithActions() {
