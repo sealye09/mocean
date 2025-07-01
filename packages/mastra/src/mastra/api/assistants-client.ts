@@ -1,4 +1,5 @@
 /// <reference lib="dom" />
+import { StorageThreadType } from "@mastra/core";
 import { AssistantModel } from "generated/prisma/models";
 
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
@@ -79,6 +80,14 @@ export class AssistantsApiClient extends BaseApiClient {
   async deleteAssistant(id: string): Promise<ApiResponse<AssistantModel>> {
     return this.delete<AssistantModel>(`/assistants/${id}`);
   }
+
+  async getAssistantThreads(
+    assistantId: string,
+  ): Promise<ApiResponse<StorageThreadType[]>> {
+    return this.get<StorageThreadType[]>(
+      `/assistants/history?assistantId=${assistantId}`,
+    );
+  }
 }
 
 /**
@@ -122,6 +131,13 @@ export const assistantsApiMethods = {
    * @param id - 助手ID
    */
   deleteAssistant: (id: string) => assistantsApi.deleteAssistant(id),
+
+  /**
+   * 获取助手历史记录
+   * @param assistantId - 助手ID
+   */
+  getAssistantThreads: (assistantId: string) =>
+    assistantsApi.getAssistantThreads(assistantId),
 };
 
 /**
@@ -154,5 +170,10 @@ export const useAssistantsApi = () => {
      * 删除助手
      */
     deleteAssistant: assistantsApiMethods.deleteAssistant,
+
+    /**
+     * 获取助手历史记录
+     */
+    getAssistantThreads: assistantsApiMethods.getAssistantThreads,
   };
 };
