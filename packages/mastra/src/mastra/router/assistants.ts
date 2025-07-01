@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
 import { PREFIX } from "../api/base-client";
-import config from "../config";
+import { mastra } from "../index";
 import {
   chatWithAssistantSchema,
   createAssistant,
@@ -241,7 +241,7 @@ const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
 
       const stream = await DynamicAgent.stream(messages, {
         threadId,
-        resourceId: config.resourceId,
+        resourceId: assistantId,
         runtimeContext: createCommonRunTime({
           name: assistant.name,
           instructions: assistant.prompt,
@@ -272,6 +272,35 @@ const chatWithAssistant = registerApiRoute(`${PREFIX}/assistants/chat`, {
   },
 });
 
+const getAssistantThreads = registerApiRoute(`${PREFIX}/assistants/history`, {
+  method: "GET",
+  handler: async (c) => {
+    try {
+      const rawData = await c.req.json();
+
+      const { assistantId } = chatWithAssistantSchema.parse(rawData);
+
+      const memory = mastra.getAgent("DynamicAgent").getMemory();
+
+      const threads = await memory.getThreadsByResourceId({
+        resourceId: assistantId,
+      });
+
+      return new Response(JSON.stringify(threads), {
+        status: 200,
+      });
+    } catch (error) {
+      return new Response(
+        JSON.stringify({ error, message: "获取助手历史记录失败" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  },
+});
+
 /**
  * 助手相关路由的导出数组
  * @description 包含所有助手相关API路由的数组，用于在应用程序中注册这些路由
@@ -283,4 +312,5 @@ export const assistantsRouter = [
   updateAssistantRouter,
   deleteAssistantRouter,
   chatWithAssistant,
+  getAssistantThreads,
 ];

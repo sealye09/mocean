@@ -48,6 +48,10 @@ const idParamSchema = z.object({
   id: z.string().uuid("无效的助手ID格式"),
 });
 
+const assistantIdParamSchema = z.object({
+  assistantId: z.string().uuid("无效的助手ID格式"),
+});
+
 const chatWithAssistantSchema = z.custom<PrepareRequestBodyReturnType>();
 
 // zod类型推导
@@ -186,4 +190,5 @@ export {
   updateAssistantSchema,
   idParamSchema,
   chatWithAssistantSchema,
+  assistantIdParamSchema,
 };
