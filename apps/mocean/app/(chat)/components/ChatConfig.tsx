@@ -41,7 +41,7 @@ const ChatConfig = () => {
     setActiveAssistant(assistant);
 
     // 跳轉到聊天詳情頁
-    router.push(`${assistant.id}`);
+    router.replace(`${assistant.id}`);
   };
   return (
     <Tabs

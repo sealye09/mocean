@@ -19,11 +19,11 @@ const ThreadSelect = () => {
       return;
     }
 
-    router.push(`${activeAssistant.id}`);
+    router.replace(`${activeAssistant.id}`);
   };
 
   const onThreadClick = (thread: StorageThreadType) => {
-    router.push(`${activeAssistant?.id}/${thread.id}`);
+    router.replace(`${activeAssistant?.id}/${thread.id}`);
   };
 
   return (
