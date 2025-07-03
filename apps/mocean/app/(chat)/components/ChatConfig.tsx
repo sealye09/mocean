@@ -9,7 +9,7 @@ import { AssistantModel } from "@mocean/mastra/prismaType";
 import { useStore } from "@/app/store/useStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import TopicSelect from "./TopicSelect";
+import ThreadSelect from "./ThreadSelect";
 import AssistantSelect from "./assistant/Assistant";
 
 const ChatConfig = () => {
@@ -61,7 +61,7 @@ const ChatConfig = () => {
       </TabsContent>
 
       <TabsContent value="topic" className="flex-1">
-        <TopicSelect />
+        <ThreadSelect />
       </TabsContent>
 
       <TabsContent value="setting">Change your setting here.</TabsContent>

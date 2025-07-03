@@ -12,6 +12,8 @@ import { useAssistantsSWR } from "@/hooks/useAssistantsSWR";
 
 import ChatConfig from "./components/ChatConfig";
 
+const DEFAULT_ASSISTANT_ID = "1";
+
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const { setAssistantList, setActiveAssistant } = useStore();
   const { assistants, isLoading, error } = useAssistantsSWR();
@@ -44,6 +46,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   // 根据ID激活对应的助手
   const onActiveAssistantById = useCallback(
     (id: string, assistantList: AssistantModel[]) => {
+      console.log("onActiveAssistantById", id, assistantList);
       if (id && assistantList.length > 0) {
         const assistant = assistantList.find((item) => item.id === id);
         if (assistant) {
@@ -61,7 +64,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       isLoading,
       error,
     );
-    onActiveAssistantById(id, currentAssistants);
+    onActiveAssistantById(id || DEFAULT_ASSISTANT_ID, currentAssistants);
   }, [
     assistants,
     isLoading,

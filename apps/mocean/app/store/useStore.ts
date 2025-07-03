@@ -3,6 +3,7 @@ import {
   AssistantModel,
   TopicModel,
 } from "@mocean/mastra/prismaType";
+import { UIMessage } from "ai";
 import { create } from "zustand";
 
 export type Store = {
@@ -41,6 +42,18 @@ export type Store = {
    */
   activeTopic: TopicModel | null;
   setActiveTopic: (topic: TopicModel) => void;
+
+  /**
+   * @description 初始化消息
+   */
+  initialMessages: UIMessage[] | null;
+  setInitialMessages: (messages: UIMessage[]) => void;
+
+  /**
+   * @description 当前线程
+   */
+  activeThread: string | null;
+  setActiveThread: (thread: string) => void;
 };
 
 const useStore = create<Store>((set) => ({
@@ -63,6 +76,13 @@ const useStore = create<Store>((set) => ({
 
   activeTopic: null as TopicModel | null,
   setActiveTopic: (topic: TopicModel) => set({ activeTopic: topic }),
+
+  initialMessages: [] as UIMessage[],
+  setInitialMessages: (messages: UIMessage[]) =>
+    set({ initialMessages: messages }),
+
+  activeThread: null as string | null,
+  setActiveThread: (thread: string) => set({ activeThread: thread }),
 }));
 
 export { useStore };
