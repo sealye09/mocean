@@ -8,6 +8,7 @@ import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { API_URL } from "@mocean/mastra/apiClient";
 
 import { useMastraRuntime } from "@/hooks/use-mastra-runtime";
+import { useAssistantThreadsSWR } from "@/hooks/useAssistantsSWR";
 
 import { useStore } from "../store/useStore";
 
@@ -18,11 +19,13 @@ export function MyRuntimeProvider({
 }>) {
   const router = useRouter();
   const { activeAssistant, initialMessages, activeThread } = useStore();
+  const { refresh } = useAssistantThreadsSWR(activeAssistant?.id || null);
 
   const runtime = useMastraRuntime({
     api: `${API_URL}/assistants/chat`,
     onCreateThread: (threadId) => {
-      router.push(`/${activeAssistant?.id}/${threadId}`);
+      router.replace(`/${activeAssistant?.id}/${threadId}`);
+      refresh();
     },
     initialMessages: initialMessages || [],
     threadId: activeThread || undefined,
