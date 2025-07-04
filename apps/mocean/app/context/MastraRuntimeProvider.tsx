@@ -18,12 +18,14 @@ export function MyRuntimeProvider({
   children: ReactNode;
 }>) {
   const router = useRouter();
-  const { activeAssistant, initialMessages, activeThread } = useStore();
+  const { activeAssistant, initialMessages, activeThread, setActiveThread } =
+    useStore();
   const { refresh } = useAssistantThreadsSWR(activeAssistant?.id || null);
 
   const runtime = useMastraRuntime({
     api: `${API_URL}/assistants/chat`,
     onCreateThread: (threadId) => {
+      setActiveThread(threadId);
       router.replace(`/${activeAssistant?.id}/${threadId}`);
       refresh();
     },

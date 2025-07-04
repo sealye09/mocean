@@ -1,6 +1,7 @@
 import { StorageThreadType } from "@mocean/mastra/apiClient";
 import { Calendar, MessageCircle, MoreHorizontal, Plus } from "lucide-react";
 
+import { useStore } from "@/app/store/useStore";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -74,12 +75,14 @@ const CreateThreadCard: React.FC<{ onClick: () => void }> = ({ onClick }) => {
  * @param props - 组件属性
  * @param  props.thread - 对话线程数据
  * @param  props.onClick - 点击回调函数
+ * @param  props.isActive - 是否为当前激活的线程
  * @returns  对话历史记录项
  */
 const ThreadItem: React.FC<{
   thread: StorageThreadType;
   onClick: (thread: StorageThreadType) => void;
-}> = ({ thread, onClick }) => {
+  isActive: boolean;
+}> = ({ thread, onClick, isActive }) => {
   /**
    * 格式化日期显示
    *
@@ -108,33 +111,60 @@ const ThreadItem: React.FC<{
 
   return (
     <Card
-      className="group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+      className={`group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
+        isActive
+          ? "border-primary bg-gradient-to-r from-blue-500/5 to-purple-500/5 shadow-md ring-1 ring-primary/20"
+          : ""
+      }`}
       onClick={() => onClick(thread)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-teal-600 text-white">
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-white transition-all duration-200 ${
+                isActive
+                  ? "scale-105 bg-gradient-to-br from-blue-600 to-purple-700"
+                  : "bg-gradient-to-br from-green-500 to-teal-600"
+              }`}
+            >
               <MessageCircle className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-base transition-colors group-hover:text-primary">
+              <CardTitle
+                className={`text-base transition-colors ${
+                  isActive
+                    ? "font-semibold text-primary"
+                    : "group-hover:text-primary"
+                }`}
+              >
                 {getDisplayTitle(thread)}
               </CardTitle>
-              <Badge variant="secondary" className="mt-1 text-xs">
-                对话记录
+              <Badge
+                variant={isActive ? "default" : "secondary"}
+                className="mt-1 text-xs"
+              >
+                {isActive ? "当前对话" : "对话记录"}
               </Badge>
             </div>
           </div>
 
-          <div className="opacity-0 transition-opacity group-hover:opacity-100">
+          <div
+            className={`transition-opacity ${
+              isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
             <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="rounded-md bg-muted/50 p-3">
+        <div
+          className={`rounded-md p-3 ${
+            isActive ? "bg-primary/10" : "bg-muted/50"
+          }`}
+        >
           <p className="text-xs text-muted-foreground">
             {(thread.metadata?.description as string) || "暂无对话描述"}
           </p>
@@ -169,6 +199,8 @@ const ThreadList: React.FC<ThreadListProps> = ({
   onCreateThread,
   onThreadClick,
 }) => {
+  const { activeThread } = useStore();
+
   /**
    * 处理新建对话点击事件
    */
@@ -201,6 +233,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
             key={thread.id}
             thread={thread}
             onClick={onThreadItemClick}
+            isActive={activeThread === thread.id}
           />
         ))
       ) : (
