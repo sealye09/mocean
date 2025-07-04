@@ -13,6 +13,7 @@ import {
   getAssistantById,
   getAssistantWithModelByAssistantId,
   getAssistants,
+  threadIdParamSchema,
   updateAssistant,
   updateAssistantSchema,
 } from "../prisma/assistant";
@@ -300,6 +301,52 @@ const getAssistantThreads = registerApiRoute(
       try {
         const { assistantId } = assistantIdParamSchema.parse({
           assistantId: c.req.param("assistantId"),
+        });
+
+        const memory = DynamicAgent.getMemory();
+
+        const threads = await memory.getThreadsByResourceId({
+          resourceId: assistantId,
+        });
+
+        return new Response(JSON.stringify(threads), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.errors,
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
+        return new Response(
+          JSON.stringify({ error, message: "获取助手历史记录失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+    },
+  },
+);
+
+const getAssistantHistoryByThreadId = registerApiRoute(
+  `${PREFIX}/assistants/history/:assistantId/:threadId`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
+        const { assistantId, threadId } = threadIdParamSchema.parse({
+          assistantId: c.req.param("assistantId"),
+          threadId: c.req.param("threadId"),
         });
 
         const memory = DynamicAgent.getMemory();

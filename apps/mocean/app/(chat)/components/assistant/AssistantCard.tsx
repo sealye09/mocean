@@ -11,6 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { useStore } from "../../../store/useStore";
+
 interface AssistantCardProps {
   assistant: AssistantModel;
   onClick: (assistant: AssistantModel) => void;
@@ -20,6 +22,9 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
   assistant,
   onClick,
 }) => {
+  const { activeAssistant } = useStore();
+  const isActive = activeAssistant?.id === assistant.id;
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("zh-CN", {
       year: "numeric",
@@ -30,21 +35,40 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
 
   return (
     <Card
-      className="group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+      className={`group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
+        isActive
+          ? "border-primary bg-gradient-to-r from-blue-500/5 to-purple-500/5 shadow-md ring-1 ring-primary/20"
+          : ""
+      }`}
       onClick={() => onClick(assistant)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-lg font-semibold text-white">
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-lg font-semibold text-white transition-all duration-200 ${
+                isActive
+                  ? "scale-105 bg-gradient-to-br from-blue-600 to-purple-700"
+                  : "bg-gradient-to-br from-blue-500 to-purple-600"
+              }`}
+            >
               {assistant.emoji || <Bot className="h-5 w-5" />}
             </div>
             <div>
-              <CardTitle className="text-base transition-colors group-hover:text-blue-600">
+              <CardTitle
+                className={`text-base transition-colors ${
+                  isActive
+                    ? "font-semibold text-primary"
+                    : "group-hover:text-blue-600"
+                }`}
+              >
                 {assistant.name}
               </CardTitle>
-              <Badge variant="secondary" className="mt-1 text-xs capitalize">
-                {assistant.type}
+              <Badge
+                variant={isActive ? "default" : "secondary"}
+                className="mt-1 text-xs capitalize"
+              >
+                {isActive ? "当前助手" : assistant.type}
               </Badge>
             </div>
           </div>
@@ -79,7 +103,11 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="rounded-md bg-muted/50 p-3">
+        <div
+          className={`rounded-md p-3 ${
+            isActive ? "bg-primary/10" : "bg-muted/50"
+          }`}
+        >
           <p
             className="text-xs text-muted-foreground"
             style={{
