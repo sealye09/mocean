@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AgentModel } from "@mocean/mastra/prismaType";
 import { Filter, Search } from "lucide-react";
 
+import { AgentDetailDialog } from "@/components/AgentDetailDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ export interface AgentListProps {
 
 /**
  * 智能体列表组件
- * @description 根据选中的分组过滤和显示智能体列表，支持搜索功能
+ * @description 根据选中的分组过滤和显示智能体列表，支持搜索和详情查看功能
  *
  * @param agents - 智能体数组
  * @param [selectedGroup] - 当前选中的分组
@@ -45,6 +46,8 @@ export const AgentList: React.FC<AgentListProps> = ({
   className = "",
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState<AgentModel | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   /**
    * 检查智能体是否属于指定分组
@@ -80,6 +83,32 @@ export const AgentList: React.FC<AgentListProps> = ({
     } catch {
       return false;
     }
+  };
+
+  /**
+   * 处理智能体详情查看
+   * @param agent - 要查看详情的智能体
+   */
+  const onViewAgentDetails = (agent: AgentModel) => {
+    setSelectedAgent(agent);
+    setIsDialogOpen(true);
+  };
+
+  /**
+   * 处理智能体选择（原有逻辑保持不变）
+   * @param agent - 被选中的智能体
+   */
+  const onAgentCardSelect = (agent: AgentModel) => {
+    onViewAgentDetails(agent);
+    onAgentSelect?.(agent);
+  };
+
+  /**
+   * 关闭对话框
+   */
+  const onCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedAgent(null);
   };
 
   /**
@@ -137,7 +166,7 @@ export const AgentList: React.FC<AgentListProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* 头部区域 - 搜索和统计 */}
-      <div className="space-y-4">
+      <div className="m-1 space-y-4">
         {/* 搜索框 */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -207,12 +236,20 @@ export const AgentList: React.FC<AgentListProps> = ({
             <AgentCard
               key={agent.id}
               agent={agent}
-              onSelect={onAgentSelect}
+              onSelect={onAgentCardSelect}
               className="h-full"
             />
           ))}
         </div>
       )}
+
+      {/* 智能体详情对话框 */}
+      <AgentDetailDialog
+        agent={selectedAgent}
+        isOpen={isDialogOpen}
+        onClose={onCloseDialog}
+        onSelect={onAgentSelect}
+      />
     </div>
   );
 };
