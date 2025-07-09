@@ -16,7 +16,8 @@ export interface AgentListProps {
   agents: AgentModel[];
   selectedGroup?: string | null;
   isLoading?: boolean;
-  onAgentSelect?: (agent: AgentModel) => void;
+  onCreateAssistant?: (agent: AgentModel) => Promise<boolean>;
+  isCreatingAssistant?: boolean;
   className?: string;
 }
 
@@ -28,6 +29,8 @@ export interface AgentListProps {
  * @param [selectedGroup] - 当前选中的分组
  * @param [isLoading] - 是否正在加载
  * @param [onAgentSelect] - 选择智能体时的回调函数
+ * @param [onCreateAssistant] - 创建助手时的回调函数
+ * @param [isCreatingAssistant] - 是否正在创建助手
  * @param [className] - 自定义样式类名
  *
  * @example
@@ -36,13 +39,15 @@ export interface AgentListProps {
  *   agents={agentList}
  *   selectedGroup="精选"
  *   onAgentSelect={(agent) => console.log("选中:", agent.name)}
+ *   onCreateAssistant={(agent) => createAssistant(agent)}
  * />
  */
 export const AgentList: React.FC<AgentListProps> = ({
   agents,
   selectedGroup = null,
   isLoading = false,
-  onAgentSelect,
+  onCreateAssistant,
+  isCreatingAssistant = false,
   className = "",
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -86,21 +91,12 @@ export const AgentList: React.FC<AgentListProps> = ({
   };
 
   /**
-   * 处理智能体详情查看
-   * @param agent - 要查看详情的智能体
-   */
-  const onViewAgentDetails = (agent: AgentModel) => {
-    setSelectedAgent(agent);
-    setIsDialogOpen(true);
-  };
-
-  /**
    * 处理智能体选择（原有逻辑保持不变）
    * @param agent - 被选中的智能体
    */
   const onAgentCardSelect = (agent: AgentModel) => {
-    onViewAgentDetails(agent);
-    onAgentSelect?.(agent);
+    setSelectedAgent(agent);
+    setIsDialogOpen(true);
   };
 
   /**
@@ -248,7 +244,8 @@ export const AgentList: React.FC<AgentListProps> = ({
         agent={selectedAgent}
         isOpen={isDialogOpen}
         onClose={onCloseDialog}
-        onSelect={onAgentSelect}
+        onCreateAssistant={onCreateAssistant}
+        isCreatingAssistant={isCreatingAssistant}
       />
     </div>
   );

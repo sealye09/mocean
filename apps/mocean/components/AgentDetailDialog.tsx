@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback } from "react";
+
 import { AgentModel } from "@mocean/mastra/prismaType";
-import { Bot, Eye, Tag, X, Zap } from "lucide-react";
+import { Bot, Eye, Loader2, Tag, X, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +19,8 @@ export interface AgentDetailDialogProps {
   agent: AgentModel | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect?: (agent: AgentModel) => void;
+  onCreateAssistant?: (agent: AgentModel) => Promise<boolean>;
+  isCreatingAssistant?: boolean;
 }
 
 /**
@@ -28,6 +31,8 @@ export interface AgentDetailDialogProps {
  * @param isOpen - 对话框是否打开
  * @param onClose - 关闭对话框的回调函数
  * @param [onSelect] - 选择智能体时的回调函数
+ * @param [onCreateAssistant] - 创建助手时的回调函数
+ * @param [isCreatingAssistant] - 是否正在创建助手
  *
  * @example
  * // 显示智能体详情对话框
@@ -35,24 +40,28 @@ export interface AgentDetailDialogProps {
  *   agent={selectedAgent}
  *   isOpen={isDialogOpen}
  *   onClose={() => setIsDialogOpen(false)}
- *   onSelect={(agent) => console.log("选中:", agent.name)}
+ *   onCreateAssistant={(agent) => createAssistant(agent)}
+ *   isCreatingAssistant={isCreating}
  * />
  */
 export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
   agent,
   isOpen,
   onClose,
-  onSelect,
+  onCreateAssistant,
+  isCreatingAssistant = false,
 }) => {
   /**
-   * 处理选择智能体操作
+   * 处理选择智能体操作 - 创建助手
    */
-  const onSelectAgent = () => {
-    if (agent && onSelect) {
-      onSelect(agent);
+  const onSelectAgent = useCallback(async () => {
+    if (!agent || !onCreateAssistant) return;
+    try {
+      await onCreateAssistant(agent);
+    } catch (error) {
+      console.error(error);
     }
-    onClose();
-  };
+  }, [agent, onCreateAssistant]);
 
   /**
    * 获取智能体分组信息
@@ -178,17 +187,23 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
                 variant="outline"
                 onClick={onClose}
                 className="flex items-center space-x-2"
+                disabled={isCreatingAssistant}
               >
                 <X className="h-4 w-4" />
                 <span>关闭</span>
               </Button>
-              {onSelect && (
+              {onCreateAssistant && (
                 <Button
                   onClick={onSelectAgent}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  disabled={isCreatingAssistant}
+                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50"
                 >
-                  <Zap className="h-4 w-4" />
-                  <span>选择此智能体</span>
+                  {isCreatingAssistant ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Zap className="h-4 w-4" />
+                  )}
+                  <span>{isCreatingAssistant ? "创建中..." : "创建助手"}</span>
                 </Button>
               )}
             </div>

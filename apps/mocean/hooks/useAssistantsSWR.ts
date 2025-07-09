@@ -147,6 +147,7 @@ export function useAssistantsWithActions() {
           // 创建成功后，刷新缓存
           refresh();
         }
+
         return result;
       } catch (error) {
         console.error("创建助手失败:", error);
