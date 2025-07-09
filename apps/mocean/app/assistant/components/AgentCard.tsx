@@ -5,13 +5,7 @@ import { Image, MessageSquare, Search, Settings } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export interface AgentCardProps {
   agent: AgentModel;
@@ -115,9 +109,6 @@ export const AgentCard: React.FC<AgentCardProps> = ({
               <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary">
                 {agent.name}
               </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                {agent.type || "通用"}
-              </CardDescription>
             </div>
           </div>
 
