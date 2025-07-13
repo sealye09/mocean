@@ -18,8 +18,8 @@ const AssistantSelect: React.FC<AssistantSelectProps> = ({ onClick }) => {
   };
 
   return (
-    <div className="h-full rounded-md bg-gray-50 p-6 dark:bg-gray-900">
-      <div className="mx-auto max-w-7xl">
+    <div className="h-full rounded-md bg-gray-50 p-6 pr-0 dark:bg-gray-900">
+      <div className="mx-auto h-full max-w-7xl overflow-y-auto pr-2">
         {/* Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">

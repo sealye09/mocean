@@ -6,7 +6,7 @@ import { UIMessage, generateId } from "ai";
 
 import { useStore } from "@/app/store/useStore";
 
-import { useAssistantUIMessageSWR } from "./useAssistantsSWR";
+import { useAssistantThreadsSWR } from "./useAssistantsSWR";
 
 // 提取 useVercelUseChatRuntime 的第二个参数类型
 type VercelUseChatAdapter = Parameters<typeof useVercelUseChatRuntime>[1];
@@ -30,24 +30,27 @@ export function useMastraRuntime({
   api,
   adapter,
   body,
+  initialMessages = [],
 }: {
   api: string;
   body?: object;
   adapter?: VercelUseChatAdapter;
+  initialMessages?: UIMessage[];
 }) {
   const { activeThread, activeAssistant, setActiveThread } = useStore();
 
-  const { messages } = useAssistantUIMessageSWR(
-    activeAssistant?.id || null,
-    activeThread || null,
-  );
+  const { refresh } = useAssistantThreadsSWR(activeAssistant?.id || null);
 
   const chat = useChat({
     api,
-    initialMessages: messages ?? [],
+    initialMessages,
     body,
 
-    onFinish() {},
+    onFinish() {
+      setTimeout(() => {
+        refresh();
+      }, 5000);
+    },
 
     experimental_prepareRequestBody: ({
       id,
