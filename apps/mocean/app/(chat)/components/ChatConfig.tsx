@@ -49,6 +49,7 @@ const ChatConfig = () => {
           </TabsTrigger>
         ))}
       </TabsList>
+
       <TabsContent value="assistant" className="h-0 flex-1">
         <AssistantSelect onClick={onAssistantSelect} />
       </TabsContent>
