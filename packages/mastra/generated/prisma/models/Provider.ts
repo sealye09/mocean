@@ -287,7 +287,7 @@ export type ProviderWhereInput = {
   notes?: Prisma.StringNullableFilter<"Provider"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
-  models?: Prisma.ModelListRelationFilter
+  models?: Prisma.ModelProviderListRelationFilter
 }
 
 export type ProviderOrderByWithRelationInput = {
@@ -305,7 +305,7 @@ export type ProviderOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  models?: Prisma.ModelOrderByRelationAggregateInput
+  models?: Prisma.ModelProviderOrderByRelationAggregateInput
 }
 
 export type ProviderWhereUniqueInput = Prisma.AtLeast<{
@@ -326,7 +326,7 @@ export type ProviderWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Provider"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
-  models?: Prisma.ModelListRelationFilter
+  models?: Prisma.ModelProviderListRelationFilter
 }, "id">
 
 export type ProviderOrderByWithAggregationInput = {
@@ -386,7 +386,7 @@ export type ProviderCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  models?: Prisma.ModelCreateNestedManyWithoutProviderRelationInput
+  models?: Prisma.ModelProviderCreateNestedManyWithoutProviderInput
 }
 
 export type ProviderUncheckedCreateInput = {
@@ -404,7 +404,7 @@ export type ProviderUncheckedCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  models?: Prisma.ModelUncheckedCreateNestedManyWithoutProviderRelationInput
+  models?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutProviderInput
 }
 
 export type ProviderUpdateInput = {
@@ -422,7 +422,7 @@ export type ProviderUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  models?: Prisma.ModelUpdateManyWithoutProviderRelationNestedInput
+  models?: Prisma.ModelProviderUpdateManyWithoutProviderNestedInput
 }
 
 export type ProviderUncheckedUpdateInput = {
@@ -440,7 +440,7 @@ export type ProviderUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  models?: Prisma.ModelUncheckedUpdateManyWithoutProviderRelationNestedInput
+  models?: Prisma.ModelProviderUncheckedUpdateManyWithoutProviderNestedInput
 }
 
 export type ProviderCreateManyInput = {
@@ -553,9 +553,9 @@ export type ProviderSumOrderByAggregateInput = {
   rateLimit?: Prisma.SortOrder
 }
 
-export type ProviderNullableScalarRelationFilter = {
-  is?: Prisma.ProviderWhereInput | null
-  isNot?: Prisma.ProviderWhereInput | null
+export type ProviderScalarRelationFilter = {
+  is?: Prisma.ProviderWhereInput
+  isNot?: Prisma.ProviderWhereInput
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -592,12 +592,10 @@ export type ProviderCreateNestedOneWithoutModelsInput = {
   connect?: Prisma.ProviderWhereUniqueInput
 }
 
-export type ProviderUpdateOneWithoutModelsNestedInput = {
+export type ProviderUpdateOneRequiredWithoutModelsNestedInput = {
   create?: Prisma.XOR<Prisma.ProviderCreateWithoutModelsInput, Prisma.ProviderUncheckedCreateWithoutModelsInput>
   connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutModelsInput
   upsert?: Prisma.ProviderUpsertWithoutModelsInput
-  disconnect?: Prisma.ProviderWhereInput | boolean
-  delete?: Prisma.ProviderWhereInput | boolean
   connect?: Prisma.ProviderWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProviderUpdateToOneWithWhereWithoutModelsInput, Prisma.ProviderUpdateWithoutModelsInput>, Prisma.ProviderUncheckedUpdateWithoutModelsInput>
 }
@@ -713,7 +711,7 @@ export type ProviderCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  * ProviderCountOutputType without action
  */
 export type ProviderCountOutputTypeCountModelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ModelWhereInput
+  where?: Prisma.ModelProviderWhereInput
 }
 
 
@@ -798,7 +796,7 @@ export type ProviderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $ProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Provider"
   objects: {
-    models: Prisma.$ModelPayload<ExtArgs>[]
+    models: Prisma.$ModelProviderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1209,7 +1207,7 @@ readonly fields: ProviderFieldRefs;
  */
 export interface Prisma__ProviderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  models<T extends Prisma.Provider$modelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Provider$modelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  models<T extends Prisma.Provider$modelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Provider$modelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1643,23 +1641,23 @@ export type ProviderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
  */
 export type Provider$modelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Model
+   * Select specific fields to fetch from the ModelProvider
    */
-  select?: Prisma.ModelSelect<ExtArgs> | null
+  select?: Prisma.ModelProviderSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Model
+   * Omit specific fields from the ModelProvider
    */
-  omit?: Prisma.ModelOmit<ExtArgs> | null
+  omit?: Prisma.ModelProviderOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ModelInclude<ExtArgs> | null
-  where?: Prisma.ModelWhereInput
-  orderBy?: Prisma.ModelOrderByWithRelationInput | Prisma.ModelOrderByWithRelationInput[]
-  cursor?: Prisma.ModelWhereUniqueInput
+  include?: Prisma.ModelProviderInclude<ExtArgs> | null
+  where?: Prisma.ModelProviderWhereInput
+  orderBy?: Prisma.ModelProviderOrderByWithRelationInput | Prisma.ModelProviderOrderByWithRelationInput[]
+  cursor?: Prisma.ModelProviderWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ModelScalarFieldEnum | Prisma.ModelScalarFieldEnum[]
+  distinct?: Prisma.ModelProviderScalarFieldEnum | Prisma.ModelProviderScalarFieldEnum[]
 }
 
 /**

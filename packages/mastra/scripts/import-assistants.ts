@@ -22,7 +22,7 @@ interface JsonAssistant {
   enableWebSearch: boolean;
   webSearchProviderId: string;
   enableGenerateImage: boolean;
-  knowledgeRecognition: string;
+  knowledgeRecognition: "off" | "on";
   modelId: string;
   defaultModelId: string;
 }
