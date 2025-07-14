@@ -126,6 +126,11 @@ export type MCPConfigSample = Prisma.MCPConfigSampleModel
  * 
  */
 export type QuickPhrase = Prisma.QuickPhraseModel
+/**
+ * Model ModelProvider
+ * 
+ */
+export type ModelProvider = Prisma.ModelProviderModel
 
 export type ProviderType = $Enums.ProviderType
 export const ProviderType = $Enums.ProviderType

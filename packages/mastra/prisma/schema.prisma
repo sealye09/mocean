@@ -55,8 +55,8 @@ model Provider {
   isNotSupportArrayContent Boolean      @default(false)
   notes                    String?
 
-  // 关系
-  models Model[]
+  // 多对多关系
+  models ModelProvider[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -149,16 +149,15 @@ model FileType {
 // 模型
 model Model {
   id          String  @id
-  provider    String
   name        String
   group       String
   owned_by    String?
   description String?
   typeJson    Json // 存储ModelType[]
 
-  // 关系
-  providerRelation     Provider?           @relation(fields: [providerId], references: [id])
-  providerId           String?
+  // 多对多关系
+  providers ModelProvider[]
+
   assistants           Assistant[]         @relation("AssistantModel")
   defaultForAssistants Assistant[]         @relation("AssistantDefaultModel")
   knowledgeBases       KnowledgeBase[]
@@ -360,4 +359,13 @@ model QuickPhrase {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ModelProvider {
+  model      Model    @relation(fields: [modelId], references: [id])
+  modelId    String
+  provider   Provider @relation(fields: [providerId], references: [id])
+  providerId String
+
+  @@id([modelId, providerId])
 }

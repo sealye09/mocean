@@ -410,7 +410,8 @@ export const ModelName = {
   MCPPrompt: 'MCPPrompt',
   MCPResource: 'MCPResource',
   MCPConfigSample: 'MCPConfigSample',
-  QuickPhrase: 'QuickPhrase'
+  QuickPhrase: 'QuickPhrase',
+  ModelProvider: 'ModelProvider'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "provider" | "assistant" | "agent" | "topic" | "fileType" | "model" | "assistantSettings" | "knowledgeBase" | "knowledgeItem" | "mCPServer" | "mCPAssistantServer" | "mCPAgentServer" | "mCPTool" | "mCPPrompt" | "mCPResource" | "mCPConfigSample" | "quickPhrase"
+    modelProps: "provider" | "assistant" | "agent" | "topic" | "fileType" | "model" | "assistantSettings" | "knowledgeBase" | "knowledgeItem" | "mCPServer" | "mCPAssistantServer" | "mCPAgentServer" | "mCPTool" | "mCPPrompt" | "mCPResource" | "mCPConfigSample" | "quickPhrase" | "modelProvider"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1688,6 +1689,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ModelProvider: {
+      payload: Prisma.$ModelProviderPayload<ExtArgs>
+      fields: Prisma.ModelProviderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelProviderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelProviderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelProviderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelProviderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+        }
+        findMany: {
+          args: Prisma.ModelProviderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>[]
+        }
+        create: {
+          args: Prisma.ModelProviderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+        }
+        createMany: {
+          args: Prisma.ModelProviderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ModelProviderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>[]
+        }
+        delete: {
+          args: Prisma.ModelProviderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+        }
+        update: {
+          args: Prisma.ModelProviderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelProviderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelProviderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ModelProviderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>[]
+        }
+        upsert: {
+          args: Prisma.ModelProviderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelProviderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelProvider>
+        }
+        groupBy: {
+          args: Prisma.ModelProviderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelProviderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelProviderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelProviderCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1816,13 +1891,11 @@ export type FileTypeScalarFieldEnum = (typeof FileTypeScalarFieldEnum)[keyof typ
 
 export const ModelScalarFieldEnum = {
   id: 'id',
-  provider: 'provider',
   name: 'name',
   group: 'group',
   owned_by: 'owned_by',
   description: 'description',
-  typeJson: 'typeJson',
-  providerId: 'providerId'
+  typeJson: 'typeJson'
 } as const
 
 export type ModelScalarFieldEnum = (typeof ModelScalarFieldEnum)[keyof typeof ModelScalarFieldEnum]
@@ -1994,6 +2067,14 @@ export const QuickPhraseScalarFieldEnum = {
 } as const
 
 export type QuickPhraseScalarFieldEnum = (typeof QuickPhraseScalarFieldEnum)[keyof typeof QuickPhraseScalarFieldEnum]
+
+
+export const ModelProviderScalarFieldEnum = {
+  modelId: 'modelId',
+  providerId: 'providerId'
+} as const
+
+export type ModelProviderScalarFieldEnum = (typeof ModelProviderScalarFieldEnum)[keyof typeof ModelProviderScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2208,6 +2289,7 @@ export type GlobalOmitConfig = {
   mCPResource?: Prisma.MCPResourceOmit
   mCPConfigSample?: Prisma.MCPConfigSampleOmit
   quickPhrase?: Prisma.QuickPhraseOmit
+  modelProvider?: Prisma.ModelProviderOmit
 }
 
 /* Types for Logging */
