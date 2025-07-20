@@ -155,6 +155,7 @@ class ProvidersModelsImporter {
             type: providerType,
             name: providerKey,
             apiHost: providerData.api.url,
+            enabled: false,
             updatedAt: new Date(),
           },
           create: {
@@ -163,7 +164,7 @@ class ProvidersModelsImporter {
             name: providerKey,
             apiKey: "", // 默认空字符串，用户需要自己配置
             apiHost: providerData.api.url,
-            enabled: true,
+            enabled: false,
             isSystem: true,
             isAuthed: false,
             notes: providerData.websites?.official

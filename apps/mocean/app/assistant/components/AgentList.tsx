@@ -1,14 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { AgentModel } from "@mocean/mastra/prismaType";
-import { Filter, Search } from "lucide-react";
+import { Filter } from "lucide-react";
 
 import { AgentDetailDialog } from "@/app/assistant/components/AgentDetailDialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ItemList } from "@/components/ui/item-list";
 
 import { AgentCard } from "./AgentCard";
 
@@ -28,7 +26,6 @@ export interface AgentListProps {
  * @param agents - 智能体数组
  * @param [selectedGroup] - 当前选中的分组
  * @param [isLoading] - 是否正在加载
- * @param [onAgentSelect] - 选择智能体时的回调函数
  * @param [onCreateAssistant] - 创建助手时的回调函数
  * @param [isCreatingAssistant] - 是否正在创建助手
  * @param [className] - 自定义样式类名
@@ -38,7 +35,6 @@ export interface AgentListProps {
  * <AgentList
  *   agents={agentList}
  *   selectedGroup="精选"
- *   onAgentSelect={(agent) => console.log("选中:", agent.name)}
  *   onCreateAssistant={(agent) => createAssistant(agent)}
  * />
  */
@@ -50,7 +46,6 @@ export const AgentList: React.FC<AgentListProps> = ({
   isCreatingAssistant = false,
   className = "",
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedAgent, setSelectedAgent] = useState<AgentModel | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -91,7 +86,37 @@ export const AgentList: React.FC<AgentListProps> = ({
   };
 
   /**
-   * 处理智能体选择（原有逻辑保持不变）
+   * 分组过滤函数
+   * @param agent - 智能体对象
+   * @param selectedGroup - 选中的分组
+   * @returns 是否通过过滤
+   */
+  const groupFilter = (
+    agent: AgentModel,
+    selectedGroup: string | null,
+  ): boolean => {
+    if (!selectedGroup) return true;
+    return isAgentInGroup(agent, selectedGroup);
+  };
+
+  /**
+   * 搜索过滤函数
+   * @param agent - 智能体对象
+   * @param searchTerm - 搜索词
+   * @returns 是否通过过滤
+   */
+  const searchFilter = (agent: AgentModel, searchTerm: string): boolean => {
+    const term = searchTerm.toLowerCase().trim();
+    return (
+      agent.name.toLowerCase().includes(term) ||
+      agent.description?.toLowerCase().includes(term) ||
+      agent.type?.toLowerCase().includes(term) ||
+      agent.prompt?.toLowerCase().includes(term)
+    );
+  };
+
+  /**
+   * 处理智能体选择
    * @param agent - 被选中的智能体
    */
   const onAgentCardSelect = (agent: AgentModel) => {
@@ -107,137 +132,37 @@ export const AgentList: React.FC<AgentListProps> = ({
     setSelectedAgent(null);
   };
 
-  /**
-   * 过滤后的智能体列表
-   */
-  const filteredAgents = useMemo(() => {
-    let filtered = agents;
-
-    // 根据分组过滤
-    if (selectedGroup) {
-      filtered = filtered.filter((agent) =>
-        isAgentInGroup(agent, selectedGroup),
-      );
-    }
-
-    // 根据搜索词过滤
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(
-        (agent) =>
-          agent.name.toLowerCase().includes(term) ||
-          agent.description?.toLowerCase().includes(term) ||
-          agent.type?.toLowerCase().includes(term) ||
-          agent.prompt?.toLowerCase().includes(term),
-      );
-    }
-
-    return filtered;
-  }, [agents, selectedGroup, searchTerm]);
-
-  /**
-   * 获取当前显示的统计信息
-   */
-  const getDisplayStats = () => {
-    const total = agents.length;
-    const filtered = filteredAgents.length;
-    return { total, filtered, group: selectedGroup || "全部" };
-  };
-
-  const stats = getDisplayStats();
-
-  if (isLoading) {
-    return (
-      <div className={`space-y-4 ${className}`}>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-            <p className="text-sm text-muted-foreground">加载智能体中...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 头部区域 - 搜索和统计 */}
-      <div className="m-1 space-y-4">
-        {/* 搜索框 */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="搜索智能体名称、描述或提示词..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+    <div className={className}>
+      <ItemList
+        items={agents}
+        renderItem={(agent) => (
+          <AgentCard
+            key={agent.id}
+            agent={agent}
+            onSelect={onAgentCardSelect}
+            className="h-full"
           />
-        </div>
-
-        {/* 统计信息和过滤器 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="font-normal">
-              {stats.group}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              显示 {stats.filtered} 个，共 {stats.total} 个智能体
-            </span>
-          </div>
-
-          {searchTerm && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSearchTerm("")}
-              className="h-8 px-2"
-            >
-              清除搜索
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* 智能体网格 */}
-      {filteredAgents.length === 0 ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-              <Filter className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="mb-2 text-lg font-medium text-foreground">
-              {searchTerm ? "未找到匹配的智能体" : "暂无智能体"}
-            </h3>
-            <p className="mb-4 text-sm text-muted-foreground">
-              {searchTerm
-                ? `没有找到包含 "${searchTerm}" 的智能体`
-                : selectedGroup
-                  ? `"${selectedGroup}" 分组下暂无智能体`
-                  : "暂时没有任何智能体"}
-            </p>
-            {searchTerm && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSearchTerm("")}
-              >
-                清除搜索条件
-              </Button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {filteredAgents.map((agent) => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
-              onSelect={onAgentCardSelect}
-              className="h-full"
-            />
-          ))}
-        </div>
-      )}
+        )}
+        searchFilter={searchFilter}
+        groupFilter={groupFilter}
+        selectedGroup={selectedGroup}
+        searchPlaceholder="搜索智能体名称、描述或提示词..."
+        groupName="智能体"
+        loading={isLoading}
+        loadingText="加载智能体中..."
+        emptyState={{
+          icon: <Filter className="h-6 w-6 text-muted-foreground" />,
+          title: "暂无智能体",
+          description: "暂时没有任何智能体",
+        }}
+        gridCols={{
+          default: 1,
+          lg: 2,
+          xl: 3,
+          "2xl": 4,
+        }}
+      />
 
       {/* 智能体详情对话框 */}
       <AgentDetailDialog

@@ -68,9 +68,17 @@ const items: { title: string; url: string; Icon: LucideIcon }[] = [
  * @returns 是否激活
  */
 const isActiveItem = (itemUrl: string, currentPath: string): boolean => {
+  // 先检查除对话外的其他页面是否激活
+  const otherPages = items.filter((item) => item.url !== "/");
+  const isOtherPageActive = otherPages.some((item) =>
+    currentPath.startsWith(item.url),
+  );
+
+  // 如果是对话页面，且没有其他页面激活，则对话页面激活
   if (itemUrl === "/") {
-    return currentPath === "/" || currentPath.startsWith("/(chat)");
+    return !isOtherPageActive;
   }
+
   return currentPath.startsWith(itemUrl);
 };
 

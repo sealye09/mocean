@@ -107,7 +107,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[80vh] max-w-4xl overflow-hidden sm:max-w-lg md:max-w-2xl lg:max-w-4xl">
+      <DialogContent className="max-w-4xl overflow-hidden sm:max-w-lg md:max-w-2xl lg:max-w-4xl">
         <DialogHeader className="pb-4">
           <DialogTitle className="flex items-center space-x-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white">
