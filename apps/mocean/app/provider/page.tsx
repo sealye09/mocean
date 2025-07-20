@@ -1,73 +1,48 @@
 "use client";
 
-import Image from "next/image";
+import { useMemo } from "react";
+
 import { useSearchParams } from "next/navigation";
 
-import { Brain, Database, Eye, Loader2, Search, Zap } from "lucide-react";
+import { Database, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ItemList } from "@/components/ui/item-list";
+import { Separator } from "@/components/ui/separator";
 import { useModelsByProviderSWR } from "@/hooks/useModelsSWR";
 import { useProviderSWR } from "@/hooks/useProvidersSWR";
 
-import { getModelLogo } from "./constant";
+import { ModelCard } from "./components/ModelCard";
 
 /**
- * 模型类型图标映射
+ * 模型数据接口
  */
-const MODEL_TYPE_ICONS = {
-  text: Brain,
-  vision: Eye,
-  embedding: Database,
-  reasoning: Zap,
-  function_calling: Zap,
-  web_search: Search,
-} as const;
+interface Model {
+  id: string;
+  name: string;
+  group?: string;
+  typeJson: string[];
+  description?: string;
+  owned_by?: string;
+}
 
 /**
- * 获取模型类型的颜色样式
- * @param type - 模型类型
+ * 模型分组接口
  */
-const getModelTypeColor = (type: string) => {
-  const colorMap = {
-    text: "bg-blue-100 text-blue-600 dark:bg-blue-900/30",
-    vision: "bg-purple-100 text-purple-600 dark:bg-purple-900/30",
-    embedding: "bg-green-100 text-green-600 dark:bg-green-900/30",
-    reasoning: "bg-orange-100 text-orange-600 dark:bg-orange-900/30",
-    function_calling: "bg-red-100 text-red-600 dark:bg-red-900/30",
-    web_search: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30",
-  };
-  return (
-    colorMap[type as keyof typeof colorMap] ||
-    "bg-gray-100 text-gray-600 dark:bg-gray-900/30"
-  );
-};
-
-/**
- * 获取模型类型的中文名称
- * @param type - 模型类型
- */
-const getModelTypeName = (type: string) => {
-  const nameMap = {
-    text: "文本",
-    vision: "视觉",
-    embedding: "向量",
-    reasoning: "推理",
-    function_calling: "函数调用",
-    web_search: "网络搜索",
-  };
-  return nameMap[type as keyof typeof nameMap] || type;
-};
+interface ModelGroup {
+  groupName: string;
+  models: Model[];
+  count: number;
+}
 
 /**
  * 模型列表页面组件
- * @description 展示选中提供商的模型列表
+ * @description 展示选中提供商的模型列表，按分组显示
  */
 export default function ProviderPage() {
   const searchParams = useSearchParams();
@@ -83,21 +58,73 @@ export default function ProviderPage() {
 
   const isLoading = providerLoading || modelsLoading;
 
+  // 按组分组模型
+  const modelGroups = useMemo((): ModelGroup[] => {
+    if (!models || models.length === 0) return [];
+
+    const groups: Record<string, Model[]> = {};
+
+    models.forEach((model) => {
+      const groupName = model.group || "未分组";
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(model);
+    });
+
+    // 转换为数组并排序
+    const sortedGroups = Object.entries(groups)
+      .map(([groupName, models]) => ({
+        groupName,
+        models: models.sort((a, b) => a.name.localeCompare(b.name)),
+        count: models.length,
+      }))
+      .sort((a, b) => {
+        // 未分组放最后
+        if (a.groupName === "未分组") return 1;
+        if (b.groupName === "未分组") return -1;
+        return a.groupName.localeCompare(b.groupName);
+      });
+
+    return sortedGroups;
+  }, [models]);
+
+  /**
+   * 模型搜索过滤函数
+   * @param model - 模型数据
+   * @param searchTerm - 搜索词
+   */
+  const searchFilter = (model: Model, searchTerm: string): boolean => {
+    const term = searchTerm.toLowerCase();
+    return (
+      model.name.toLowerCase().includes(term) ||
+      model.id.toLowerCase().includes(term) ||
+      model.description?.toLowerCase().includes(term) ||
+      model.owned_by?.toLowerCase().includes(term) ||
+      model.typeJson.some((type) => type.toLowerCase().includes(term))
+    );
+  };
+
+  /**
+   * 处理模型点击事件
+   * @param model - 被点击的模型
+   */
+  const onModelClick = (model: Model) => {
+    console.log("选中模型:", model.name);
+    // 这里可以添加模型选择逻辑
+  };
+
   // 没有选中提供商时的状态
   if (!selectedProviderId) {
     return (
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="mb-2 text-lg font-semibold">选择提供商</h3>
-              <p className="text-sm text-muted-foreground">
-                请在上方选择一个提供商来查看其可用的模型列表
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="text-center">
+          <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-semibold">选择提供商</h3>
+          <p className="text-sm text-muted-foreground">
+            请在左侧选择一个提供商来查看其可用的模型列表
+          </p>
+        </div>
       </div>
     );
   }
@@ -105,17 +132,13 @@ export default function ProviderPage() {
   // 加载状态
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent className="py-12">
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin" />
-              <span className="ml-2 text-sm text-muted-foreground">
-                加载模型数据中...
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="text-sm text-muted-foreground">
+            加载模型数据中...
+          </span>
+        </div>
       </div>
     );
   }
@@ -123,15 +146,11 @@ export default function ProviderPage() {
   // 错误状态
   if (error) {
     return (
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <p className="mb-2 text-sm text-red-500">加载模型数据失败</p>
-              <p className="text-xs text-muted-foreground">{error.message}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="text-center">
+          <p className="mb-2 text-sm text-red-500">加载模型数据失败</p>
+          <p className="text-xs text-muted-foreground">{error.message}</p>
+        </div>
       </div>
     );
   }
@@ -139,133 +158,100 @@ export default function ProviderPage() {
   // 没有模型的状态
   if (models.length === 0) {
     return (
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="mb-2 text-lg font-semibold">暂无模型</h3>
-              <p className="text-sm text-muted-foreground">
-                {provider?.name} 提供商暂无可用模型
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="text-center">
+          <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-semibold">暂无模型</h3>
+          <p className="text-sm text-muted-foreground">
+            {provider?.name} 提供商暂无可用模型
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* 提供商信息摘要 */}
-      {provider && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              {provider.name} 的模型列表
-            </CardTitle>
-            <CardDescription>共 {models.length} 个可用模型</CardDescription>
-          </CardHeader>
-        </Card>
-      )}
+    <div className="flex h-full flex-col">
+      {/* 头部信息 */}
+      <div className="border-b border-border bg-card/50 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="flex h-10 w-10 items-center justify-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-sm text-white">
+                {provider?.name?.charAt(0)?.toUpperCase()}
+              </div>
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold">{provider?.name}</h1>
+              <p className="text-sm text-muted-foreground">
+                共 {models.length} 个模型，{modelGroups.length} 个分组
+              </p>
+            </div>
+          </div>
 
-      {/* 模型列表 */}
-      <div className="grid gap-4">
-        {models.map((model) => {
-          const modelLogo = getModelLogo(model.id);
-          const modelTypes = Array.isArray(model.typeJson)
-            ? model.typeJson
-            : [];
+          {/* 分组统计 */}
+          <div className="flex items-center space-x-2">
+            {modelGroups.map((group) => (
+              <Badge
+                key={group.groupName}
+                variant="outline"
+                className="text-xs"
+              >
+                {group.groupName}: {group.count}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
 
-          return (
-            <Card
-              key={model.id}
-              className="group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-            >
-              <CardContent className="p-6">
-                <div className="flex w-full items-start space-x-4">
-                  {/* 模型图标 */}
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center">
-                    {modelLogo ? (
-                      <Image
-                        src={modelLogo}
-                        alt={model.name}
-                        width={48}
-                        height={48}
-                        className="rounded-lg"
-                      />
-                    ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-lg text-white">
-                        {model.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+      {/* 模型分组列表 */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="space-y-6">
+          {modelGroups.map((group) => (
+            <Collapsible key={group.groupName} defaultOpen={true}>
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-muted/50">
+                  <div className="flex items-center space-x-3">
+                    <h3 className="text-lg font-semibold">{group.groupName}</h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {group.count} 个模型
+                    </Badge>
                   </div>
-
-                  {/* 模型信息 */}
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex items-center space-x-2">
-                      <CardTitle className="text-base transition-colors group-hover:text-primary">
-                        {model.name}
-                      </CardTitle>
-                      {model.owned_by && (
-                        <Badge variant="outline" className="text-xs">
-                          {model.owned_by}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="mb-2 flex items-center space-x-2">
-                      <span className="text-xs text-muted-foreground">
-                        模型ID:
-                      </span>
-                      <code className="rounded bg-muted px-2 py-1 font-mono text-xs">
-                        {model.id}
-                      </code>
-                    </div>
-
-                    {model.description && (
-                      <CardDescription className="mb-3 text-sm">
-                        {model.description}
-                      </CardDescription>
-                    )}
-
-                    {/* 模型类型标签 */}
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {modelTypes.map((type: string) => {
-                        const Icon =
-                          MODEL_TYPE_ICONS[
-                            type as keyof typeof MODEL_TYPE_ICONS
-                          ] || Brain;
-                        return (
-                          <Badge
-                            key={type}
-                            variant="secondary"
-                            className={`text-xs ${getModelTypeColor(type)}`}
-                          >
-                            <Icon className="mr-1 h-3 w-3" />
-                            {getModelTypeName(type)}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-
-                    {/* 模型分组 */}
-                    {model.group && (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-muted-foreground">
-                          分组:
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {model.group}
-                        </Badge>
-                      </div>
-                    )}
+                  <div className="text-sm text-muted-foreground">
+                    点击展开/折叠
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+              </CollapsibleTrigger>
+
+              <CollapsibleContent className="mt-4">
+                <ItemList
+                  items={group.models}
+                  renderItem={(model) => (
+                    <ModelCard
+                      key={model.id}
+                      model={model}
+                      onClick={onModelClick}
+                    />
+                  )}
+                  searchFilter={searchFilter}
+                  searchPlaceholder="搜索模型名称、ID、描述或类型..."
+                  groupName="模型"
+                  showStats={false}
+                  gridCols={{
+                    default: 1,
+                    lg: 2,
+                    xl: 3,
+                  }}
+                />
+              </CollapsibleContent>
+
+              {/* 分组间分隔线 */}
+              {group !== modelGroups[modelGroups.length - 1] && (
+                <Separator className="my-6" />
+              )}
+            </Collapsible>
+          ))}
+        </div>
       </div>
     </div>
   );

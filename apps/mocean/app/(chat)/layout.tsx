@@ -63,8 +63,9 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       isLoading,
       error,
     );
-    onActiveAssistantById(id || DEFAULT_ASSISTANT_ID, currentAssistants);
-    router.replace(`/${id}`);
+
+    onActiveAssistantById(DEFAULT_ASSISTANT_ID, currentAssistants);
+    router.replace(`/${DEFAULT_ASSISTANT_ID}`);
   }, [
     assistants,
     isLoading,
