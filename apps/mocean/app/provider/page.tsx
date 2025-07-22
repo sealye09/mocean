@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { useModelsByProviderSWR } from "@/hooks/useModelsSWR";
 import { useProviderSWR } from "@/hooks/useProvidersSWR";
 
+import { renderProviderAvatar } from "./components/CustomerIcon";
 import { ModelCard } from "./components/ModelCard";
 
 /**
@@ -101,7 +102,9 @@ export default function ProviderPage() {
       model.id.toLowerCase().includes(term) ||
       model.description?.toLowerCase().includes(term) ||
       model.owned_by?.toLowerCase().includes(term) ||
-      model.typeJson.some((type) => type.toLowerCase().includes(term))
+      JSON.parse(model.typeJson as string).some((type: string) =>
+        type.toLowerCase().includes(term),
+      )
     );
   };
 
@@ -177,9 +180,7 @@ export default function ProviderPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex h-10 w-10 items-center justify-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-sm text-white">
-                {provider?.name?.charAt(0)?.toUpperCase()}
-              </div>
+              {provider?.name && renderProviderAvatar(provider.name)}
             </div>
             <div>
               <h1 className="text-lg font-semibold">{provider?.name}</h1>
@@ -207,8 +208,8 @@ export default function ProviderPage() {
       {/* 模型分组列表 */}
       <div className="flex-1 overflow-auto p-6">
         <div className="space-y-6">
-          {modelGroups.map((group) => (
-            <Collapsible key={group.groupName} defaultOpen={true}>
+          {modelGroups.map((group, index) => (
+            <Collapsible key={group.groupName} defaultOpen={index === 0}>
               <CollapsibleTrigger className="w-full">
                 <div className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-muted/50">
                   <div className="flex items-center space-x-3">

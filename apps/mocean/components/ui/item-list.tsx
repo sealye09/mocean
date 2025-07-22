@@ -140,7 +140,7 @@ export function ItemList<T>({
       6: "grid-cols-6",
     };
 
-    let className = "grid gap-6";
+    let className = "grid gap-4";
 
     if (gridCols.default) {
       className += ` ${colsMap[gridCols.default] || "grid-cols-1"}`;
