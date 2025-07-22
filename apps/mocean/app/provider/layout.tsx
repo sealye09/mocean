@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Loader2, Settings } from "lucide-react";
@@ -11,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useProvidersSWR } from "@/hooks/useProvidersSWR";
 
-import { PROVIDER_LOGO_MAP } from "./constant";
+import { renderProviderAvatar } from "./components/CustomerIcon";
 
 interface ProviderLayoutProps {
   children: React.ReactNode;
@@ -36,42 +35,6 @@ export default function ProviderLayout({ children }: ProviderLayoutProps) {
     const params = new URLSearchParams(searchParams);
     params.set("provider", providerId);
     router.push(`/provider?${params.toString()}`);
-  };
-
-  /**
-   * 根据提供商类型获取图标
-   * @param providerName - 提供商名称
-   */
-  const getProviderIcon = (providerName: string) => {
-    const logo =
-      PROVIDER_LOGO_MAP[providerName as keyof typeof PROVIDER_LOGO_MAP];
-    return logo;
-  };
-
-  /**
-   * 渲染提供商头像
-   * @param providerName - 提供商名称
-   */
-  const renderProviderAvatar = (providerName: string) => {
-    const logo = getProviderIcon(providerName);
-
-    if (logo) {
-      return (
-        <Image
-          src={logo}
-          alt={providerName}
-          width={40}
-          height={40}
-          className="rounded-lg"
-        />
-      );
-    }
-
-    return (
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-sm text-white">
-        {providerName.charAt(0).toUpperCase()}
-      </div>
-    );
   };
 
   if (isLoading) {

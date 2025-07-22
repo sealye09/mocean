@@ -8,7 +8,7 @@ const AssistantLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="flex h-screen gap-6 overflow-hidden bg-background p-6">
+    <div className="flex h-screen gap-2 overflow-hidden bg-background">
       <div className="h-full w-80 flex-shrink-0">
         <AgentGroupSelect onGroupSelect={handleGroupSelect} />
       </div>
