@@ -2,10 +2,11 @@ import React from "react";
 
 import Image from "next/image";
 
-import { Brain, Database, Eye, Search, Zap } from "lucide-react";
+import { Brain, Database, Edit, Eye, Search, Trash2, Zap } from "lucide-react";
 
 import { ItemCard } from "@/components/custom/item-card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import { getModelLogo } from "../constant";
 
@@ -71,27 +72,35 @@ interface Model {
 export interface ModelCardProps {
   model: Model;
   onClick?: (model: Model) => void;
+  onEdit?: (model: Model) => void;
+  onDelete?: (model: Model) => void;
   className?: string;
 }
 
 /**
  * 模型卡片组件
- * @description 使用通用ItemCard组件显示模型信息
+ * @description 使用通用ItemCard组件显示模型信息，包含编辑和删除操作
  *
  * @param model - 模型数据
  * @param [onClick] - 点击回调函数
+ * @param [onEdit] - 编辑回调函数
+ * @param [onDelete] - 删除回调函数
  * @param [className] - 自定义类名
  *
  * @example
- * // 显示模型卡片
+ * // 显示模型卡片，带操作按钮
  * <ModelCard
  *   model={modelData}
  *   onClick={(model) => console.log("选中模型:", model.name)}
+ *   onEdit={(model) => console.log("编辑模型:", model.name)}
+ *   onDelete={(model) => console.log("删除模型:", model.name)}
  * />
  */
 export const ModelCard: React.FC<ModelCardProps> = ({
   model,
   onClick,
+  onEdit,
+  onDelete,
   className = "",
 }) => {
   const modelLogo = getModelLogo(model.id);
@@ -141,17 +150,60 @@ export const ModelCard: React.FC<ModelCardProps> = ({
   };
 
   /**
+   * 渲染操作按钮
+   */
+  const renderActions = () => {
+    if (!onEdit && !onDelete) return null;
+
+    return (
+      <div className="flex items-center space-x-1">
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(model);
+            }}
+            className="h-8 w-8 p-0"
+            title="编辑模型"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(model);
+            }}
+            className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600"
+            title="删除模型"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    );
+  };
+
+  /**
    * 渲染底部信息
    */
   const renderFooter = () => {
     return (
       <div className="space-y-2">
-        {/* 模型ID */}
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-muted-foreground">模型ID:</span>
-          <code className="rounded bg-muted px-2 py-1 font-mono text-xs">
-            {model.id}
-          </code>
+        {/* 模型ID和操作按钮 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground">模型ID:</span>
+            <code className="rounded bg-muted px-2 py-1 font-mono text-xs">
+              {model.id}
+            </code>
+          </div>
+          {renderActions()}
         </div>
 
         {/* 拥有者信息 */}
