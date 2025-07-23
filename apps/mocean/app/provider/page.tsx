@@ -15,6 +15,16 @@ import {
   Settings,
 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,11 +37,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import useCustomRequest from "@/hooks/useCustomRequest";
-import { useModelsByProviderSWR } from "@/hooks/useModelsSWR";
+import {
+  useModelsByProviderSWR,
+  useModelsWithActions,
+} from "@/hooks/useModelsSWR";
 import { useProvidersWithActions } from "@/hooks/useProvidersSWR";
 
 import { AddModelDialog } from "./components/AddModelDialog";
 import { renderProviderAvatar } from "./components/CustomerIcon";
+import { EditModelDialog } from "./components/EditModelDialog";
 import { GroupManageDialog } from "./components/GroupManageDialog";
 import { ModelCard } from "./components/ModelCard";
 import { ProviderConfigDialog } from "./components/ProviderConfigDialog";
@@ -69,11 +83,18 @@ export default function ProviderPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [addModelDialogOpen, setAddModelDialogOpen] = useState(false);
+  const [editModelDialogOpen, setEditModelDialogOpen] = useState(false);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [selectedGroupForAdd, setSelectedGroupForAdd] = useState<string>("");
+  const [selectedModelForEdit, setSelectedModelForEdit] =
+    useState<Model | null>(null);
+  const [selectedModelForDelete, setSelectedModelForDelete] =
+    useState<Model | null>(null);
   const [groupManageDialogOpen, setGroupManageDialogOpen] = useState(false);
 
   // API hooks
   const { providers, toggleEnabled } = useProvidersWithActions();
+  const { remove: removeModel } = useModelsWithActions();
   const { request } = useCustomRequest();
 
   const provider = providers.find((p) => p.id === selectedProviderId);
@@ -170,19 +191,55 @@ export default function ProviderPage() {
   };
 
   /**
+   * 处理模型编辑
+   */
+  const onModelEdit = (model: Model) => {
+    setSelectedModelForEdit(model);
+    setEditModelDialogOpen(true);
+  };
+
+  /**
+   * 处理模型删除
+   */
+  const onModelDelete = (model: Model) => {
+    setSelectedModelForDelete(model);
+    setDeleteAlertOpen(true);
+  };
+
+  /**
+   * 确认删除模型
+   */
+  const confirmDeleteModel = async () => {
+    if (!selectedModelForDelete) return;
+
+    try {
+      await request(removeModel(selectedModelForDelete.id));
+      refreshModels();
+      setDeleteAlertOpen(false);
+      setSelectedModelForDelete(null);
+    } catch (error) {
+      console.error("删除模型失败:", error);
+    }
+  };
+
+  /**
    * 处理供应商启用状态切换
    */
   const onToggleEnabled = async () => {
     if (!provider) return;
 
-    await request(toggleEnabled(provider.id));
+    try {
+      await request(toggleEnabled(provider.id));
+    } catch (error) {
+      console.error("切换提供商状态失败:", error);
+    }
   };
 
   /**
    * 处理添加模型对话框打开
    */
-  const onOpenAddModel = (groupName: string) => {
-    setSelectedGroupForAdd(groupName);
+  const onOpenAddModel = (groupName?: string) => {
+    setSelectedGroupForAdd(groupName || "");
     setAddModelDialogOpen(true);
   };
 
@@ -237,24 +294,88 @@ export default function ProviderPage() {
   }
 
   // 没有模型的状态
-  if (models.length === 0) {
+  if (!models || models.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center p-8">
-        <div className="text-center">
-          <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">暂无模型</h3>
-          <p className="text-sm text-muted-foreground">
-            {provider?.name} 提供商暂无可用模型
-          </p>
-          <Button
-            onClick={() => onOpenAddModel("未分组")}
-            className="mt-4"
-            size="sm"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            添加模型
-          </Button>
+      <div className="flex h-full flex-col">
+        {/* 头部信息 */}
+        <div className="border-b border-border bg-card/50 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center">
+                {provider?.name && renderProviderAvatar(provider.name)}
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-lg font-semibold">{provider?.name}</h1>
+                  <div className="flex items-center space-x-1">
+                    <Switch
+                      checked={provider?.enabled}
+                      onCheckedChange={onToggleEnabled}
+                    />
+                    {provider?.enabled ? (
+                      <Power className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <PowerOff className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  共 0 个模型，0 个分组
+                </p>
+              </div>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => onOpenAddModel()} size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                添加模型
+              </Button>
+
+              {/* 配置按钮 */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfigDialogOpen(true)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                配置
+              </Button>
+            </div>
+          </div>
         </div>
+
+        <div className="flex h-full items-center justify-center p-8">
+          <div className="text-center">
+            <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-semibold">暂无模型</h3>
+            <p className="text-sm text-muted-foreground">
+              {provider?.name} 提供商暂无可用模型
+            </p>
+            <Button onClick={() => onOpenAddModel()} className="mt-4" size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              添加模型
+            </Button>
+          </div>
+        </div>
+
+        {/* 对话框 */}
+        {provider && (
+          <ProviderConfigDialog
+            provider={provider}
+            open={configDialogOpen}
+            onOpenChange={setConfigDialogOpen}
+          />
+        )}
+
+        <AddModelDialog
+          providerId={selectedProviderId}
+          initialGroup={selectedGroupForAdd}
+          availableGroups={availableGroups}
+          open={addModelDialogOpen}
+          onOpenChange={setAddModelDialogOpen}
+          onSuccess={refreshModels}
+        />
       </div>
     );
   }
@@ -362,34 +483,32 @@ export default function ProviderPage() {
             {filteredModelGroups.map((group) => (
               <Collapsible key={group.groupName} defaultOpen={true}>
                 <div className="space-y-4">
-                  <CollapsibleTrigger className="w-full">
-                    <div className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-muted/50">
-                      <div className="flex items-center space-x-3">
-                        <h3 className="text-lg font-semibold">
-                          {group.groupName}
-                        </h3>
-                        <Badge variant="secondary" className="text-xs">
-                          {group.count} 个模型
-                        </Badge>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenAddModel(group.groupName);
-                          }}
-                          className="h-8 px-2"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        <div className="text-sm text-muted-foreground">
-                          点击展开/折叠
-                        </div>
-                      </div>
+                  {/* 分组标题和操作区域 */}
+                  <div className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-muted/50">
+                    <CollapsibleTrigger className="flex flex-1 items-center space-x-3">
+                      <h3 className="text-lg font-semibold">
+                        {group.groupName}
+                      </h3>
+                      <Badge variant="secondary" className="text-xs">
+                        {group.count} 个模型
+                      </Badge>
+                    </CollapsibleTrigger>
+
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenAddModel(group.groupName);
+                        }}
+                        className="h-8 px-2"
+                        title="添加模型到此分组"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </CollapsibleTrigger>
+                  </div>
 
                   <CollapsibleContent>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -398,6 +517,8 @@ export default function ProviderPage() {
                           key={model.id}
                           model={model}
                           onClick={onModelClick}
+                          onEdit={onModelEdit}
+                          onDelete={onModelDelete}
                         />
                       ))}
                     </div>
@@ -432,6 +553,36 @@ export default function ProviderPage() {
         onOpenChange={setAddModelDialogOpen}
         onSuccess={refreshModels}
       />
+
+      <EditModelDialog
+        model={selectedModelForEdit}
+        availableGroups={availableGroups}
+        open={editModelDialogOpen}
+        onOpenChange={setEditModelDialogOpen}
+        onSuccess={refreshModels}
+      />
+
+      {/* 删除确认对话框 */}
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除模型</AlertDialogTitle>
+            <AlertDialogDescription>
+              你确定要删除模型 &quot;{selectedModelForDelete?.name}&quot;
+              吗？此操作无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteModel}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <GroupManageDialog
         providerId={selectedProviderId}

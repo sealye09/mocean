@@ -25,9 +25,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import useCustomRequest from "@/hooks/useCustomRequest";
-import { useModelsWithActions } from "@/hooks/useModelsSWR";
 
 /**
  * 分组管理对话框属性
@@ -84,10 +81,6 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // API hooks
-  const { update } = useModelsWithActions();
-  const { request } = useCustomRequest();
 
   /**
    * 重置状态
@@ -373,10 +366,16 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
               <span>确认删除分组</span>
             </AlertDialogTitle>
             <AlertDialogDescription>
-              您确定要删除分组 <strong>"{groupToDelete}"</strong> 吗？
-              <br />
-              <br />
-              该操作将把该分组下的所有模型移动到"未分组"中，此操作不可撤销。
+              <>
+                您确定要删除分组 <strong>{groupToDelete}</strong> 吗？
+                <br />
+                <br />
+                <span>
+                  {
+                    '该操作将把该分组下的所有模型移动到"未分组"中，此操作不可撤销。'
+                  }
+                </span>
+              </>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

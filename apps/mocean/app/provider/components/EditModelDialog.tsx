@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Pencil, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,68 +39,104 @@ const MODEL_TYPES = [
 ];
 
 /**
- * 添加模型对话框属性
+ * 模型数据接口
  */
-export interface AddModelDialogProps {
-  /** 供应商ID */
-  providerId: string | null;
-  /** 初始分组 */
-  initialGroup?: string;
+interface Model {
+  id: string;
+  name: string;
+  group?: string;
+  typeJson: string[];
+  description?: string;
+  owned_by?: string;
+}
+
+/**
+ * 编辑模型对话框属性
+ */
+export interface EditModelDialogProps {
+  /** 要编辑的模型 */
+  model: Model | null;
   /** 可用分组列表 */
   availableGroups?: string[];
-  /** 对话框开启状态 */
+  /** 对话框打开状态 */
   open: boolean;
-  /** 对话框状态变更回调 */
+  /** 状态变更回调 */
   onOpenChange: (open: boolean) => void;
   /** 成功回调 */
   onSuccess?: () => void;
 }
 
 /**
- * 添加模型对话框组件
- * @description 用于向指定供应商添加新模型
+ * 表单数据接口
+ */
+interface FormData {
+  name: string;
+  group: string;
+  types: string[];
+  ownedBy: string;
+  description: string;
+  newGroup: string;
+}
+
+/**
+ * 编辑模型对话框组件
+ * @description 用于编辑现有模型的信息，模型ID不可修改
  *
- * @param providerId - 供应商ID
- * @param [initialGroup] - 初始分组名称
- * @param [availableGroups] - 可用分组列表
- * @param open - 对话框开启状态
- * @param onOpenChange - 对话框状态变更回调
- * @param [onSuccess] - 成功回调函数
+ * @param model - 要编辑的模型对象
+ * @param availableGroups - 可用的分组列表
+ * @param open - 对话框打开状态
+ * @param onOpenChange - 状态变更回调函数
+ * @param onSuccess - 编辑成功回调函数
  *
  * @example
- * // 添加模型到指定分组
- * <AddModelDialog
- *   providerId="provider-123"
- *   initialGroup="GPT系列"
- *   availableGroups={["GPT系列", "Claude系列"]}
- *   open={addDialogOpen}
- *   onOpenChange={setAddDialogOpen}
- *   onSuccess={refreshModels}
+ * // 编辑模型
+ * <EditModelDialog
+ *   model={selectedModel}
+ *   availableGroups={groups}
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   onSuccess={() => refreshModels()}
  * />
  */
-export const AddModelDialog: React.FC<AddModelDialogProps> = ({
-  providerId,
-  initialGroup = "",
+export const EditModelDialog: React.FC<EditModelDialogProps> = ({
+  model,
   availableGroups = [],
   open,
   onOpenChange,
   onSuccess,
 }) => {
-  // 状态管理
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
-    id: "",
-    group: initialGroup,
-    newGroup: "",
-    description: "",
+    group: "",
+    types: [],
     ownedBy: "",
-    types: [] as string[],
+    description: "",
+    newGroup: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // API hooks
-  const { create } = useModelsWithActions();
+  const { update } = useModelsWithActions();
   const { request } = useCustomRequest();
+
+  /**
+   * 当模型数据变化时初始化表单
+   */
+  useEffect(() => {
+    if (model && open) {
+      const types = Array.isArray(model.typeJson)
+        ? model.typeJson
+        : JSON.parse(model.typeJson || "[]");
+
+      setFormData({
+        name: model.name || "",
+        group: model.group || "未分组",
+        types: types,
+        ownedBy: model.owned_by || "",
+        description: model.description || "",
+        newGroup: "",
+      });
+    }
+  }, [model, open]);
 
   /**
    * 重置表单数据
@@ -108,97 +144,94 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
   const resetForm = () => {
     setFormData({
       name: "",
-      id: "",
-      group: initialGroup,
-      newGroup: "",
-      description: "",
-      ownedBy: "",
+      group: "",
       types: [],
+      ownedBy: "",
+      description: "",
+      newGroup: "",
     });
   };
 
   /**
-   * 处理表单字段变更
+   * 更新表单字段
+   * @param field - 字段名
+   * @param value - 新值
    */
-  const onFormDataChange = (field: string, value: string | string[]) => {
+  const onFormDataChange = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  /**
+   * 切换模型类型
+   * @param typeValue - 类型值
+   */
+  const onTypeToggle = (typeValue: string) => {
+    setFormData((prev) => {
+      const isSelected = prev.types.includes(typeValue);
+      if (isSelected) {
+        return {
+          ...prev,
+          types: prev.types.filter((t) => t !== typeValue),
+        };
+      } else {
+        return {
+          ...prev,
+          types: [...prev.types, typeValue],
+        };
+      }
+    });
+  };
+
+  /**
+   * 移除模型类型
+   * @param typeValue - 要移除的类型值
+   */
+  const onRemoveType = (typeValue: string) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      types: prev.types.filter((t) => t !== typeValue),
     }));
   };
 
   /**
-   * 处理模型类型变更
-   */
-  const onTypeToggle = (type: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      types: prev.types.includes(type)
-        ? prev.types.filter((t) => t !== type)
-        : [...prev.types, type],
-    }));
-  };
-
-  /**
-   * 移除选中的模型类型
-   */
-  const onRemoveType = (type: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      types: prev.types.filter((t) => t !== type),
-    }));
-  };
-
-  /**
-   * 根据模型名称自动生成ID
-   */
-  const onGenerateId = () => {
-    if (formData.name.trim()) {
-      const generatedId = formData.name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .trim();
-      onFormDataChange("id", generatedId);
-    }
-  };
-
-  /**
-   * 处理表单提交
+   * 提交表单
+   * @param e - 表单事件
    */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!model || isSubmitting) return;
 
-    if (isSubmitting || !providerId) return;
+    // 表单验证
+    if (
+      !formData.name.trim() ||
+      formData.types.length === 0 ||
+      (formData.group === "新建分组" && !formData.newGroup.trim())
+    ) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // 确定最终的分组名称
+      // 处理分组名
       const finalGroup =
-        formData.group === "新建分组"
-          ? formData.newGroup.trim()
-          : formData.group;
+        formData.group === "新建分组" ? formData.newGroup : formData.group;
 
-      const modelData = {
+      const updateData = {
         name: formData.name.trim(),
-        id: formData.id.trim(),
-        group: finalGroup || "未分组",
-        description: formData.description.trim() || null,
+        group: finalGroup === "未分组" ? null : finalGroup,
+        typeJson: formData.types,
         owned_by: formData.ownedBy.trim() || null,
-        typeJson: JSON.stringify(formData.types),
-        providerIds: [providerId],
-        isSystem: false,
-        isAuthed: false,
-        types: formData.types,
+        description: formData.description.trim() || null,
       };
 
-      await request(create(modelData));
+      await request(update(model.id, updateData));
 
-      onOpenChange(false);
-      resetForm();
+      // 成功后回调
       onSuccess?.();
+      onOpenChange(false);
     } catch (error) {
-      console.error("添加模型失败:", error);
+      console.error("更新模型失败:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -215,27 +248,33 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
   };
 
   // 分组选项列表
-  const groupOptions = [
-    ...availableGroups,
-    ...(initialGroup && !availableGroups.includes(initialGroup)
-      ? [initialGroup]
-      : []),
-    "未分组",
-    "新建分组",
-  ];
+  const groupOptions = [...availableGroups, "未分组", "新建分组"];
+
+  if (!model) return null;
 
   return (
     <Dialog open={open} onOpenChange={onDialogOpenChange}>
       <DialogContent className="max-h-[80vh] max-w-lg overflow-y-auto">
         <form onSubmit={onSubmit}>
           <DialogHeader>
-            <DialogTitle>添加模型</DialogTitle>
+            <DialogTitle>编辑模型</DialogTitle>
             <DialogDescription>
-              为当前供应商添加一个新的AI模型
+              编辑模型 &quot;{model.name}&quot; 的信息
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {/* 模型ID（只读） */}
+            <div className="space-y-2">
+              <Label htmlFor="modelId">模型ID（不可修改）</Label>
+              <Input
+                id="modelId"
+                value={model.id}
+                disabled
+                className="bg-muted"
+              />
+            </div>
+
             {/* 模型名称 */}
             <div className="space-y-2">
               <Label htmlFor="name">模型名称 *</Label>
@@ -244,29 +283,6 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
                 value={formData.name}
                 onChange={(e) => onFormDataChange("name", e.target.value)}
                 placeholder="如：GPT-4 Turbo"
-                required
-              />
-            </div>
-
-            {/* 模型ID */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="modelId">模型ID *</Label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={onGenerateId}
-                  disabled={!formData.name.trim()}
-                >
-                  基于名称生成
-                </Button>
-              </div>
-              <Input
-                id="modelId"
-                value={formData.id}
-                onChange={(e) => onFormDataChange("id", e.target.value)}
-                placeholder="如：gpt-4-turbo"
                 required
               />
             </div>
@@ -403,7 +419,6 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
               disabled={
                 isSubmitting ||
                 !formData.name.trim() ||
-                !formData.id.trim() ||
                 formData.types.length === 0 ||
                 (formData.group === "新建分组" && !formData.newGroup.trim())
               }
@@ -411,12 +426,12 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  添加中...
+                  保存中...
                 </>
               ) : (
                 <>
-                  <Plus className="mr-2 h-4 w-4" />
-                  添加模型
+                  <Pencil className="mr-2 h-4 w-4" />
+                  保存修改
                 </>
               )}
             </Button>
