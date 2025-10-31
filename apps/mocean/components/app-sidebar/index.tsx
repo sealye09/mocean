@@ -113,7 +113,7 @@ export default function AppSidebar() {
                             className={cn(
                               "h-6 w-6 transition-colors duration-200",
                               isActive
-                                ? "text-purple-600"
+                                ? "text-brand-primary"
                                 : "text-muted-foreground hover:text-foreground",
                             )}
                           />

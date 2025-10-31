@@ -28,9 +28,9 @@ const MODEL_TYPE_ICONS = {
  */
 const getModelTypeColor = (type: string) => {
   const colorMap = {
-    text: "bg-blue-100 text-blue-600 dark:bg-blue-900/30",
-    vision: "bg-purple-100 text-purple-600 dark:bg-purple-900/30",
-    embedding: "bg-green-100 text-green-600 dark:bg-green-900/30",
+    text: "bg-blue-100 text-info dark:bg-blue-900/30",
+    vision: "bg-purple-100 text-brand-primary dark:bg-purple-900/30",
+    embedding: "bg-green-100 text-success dark:bg-green-900/30",
     reasoning: "bg-orange-100 text-orange-600 dark:bg-orange-900/30",
     function_calling: "bg-red-100 text-red-600 dark:bg-red-900/30",
     web_search: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30",
@@ -123,7 +123,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
     }
 
     return (
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-sm text-white">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-brand text-sm text-white">
         {model.name.charAt(0).toUpperCase()}
       </div>
     );

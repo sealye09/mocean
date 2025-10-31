@@ -46,8 +46,8 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-lg text-lg font-semibold text-white transition-all duration-200 ${
                 isActive
-                  ? "scale-105 bg-gradient-to-br from-purple-500 to-purple-700"
-                  : "bg-gradient-to-br from-blue-500 to-purple-600"
+                  ? "scale-105 bg-gradient-brand-active"
+                  : "bg-gradient-brand"
               }`}
             >
               {assistant.emoji || <Bot className="h-5 w-5" />}
@@ -56,7 +56,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
               <CardTitle
                 className={`text-base transition-colors ${
                   isActive
-                    ? "font-semibold text-purple-600"
+                    ? "font-semibold text-brand-primary"
                     : "group-hover:text-primary"
                 }`}
               >
@@ -66,7 +66,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
                 variant={isActive ? "default" : "secondary"}
                 className={`mt-1 text-xs capitalize ${
                   isActive
-                    ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30"
+                    ? "bg-purple-100 text-brand-primary dark:bg-purple-900/30"
                     : ""
                 }`}
               >
@@ -78,12 +78,12 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
           <div className="flex space-x-1">
             {assistant.enableWebSearch && (
               <Badge variant="outline" className="p-1">
-                <Globe className="h-3 w-3 text-green-600" />
+                <Globe className="h-3 w-3 text-success" />
               </Badge>
             )}
             {assistant.enableGenerateImage && (
               <Badge variant="outline" className="p-1">
-                <Image className="h-3 w-3 text-purple-600" />
+                <Image className="h-3 w-3 text-brand-primary" />
               </Badge>
             )}
           </div>

@@ -54,11 +54,38 @@ const config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // 品牌主题色
+        brand: {
+          primary: "hsl(var(--brand-primary))",
+          secondary: "hsl(var(--brand-secondary))",
+          gradient: {
+            from: "hsl(var(--brand-gradient-from))",
+            to: "hsl(var(--brand-gradient-to))",
+          },
+        },
+        // 状态颜色
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        "gradient-brand": "linear-gradient(to bottom right, hsl(var(--brand-gradient-from)), hsl(var(--brand-gradient-to)))",
+        "gradient-brand-active": "linear-gradient(to bottom right, hsl(var(--brand-primary)), hsl(var(--brand-secondary)))",
+        "gradient-success": "linear-gradient(to bottom right, hsl(var(--success)), hsl(var(--info)))",
       },
       keyframes: {
         "accordion-down": {

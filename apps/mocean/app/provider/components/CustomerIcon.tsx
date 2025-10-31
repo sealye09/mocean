@@ -32,7 +32,7 @@ export const renderProviderAvatar = (providerName: string) => {
   }
 
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-sm text-white">
+    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-brand text-sm text-white">
       {providerName.charAt(0).toUpperCase()}
     </div>
   );
