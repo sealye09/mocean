@@ -43,6 +43,20 @@
       --chart-4: 43 74% 66%;
 
       --chart-5: 27 87% 67%;
+
+      /* 品牌主题色 */
+      --brand-primary: 271 91% 65%;
+      --brand-secondary: 271 91% 55%;
+      --brand-gradient-from: 217 91% 60%;
+      --brand-gradient-to: 271 91% 65%;
+
+      /* 状态颜色 */
+      --success: 142 76% 36%;
+      --success-foreground: 0 0% 98%;
+      --warning: 38 92% 50%;
+      --warning-foreground: 0 0% 98%;
+      --info: 199 89% 48%;
+      --info-foreground: 0 0% 98%;
     }
 
     .dark {
@@ -78,6 +92,20 @@
       --chart-3: 30 80% 55%;
       --chart-4: 280 65% 60%;
       --chart-5: 340 75% 55%;
+
+      /* 品牌主题色 - 暗黑模式 */
+      --brand-primary: 271 81% 75%;
+      --brand-secondary: 271 81% 65%;
+      --brand-gradient-from: 217 81% 70%;
+      --brand-gradient-to: 271 81% 75%;
+
+      /* 状态颜色 - 暗黑模式 */
+      --success: 142 70% 45%;
+      --success-foreground: 0 0% 98%;
+      --warning: 38 82% 60%;
+      --warning-foreground: 0 0% 98%;
+      --info: 199 79% 58%;
+      --info-foreground: 0 0% 98%;
     }
   }
 

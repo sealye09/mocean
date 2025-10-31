@@ -18,12 +18,12 @@ const CreateAssistantCard: React.FC<CreateAssistantCardProps> = ({
       <CardContent className="flex items-center p-6">
         <div className="flex w-full items-center space-x-4">
           <div className="relative">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform duration-200 group-hover:scale-110">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand text-white transition-transform duration-200 group-hover:scale-110">
               <Plus className="h-6 w-6" />
             </div>
 
             <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-background shadow-lg transition-transform duration-200 group-hover:rotate-12">
-              <Bot className="h-2 w-2 text-blue-500" />
+              <Bot className="h-2 w-2 text-info" />
             </div>
           </div>
 

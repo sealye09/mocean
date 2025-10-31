@@ -35,12 +35,12 @@ const CreateThreadCard: React.FC<{ onClick: () => void }> = ({ onClick }) => {
       <CardContent className="flex items-center p-6">
         <div className="flex w-full items-center space-x-4">
           <div className="relative">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform duration-200 group-hover:scale-110">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand text-white transition-transform duration-200 group-hover:scale-110">
               <Plus className="h-6 w-6" />
             </div>
 
             <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-background shadow-lg transition-transform duration-200 group-hover:rotate-12">
-              <MessageCircle className="h-2 w-2 text-blue-500" />
+              <MessageCircle className="h-2 w-2 text-info" />
             </div>
           </div>
 
@@ -122,8 +122,8 @@ const ThreadItem: React.FC<{
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-lg text-white transition-all duration-200 ${
                 isActive
-                  ? "scale-105 bg-gradient-to-br from-purple-500 to-purple-700"
-                  : "bg-gradient-to-br from-green-500 to-teal-600"
+                  ? "scale-105 bg-gradient-brand-active"
+                  : "bg-gradient-success"
               }`}
             >
               <MessageCircle className="h-5 w-5" />
@@ -132,7 +132,7 @@ const ThreadItem: React.FC<{
               <CardTitle
                 className={`text-base transition-colors ${
                   isActive
-                    ? "font-semibold text-purple-600"
+                    ? "font-semibold text-brand-primary"
                     : "group-hover:text-primary"
                 }`}
               >
@@ -142,7 +142,7 @@ const ThreadItem: React.FC<{
                 variant={isActive ? "default" : "secondary"}
                 className={`mt-1 text-xs ${
                   isActive
-                    ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30"
+                    ? "bg-purple-100 text-brand-primary dark:bg-purple-900/30"
                     : ""
                 }`}
               >

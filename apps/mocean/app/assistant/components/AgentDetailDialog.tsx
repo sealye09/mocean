@@ -110,7 +110,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
       <DialogContent className="max-w-4xl overflow-hidden sm:max-w-lg md:max-w-2xl lg:max-w-4xl">
         <DialogHeader className="pb-4">
           <DialogTitle className="flex items-center space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand text-white">
               <Bot className="h-4 w-4" />
             </div>
             <span className="text-lg">{agent?.name}</span>
@@ -123,7 +123,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center space-x-2 text-base">
-                  <Zap className="h-4 w-4 text-purple-600" />
+                  <Zap className="h-4 w-4 text-brand-primary" />
                   <span>基本信息</span>
                 </CardTitle>
               </CardHeader>
@@ -140,7 +140,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
                         <Badge
                           key={index}
                           variant="secondary"
-                          className="border-blue-200 bg-blue-100 text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                          className="border-info/20 bg-info/10 text-info dark:border-info/30 dark:bg-info/20 dark:text-info-foreground"
                         >
                           {group}
                         </Badge>
@@ -174,7 +174,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center space-x-2 text-base">
-                    <Eye className="h-4 w-4 text-blue-500" />
+                    <Eye className="h-4 w-4 text-info" />
                     <span>系统提示词</span>
                   </CardTitle>
                 </CardHeader>
@@ -206,7 +206,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
                 <Button
                   onClick={onSelectAgent}
                   disabled={isCreatingAssistant}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50"
+                  className="flex items-center space-x-2 bg-gradient-brand hover:bg-gradient-brand-active disabled:opacity-50"
                 >
                   {isCreatingAssistant ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

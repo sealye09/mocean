@@ -98,7 +98,7 @@ export const AgentCard: React.FC<AgentCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
             {/* 智能体头像/图标 */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-brand text-white">
               {agent.emoji ? (
                 <span className="text-lg">{agent.emoji}</span>
               ) : (

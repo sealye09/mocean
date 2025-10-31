@@ -43,7 +43,7 @@ export const AgentGroupSelect: React.FC<AgentGroupSelectProps> = ({
         key={group}
         className={`cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
           isSelected
-            ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
+            ? "bg-gradient-brand text-white shadow-lg"
             : "border border-border bg-card hover:border-primary/50 hover:bg-muted/80"
         } group rounded-lg p-3`}
         onClick={() => onGroupClick(group)}
@@ -53,7 +53,7 @@ export const AgentGroupSelect: React.FC<AgentGroupSelectProps> = ({
             className={`flex h-8 w-8 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110 ${
               isSelected
                 ? "bg-white/20 text-white"
-                : "bg-gradient-to-br from-blue-500/10 to-purple-600/10 text-blue-600"
+                : "bg-gradient-to-br from-blue-500/10 to-purple-600/10 text-info"
             } `}
           >
             <AgentGroupIcon groupName={group} size={16} strokeWidth={1.5} />
@@ -84,7 +84,7 @@ export const AgentGroupSelect: React.FC<AgentGroupSelectProps> = ({
   return (
     <div className="flex h-full flex-col">
       <div className="mb-4 flex flex-shrink-0 items-center space-x-3">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-brand text-white">
           <AgentGroupIcon groupName="我的" size={16} />
         </div>
         <h3 className="text-lg font-semibold text-foreground">Agent分组</h3>
@@ -113,7 +113,7 @@ export const AgentGroupSelect: React.FC<AgentGroupSelectProps> = ({
 
       {currentGroup && (
         <div className="mt-4 flex flex-shrink-0 items-center space-x-2 pt-4">
-          <div className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+          <div className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-brand text-white">
             <AgentGroupIcon
               groupName={currentGroup as keyof typeof iconMap}
               size={12}
