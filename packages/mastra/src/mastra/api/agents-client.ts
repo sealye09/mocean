@@ -1,6 +1,14 @@
 /// <reference lib="dom" />
 import { AgentModel } from "generated/prisma/models";
 
+import {
+  createAgent as createAgentPrisma,
+  deleteAgent as deleteAgentPrisma,
+  getAgentByGroup as getAgentByGroupPrisma,
+  getAgentById as getAgentByIdPrisma,
+  getAgents as getAgentsPrisma,
+  updateAgent as updateAgentPrisma,
+} from "../prisma/agent";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
 
 /**
@@ -33,8 +41,10 @@ export class AgentsApiClient extends BaseApiClient {
    * 获取所有代理
    * @description 获取系统中所有可用的代理列表
    */
-  async getAgents(): Promise<ApiResponse<AgentModel[]>> {
-    return this.get<AgentModel[]>("/agents");
+  async getAgents(): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getAgentsPrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getAgentsPrisma>>>("/agents");
   }
 
   /**
@@ -42,8 +52,12 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 通过代理ID获取特定代理的详细信息
    * @param id - 代理的唯一标识符
    */
-  async getAgentById(id: string): Promise<ApiResponse<AgentModel>> {
-    return this.get<AgentModel>(`/agents/${id}`);
+  async getAgentById(
+    id: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getAgentByIdPrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getAgentByIdPrisma>>>(
+      `/agents/${id}`,
+    );
   }
 
   /**
@@ -51,8 +65,13 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 在系统中创建一个新的代理
    * @param agentData - 代理信息对象
    */
-  async createAgent(agentData: AgentInput): Promise<ApiResponse<AgentModel>> {
-    return this.post<AgentModel>("/agents", agentData);
+  async createAgent(
+    agentData: AgentInput,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof createAgentPrisma>>>> {
+    return this.post<Awaited<ReturnType<typeof createAgentPrisma>>>(
+      "/agents",
+      agentData,
+    );
   }
 
   /**
@@ -64,8 +83,11 @@ export class AgentsApiClient extends BaseApiClient {
   async updateAgent(
     id: string,
     agentData: Partial<AgentInput>,
-  ): Promise<ApiResponse<AgentModel>> {
-    return this.put<AgentModel>(`/agents/${id}`, agentData);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof updateAgentPrisma>>>> {
+    return this.put<Awaited<ReturnType<typeof updateAgentPrisma>>>(
+      `/agents/${id}`,
+      agentData,
+    );
   }
 
   /**
@@ -73,8 +95,12 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 删除指定的代理
    * @param id - 代理的唯一标识符
    */
-  async deleteAgent(id: string): Promise<ApiResponse<AgentModel>> {
-    return this.delete<AgentModel>(`/agents/${id}`);
+  async deleteAgent(
+    id: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof deleteAgentPrisma>>>> {
+    return this.delete<Awaited<ReturnType<typeof deleteAgentPrisma>>>(
+      `/agents/${id}`,
+    );
   }
 
   /**
@@ -82,8 +108,12 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 根据分组获取代理
    * @param group - 分组
    */
-  async getAgentByGroup(group: string): Promise<ApiResponse<AgentModel[]>> {
-    return this.get<AgentModel[]>(`/agents/group/${group}`);
+  async getAgentByGroup(
+    group: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getAgentByGroupPrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getAgentByGroupPrisma>>>(
+      `/agents/group/${group}`,
+    );
   }
 }
 
@@ -136,10 +166,30 @@ export const agentsApiMethods = {
 };
 
 /**
+ * React Hook 风格的 API 调用方法返回类型
+ * @description 从 AgentsApiClient 类中提取方法类型，自动保持类型同步
+ */
+export type UseAgentsApiReturn = Pick<
+  AgentsApiClient,
+  | "getAgents"
+  | "getAgentById"
+  | "createAgent"
+  | "updateAgent"
+  | "deleteAgent"
+  | "getAgentByGroup"
+>;
+
+/**
  * React Hook 风格的 API 调用方法
  * @description 适用于 React 应用的 Hook 风格调用
+ *
+ * @returns 绑定了 this 上下文的 API 方法对象
+ *
+ * @example
+ * const api = useAgentsApi();
+ * const response = await api.getAgents();
  */
-export const useAgentsApi = () => {
+export const useAgentsApi = (): UseAgentsApiReturn => {
   return {
     getAgents: agentsApi.getAgents.bind(agentsApi),
     getAgentById: agentsApi.getAgentById.bind(agentsApi),

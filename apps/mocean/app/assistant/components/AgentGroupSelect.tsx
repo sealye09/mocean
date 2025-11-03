@@ -83,13 +83,6 @@ export const AgentGroupSelect: React.FC<AgentGroupSelectProps> = ({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-4 flex flex-shrink-0 items-center space-x-3">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-brand text-white">
-          <AgentGroupIcon groupName="我的" size={16} />
-        </div>
-        <h3 className="text-lg font-semibold text-foreground">Agent分组</h3>
-      </div>
-
       <div className="flex-1 overflow-hidden">
         <ItemList
           items={groupList}

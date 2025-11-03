@@ -4,7 +4,7 @@
   "globalDependencies": [".env"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^lint", "^check-types", "^bundle", "^build"],
       "env": [
         "PRISMA_DATABASE_URL",
         "MASTRA_DATABASE_URL",
@@ -22,9 +22,16 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
+      "dependsOn": ["^bundle"],
       "cache": false,
       "inputs": [".env"],
       "persistent": true
-    }
+    },
+    "bundle": {
+      "dependsOn": ["^bundle"],
+      "cache": true,
+      "outputs": ["dist/**"]
+    },
+    "serve": {}
   }
 }

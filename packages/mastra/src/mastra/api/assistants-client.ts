@@ -3,6 +3,13 @@ import { StorageThreadType } from "@mastra/core";
 import { UIMessage } from "ai";
 import { AssistantModel } from "generated/prisma/models";
 
+import {
+  createAssistant as createAssistantPrisma,
+  deleteAssistant as deleteAssistantPrisma,
+  getAssistantById as getAssistantByIdPrisma,
+  getAssistants as getAssistantsPrisma,
+  updateAssistant as updateAssistantPrisma,
+} from "../prisma/assistant";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
 
 /**
@@ -36,8 +43,12 @@ export class AssistantsApiClient extends BaseApiClient {
    * 获取所有助手
    * @description 获取系统中所有可用的助手列表
    */
-  async getAssistants(): Promise<ApiResponse<AssistantModel[]>> {
-    return this.get<AssistantModel[]>("/assistants");
+  async getAssistants(): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getAssistantsPrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getAssistantsPrisma>>>(
+      "/assistants",
+    );
   }
 
   /**
@@ -47,8 +58,10 @@ export class AssistantsApiClient extends BaseApiClient {
    */
   async getAssistantById(
     assistantId: string,
-  ): Promise<ApiResponse<AssistantModel>> {
-    return this.get<AssistantModel>(`/assistants/${assistantId}`);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getAssistantByIdPrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getAssistantByIdPrisma>>>(
+      `/assistants/${assistantId}`,
+    );
   }
 
   /**
@@ -58,8 +71,11 @@ export class AssistantsApiClient extends BaseApiClient {
    */
   async createAssistant(
     assistantData: AssistantInput,
-  ): Promise<ApiResponse<AssistantModel>> {
-    return this.post<AssistantModel>("/assistants", assistantData);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof createAssistantPrisma>>>> {
+    return this.post<Awaited<ReturnType<typeof createAssistantPrisma>>>(
+      "/assistants",
+      assistantData,
+    );
   }
 
   /**
@@ -71,8 +87,8 @@ export class AssistantsApiClient extends BaseApiClient {
   async updateAssistant(
     assistantId: string,
     assistantData: Partial<AssistantInput>,
-  ): Promise<ApiResponse<AssistantModel>> {
-    return this.put<AssistantModel>(
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof updateAssistantPrisma>>>> {
+    return this.put<Awaited<ReturnType<typeof updateAssistantPrisma>>>(
       `/assistants/${assistantId}`,
       assistantData,
     );
@@ -85,8 +101,10 @@ export class AssistantsApiClient extends BaseApiClient {
    */
   async deleteAssistant(
     assistantId: string,
-  ): Promise<ApiResponse<AssistantModel>> {
-    return this.delete<AssistantModel>(`/assistants/${assistantId}`);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof deleteAssistantPrisma>>>> {
+    return this.delete<Awaited<ReturnType<typeof deleteAssistantPrisma>>>(
+      `/assistants/${assistantId}`,
+    );
   }
 
   /**
@@ -177,44 +195,38 @@ export const assistantsApiMethods = {
 };
 
 /**
+ * React Hook 风格的 API 调用方法返回类型
+ * @description 从 AssistantsApiClient 类中提取方法类型，自动保持类型同步
+ */
+export type UseAssistantsApiReturn = Pick<
+  AssistantsApiClient,
+  | "getAssistants"
+  | "getAssistantById"
+  | "createAssistant"
+  | "updateAssistant"
+  | "deleteAssistant"
+  | "getAssistantThreads"
+  | "getAssistantUIMessageByThreadId"
+>;
+
+/**
  * React Hook 风格的 API 调用方法
  * @description 适用于 React 应用的 Hook 风格调用
+ *
+ * @returns API 方法对象，直接使用 assistantsApiMethods
+ *
+ * @example
+ * const api = useAssistantsApi();
+ * const response = await api.getAssistants();
  */
-export const useAssistantsApi = () => {
+export const useAssistantsApi = (): UseAssistantsApiReturn => {
   return {
-    /**
-     * 获取所有助手
-     */
     getAssistants: assistantsApiMethods.getAssistants,
-
-    /**
-     * 根据ID获取助手
-     */
     getAssistantById: assistantsApiMethods.getAssistantById,
-
-    /**
-     * 创建助手
-     */
     createAssistant: assistantsApiMethods.createAssistant,
-
-    /**
-     * 更新助手
-     */
     updateAssistant: assistantsApiMethods.updateAssistant,
-
-    /**
-     * 删除助手
-     */
     deleteAssistant: assistantsApiMethods.deleteAssistant,
-
-    /**
-     * 获取助手历史记录
-     */
     getAssistantThreads: assistantsApiMethods.getAssistantThreads,
-
-    /**
-     * 获取助手历史记录
-     */
     getAssistantUIMessageByThreadId:
       assistantsApiMethods.getAssistantUIMessageByThreadId,
   };
