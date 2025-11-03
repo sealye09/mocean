@@ -2,6 +2,17 @@
 import { ProviderType } from "generated/prisma/enums";
 import { ProviderModel } from "generated/prisma/models";
 
+import {
+  createProvider as createProviderPrisma,
+  deleteProvider as deleteProviderPrisma,
+  getEnabledProviders,
+  getProviderById as getProviderByIdPrisma,
+  getProvidersByModel as getProvidersByModelPrisma,
+  getProvidersByType as getProvidersByTypePrisma,
+  getProviders as getProvidersPrisma,
+  toggleProviderEnabled as toggleProviderEnabledPrisma,
+  updateProvider as updateProviderPrisma,
+} from "../prisma/provider";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
 
 /**
@@ -35,16 +46,24 @@ export class ProvidersApiClient extends BaseApiClient {
    * 获取所有提供商
    * @description 获取系统中所有可用的提供商列表，包含关联的模型信息
    */
-  async getProviders(): Promise<ApiResponse<ProviderModel[]>> {
-    return this.get<ProviderModel[]>("/providers");
+  async getProviders(): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getProvidersPrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getProvidersPrisma>>>(
+      "/providers",
+    );
   }
 
   /**
    * 获取启用的提供商
    * @description 获取系统中所有启用状态的提供商列表
    */
-  async getEnabledProviders(): Promise<ApiResponse<ProviderModel[]>> {
-    return this.get<ProviderModel[]>("/providers/enabled");
+  async getEnabledProviders(): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getEnabledProviders>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getEnabledProviders>>>(
+      "/providers/enabled",
+    );
   }
 
   /**
@@ -54,8 +73,10 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProviderById(
     id: string,
-  ): Promise<ApiResponse<ProviderModel | null>> {
-    return this.get<ProviderModel | null>(`/providers/${id}`);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getProviderByIdPrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getProviderByIdPrisma>>>(
+      `/providers/${id}`,
+    );
   }
 
   /**
@@ -65,8 +86,12 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProvidersByType(
     type: ProviderType,
-  ): Promise<ApiResponse<ProviderModel[]>> {
-    return this.get<ProviderModel[]>(`/providers/type/${type}`);
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getProvidersByTypePrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getProvidersByTypePrisma>>>(
+      `/providers/type/${type}`,
+    );
   }
 
   /**
@@ -76,8 +101,12 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProvidersByModel(
     modelId: string,
-  ): Promise<ApiResponse<ProviderModel[]>> {
-    return this.get<ProviderModel[]>(`/providers/by-model/${modelId}`);
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getProvidersByModelPrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getProvidersByModelPrisma>>>(
+      `/providers/by-model/${modelId}`,
+    );
   }
 
   /**
@@ -87,8 +116,11 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async createProvider(
     provider: ProviderInput,
-  ): Promise<ApiResponse<ProviderModel>> {
-    return this.post<ProviderModel>("/providers", provider);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof createProviderPrisma>>>> {
+    return this.post<Awaited<ReturnType<typeof createProviderPrisma>>>(
+      "/providers",
+      provider,
+    );
   }
 
   /**
@@ -100,8 +132,11 @@ export class ProvidersApiClient extends BaseApiClient {
   async updateProvider(
     id: string,
     provider: Partial<ProviderInput>,
-  ): Promise<ApiResponse<ProviderModel>> {
-    return this.put<ProviderModel>(`/providers/${id}`, provider);
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof updateProviderPrisma>>>> {
+    return this.put<Awaited<ReturnType<typeof updateProviderPrisma>>>(
+      `/providers/${id}`,
+      provider,
+    );
   }
 
   /**
@@ -109,8 +144,12 @@ export class ProvidersApiClient extends BaseApiClient {
    * @description 删除指定的提供商记录
    * @param id - 提供商的唯一标识符
    */
-  async deleteProvider(id: string): Promise<ApiResponse<ProviderModel>> {
-    return this.delete<ProviderModel>(`/providers/${id}`);
+  async deleteProvider(
+    id: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof deleteProviderPrisma>>>> {
+    return this.delete<Awaited<ReturnType<typeof deleteProviderPrisma>>>(
+      `/providers/${id}`,
+    );
   }
 
   /**
@@ -118,8 +157,15 @@ export class ProvidersApiClient extends BaseApiClient {
    * @description 切换提供商的启用/禁用状态
    * @param id - 提供商的唯一标识符
    */
-  async toggleProviderEnabled(id: string): Promise<ApiResponse<ProviderModel>> {
-    return this.put<ProviderModel>(`/providers/${id}/toggle`, {});
+  async toggleProviderEnabled(
+    id: string,
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof toggleProviderEnabledPrisma>>>
+  > {
+    return this.put<Awaited<ReturnType<typeof toggleProviderEnabledPrisma>>>(
+      `/providers/${id}/toggle`,
+      {},
+    );
   }
 }
 
@@ -185,10 +231,32 @@ export const providersApiMethods = {
 };
 
 /**
+ * React Hook 风格的 API 调用方法返回类型
+ * @description 从 ProvidersApiClient 类中提取方法类型，自动保持类型同步
+ */
+export type UseProvidersApiReturn = Pick<
+  ProvidersApiClient,
+  | "getProviders"
+  | "getEnabledProviders"
+  | "getProviderById"
+  | "getProvidersByType"
+  | "createProvider"
+  | "updateProvider"
+  | "deleteProvider"
+  | "toggleProviderEnabled"
+>;
+
+/**
  * React Hook 风格的 API 调用方法
  * @description 适用于 React 应用的 Hook 风格调用
+ *
+ * @returns 绑定了 this 上下文的 API 方法对象
+ *
+ * @example
+ * const api = useProvidersApi();
+ * const response = await api.getProviders();
  */
-export const useProvidersApi = () => {
+export const useProvidersApi = (): UseProvidersApiReturn => {
   return {
     getProviders: providersApi.getProviders.bind(providersApi),
     getEnabledProviders: providersApi.getEnabledProviders.bind(providersApi),

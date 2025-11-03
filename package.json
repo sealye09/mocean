@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo run dev serve",
     "lint": "turbo lint",
     "lint:check": "turbo lint -- --max-warnings=0",
     "lint:fix": "turbo lint -- --fix",

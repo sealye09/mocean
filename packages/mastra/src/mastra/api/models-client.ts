@@ -2,6 +2,20 @@
 import { ModelType } from "generated/prisma/enums";
 import { ModelModel } from "generated/prisma/models";
 
+import {
+  addModelProviderRelation as addModelProviderRelationPrisma,
+  createManyModels as createManyModelsPrisma,
+  createModel as createModelPrisma,
+  deleteModel as deleteModelPrisma,
+  getModelById as getModelByIdPrisma,
+  getModelProviderRelations as getModelProviderRelationsPrisma,
+  getModelsByGroup as getModelsByGroupPrisma,
+  getModelsByProvider as getModelsByProviderPrisma,
+  getModelsByType as getModelsByTypePrisma,
+  getModels as getModelsPrisma,
+  removeModelProviderRelation as removeModelProviderRelationPrisma,
+  updateModel as updateModelPrisma,
+} from "../prisma/model";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
 
 /**
@@ -56,8 +70,10 @@ export class ModelsApiClient extends BaseApiClient {
    * 获取所有模型
    * @description 获取系统中所有可用的模型列表，包含关联的提供商信息
    */
-  async getModels(): Promise<ApiResponse<ModelModel[]>> {
-    return this.get<ModelModel[]>("/models");
+  async getModels(): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getModelsPrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getModelsPrisma>>>("/models");
   }
 
   /**
@@ -65,8 +81,12 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 通过模型ID获取特定模型的详细信息
    * @param id - 模型的唯一标识符
    */
-  async getModelById(id: string): Promise<ApiResponse<ModelModel | null>> {
-    return this.get<ModelModel | null>(`/models/${id}`);
+  async getModelById(
+    id: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getModelByIdPrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getModelByIdPrisma>>>(
+      `/models/${id}`,
+    );
   }
 
   /**
@@ -76,8 +96,12 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelsByProvider(
     providerId: string,
-  ): Promise<ApiResponse<ModelModel[]>> {
-    return this.get<ModelModel[]>(`/models/provider/${providerId}`);
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getModelsByProviderPrisma>>>
+  > {
+    return this.get<Awaited<ReturnType<typeof getModelsByProviderPrisma>>>(
+      `/models/provider/${providerId}`,
+    );
   }
 
   /**
@@ -85,8 +109,12 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 获取指定类型的所有模型
    * @param type - 模型类型
    */
-  async getModelsByType(type: ModelType): Promise<ApiResponse<ModelModel[]>> {
-    return this.get<ModelModel[]>(`/models/type/${type}`);
+  async getModelsByType(
+    type: ModelType,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getModelsByTypePrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getModelsByTypePrisma>>>(
+      `/models/type/${type}`,
+    );
   }
 
   /**
@@ -94,8 +122,12 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 获取指定分组的所有模型
    * @param group - 模型分组
    */
-  async getModelsByGroup(group: string): Promise<ApiResponse<ModelModel[]>> {
-    return this.get<ModelModel[]>(`/models/group/${group}`);
+  async getModelsByGroup(
+    group: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof getModelsByGroupPrisma>>>> {
+    return this.get<Awaited<ReturnType<typeof getModelsByGroupPrisma>>>(
+      `/models/group/${group}`,
+    );
   }
 
   /**
@@ -103,14 +135,19 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 创建一个新的模型记录，并关联指定的提供商
    * @param model - 包含模型信息的对象
    */
-  async createModel(model: ModelCreateInput): Promise<ApiResponse<ModelModel>> {
+  async createModel(
+    model: ModelCreateInput,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof createModelPrisma>>>> {
     // 转换types为typeJson格式
     const payload = {
       ...model,
       typeJson: model.types,
     };
 
-    return this.post<ModelModel>("/models", payload);
+    return this.post<Awaited<ReturnType<typeof createModelPrisma>>>(
+      "/models",
+      payload,
+    );
   }
 
   /**
@@ -122,7 +159,7 @@ export class ModelsApiClient extends BaseApiClient {
   async updateModel(
     id: string,
     model: ModelUpdateInput,
-  ): Promise<ApiResponse<ModelModel>> {
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof updateModelPrisma>>>> {
     // 转换types为typeJson格式
     const payload = model.types
       ? {
@@ -131,7 +168,10 @@ export class ModelsApiClient extends BaseApiClient {
         }
       : model;
 
-    return this.put<ModelModel>(`/models/${id}`, payload);
+    return this.put<Awaited<ReturnType<typeof updateModelPrisma>>>(
+      `/models/${id}`,
+      payload,
+    );
   }
 
   /**
@@ -139,8 +179,12 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 删除指定的模型记录
    * @param id - 模型的唯一标识符
    */
-  async deleteModel(id: string): Promise<ApiResponse<ModelModel>> {
-    return this.delete<ModelModel>(`/models/${id}`);
+  async deleteModel(
+    id: string,
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof deleteModelPrisma>>>> {
+    return this.delete<Awaited<ReturnType<typeof deleteModelPrisma>>>(
+      `/models/${id}`,
+    );
   }
 
   /**
@@ -150,14 +194,14 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async createManyModels(
     models: ModelCreateInput[],
-  ): Promise<ApiResponse<BatchCreateResult>> {
+  ): Promise<ApiResponse<Awaited<ReturnType<typeof createManyModelsPrisma>>>> {
     // 转换types为typeJson格式
     const payload = models.map((model) => ({
       ...model,
       typeJson: model.types,
     }));
 
-    return this.post<BatchCreateResult>(
+    return this.post<Awaited<ReturnType<typeof createManyModelsPrisma>>>(
       "/models/batch",
       payload as unknown as Record<string, unknown>,
     );
@@ -170,8 +214,12 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async addModelProviderRelation(
     relation: ModelProviderRelation,
-  ): Promise<ApiResponse<ModelProviderRelation>> {
-    return this.post<ModelProviderRelation>("/models/relations", relation);
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof addModelProviderRelationPrisma>>>
+  > {
+    return this.post<
+      Awaited<ReturnType<typeof addModelProviderRelationPrisma>>
+    >("/models/relations", relation);
   }
 
   /**
@@ -181,8 +229,12 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async removeModelProviderRelation(
     relation: ModelProviderRelation,
-  ): Promise<ApiResponse<ModelProviderRelation>> {
-    return this.delete<ModelProviderRelation>("/models/relations", relation);
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof removeModelProviderRelationPrisma>>>
+  > {
+    return this.delete<
+      Awaited<ReturnType<typeof removeModelProviderRelationPrisma>>
+    >("/models/relations", relation);
   }
 
   /**
@@ -192,8 +244,12 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelProviderRelations(
     modelId: string,
-  ): Promise<ApiResponse<ModelProviderRelation[]>> {
-    return this.get<ModelProviderRelation[]>(`/models/${modelId}/relations`);
+  ): Promise<
+    ApiResponse<Awaited<ReturnType<typeof getModelProviderRelationsPrisma>>>
+  > {
+    return this.get<
+      Awaited<ReturnType<typeof getModelProviderRelationsPrisma>>
+    >(`/models/${modelId}/relations`);
   }
 }
 
@@ -267,10 +323,33 @@ export const modelsApiMethods = {
 };
 
 /**
+ * React Hook 风格的 API 调用方法返回类型
+ * @description 从 ModelsApiClient 类中提取方法类型，自动保持类型同步
+ */
+export type UseModelsApiReturn = Pick<
+  ModelsApiClient,
+  | "getModels"
+  | "getModelById"
+  | "getModelsByProvider"
+  | "getModelsByType"
+  | "getModelsByGroup"
+  | "createModel"
+  | "createManyModels"
+  | "updateModel"
+  | "deleteModel"
+>;
+
+/**
  * React Hook 风格的 API 调用方法
  * @description 适用于 React 应用的 Hook 风格调用
+ *
+ * @returns 绑定了 this 上下文的 API 方法对象
+ *
+ * @example
+ * const api = useModelsApi();
+ * const response = await api.getModels();
  */
-export const useModelsApi = () => {
+export const useModelsApi = (): UseModelsApiReturn => {
   return {
     getModels: modelsApi.getModels.bind(modelsApi),
     getModelById: modelsApi.getModelById.bind(modelsApi),
