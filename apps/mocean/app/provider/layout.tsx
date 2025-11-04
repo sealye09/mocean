@@ -83,7 +83,7 @@ export default function ProviderLayout({ children }: ProviderLayoutProps) {
               <ItemCard
                 key={provider.id}
                 title={provider.name}
-                avatar={renderProviderAvatar(provider.name)}
+                avatar={renderProviderAvatar({ providerName: provider.name })}
                 selected={selectedProviderId === provider.id}
                 onClick={() => onProviderChange(provider.id)}
                 className="h-auto min-h-0"

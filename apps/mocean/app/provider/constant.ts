@@ -225,7 +225,7 @@ export const PROVIDER_LOGO_MAP = {
   qiniu: QiniuProviderLogo,
 } as const;
 
-export function getModelLogo(modelId: string) {
+export function getModelLogo(modelId: keyof typeof PROVIDER_LOGO_MAP) {
   const isLight = true;
 
   if (!modelId) {

@@ -1,4 +1,6 @@
-import Image from "next/image";
+import { FC } from "react";
+
+import Image, { StaticImageData } from "next/image";
 
 import { PROVIDER_LOGO_MAP } from "../constant";
 
@@ -6,17 +8,27 @@ import { PROVIDER_LOGO_MAP } from "../constant";
  * 根据提供商类型获取图标
  * @param providerName - 提供商名称
  */
-const getProviderIcon = (providerName: string) => {
+export const getProviderIcon = (providerName: string): StaticImageData => {
   const logo =
     PROVIDER_LOGO_MAP[providerName as keyof typeof PROVIDER_LOGO_MAP];
   return logo;
 };
 
+interface RenderProviderAvatarProps {
+  providerName: string;
+  width?: number;
+  height?: number;
+}
+
 /**
  * 渲染提供商头像
  * @param providerName - 提供商名称
  */
-export const renderProviderAvatar = (providerName: string) => {
+export const renderProviderAvatar: FC<RenderProviderAvatarProps> = ({
+  providerName,
+  width,
+  height,
+}) => {
   const logo = getProviderIcon(providerName);
 
   if (logo) {
@@ -24,8 +36,8 @@ export const renderProviderAvatar = (providerName: string) => {
       <Image
         src={logo}
         alt={providerName}
-        width={40}
-        height={40}
+        width={width || 40}
+        height={height || 40}
         className="rounded-lg"
       />
     );

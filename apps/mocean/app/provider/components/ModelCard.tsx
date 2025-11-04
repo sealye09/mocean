@@ -2,6 +2,7 @@ import React from "react";
 
 import Image from "next/image";
 
+import { ModelModel as Model } from "@mocean/mastra/prismaType";
 import { Brain, Database, Edit, Eye, Search, Trash2, Zap } from "lucide-react";
 
 import { ItemCard } from "@/components/custom/item-card";
@@ -57,18 +58,6 @@ const getModelTypeName = (type: string) => {
   return nameMap[type as keyof typeof nameMap] || type;
 };
 
-/**
- * 模型数据接口
- */
-interface Model {
-  id: string;
-  name: string;
-  group?: string;
-  typeJson: string[];
-  description?: string;
-  owned_by?: string;
-}
-
 export interface ModelCardProps {
   model: Model;
   onClick?: (model: Model) => void;
@@ -103,8 +92,10 @@ export const ModelCard: React.FC<ModelCardProps> = ({
   onDelete,
   className = "",
 }) => {
-  const modelLogo = getModelLogo(model.id);
-  const modelTypes = Array.isArray(model.typeJson) ? model.typeJson : [];
+  const modelLogo = getModelLogo(model.id as keyof typeof getModelLogo);
+  const modelTypes = (
+    Array.isArray(model.typeJson) ? model.typeJson : []
+  ) as string[];
 
   /**
    * 渲染模型头像
@@ -133,7 +124,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
    * 渲染模型类型标签
    */
   const renderModelTypeBadges = () => {
-    return modelTypes.map((type: string) => {
+    return modelTypes.map((type) => {
       const Icon =
         MODEL_TYPE_ICONS[type as keyof typeof MODEL_TYPE_ICONS] || Brain;
       return {
@@ -222,7 +213,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
   return (
     <ItemCard
       title={model.name}
-      description={model.description}
+      description={model.description ?? ""}
       avatar={renderModelAvatar()}
       badges={renderModelTypeBadges()}
       footer={renderFooter()}

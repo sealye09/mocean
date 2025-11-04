@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
 import { useSearchParams } from "next/navigation";
 
-import { ProviderModel } from "@mocean/mastra/prismaType";
 import { Database, Edit, Loader2, Plus, Search, Settings } from "lucide-react";
 
+import { useProviderPage } from "@/app/provider/hooks/useProviderPage";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,11 +26,6 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import {
-  useModelsByProviderSWR,
-  useModelsWithActions,
-} from "@/hooks/useModelsSWR";
-import { useProvidersWithActions } from "@/hooks/useProvidersSWR";
 
 import { AddModelDialog } from "./components/AddModelDialog";
 import { renderProviderAvatar } from "./components/CustomerIcon";
@@ -42,27 +35,6 @@ import { ModelCard } from "./components/ModelCard";
 import { ProviderConfigDialog } from "./components/ProviderConfigDialog";
 
 /**
- * 模型数据接口
- */
-interface Model {
-  id: string;
-  name: string;
-  group?: string;
-  typeJson: string[];
-  description?: string;
-  owned_by?: string;
-}
-
-/**
- * 模型分组接口
- */
-interface ModelGroup {
-  groupName: string;
-  models: Model[];
-  count: number;
-}
-
-/**
  * 模型列表页面组件
  * @description 展示选中提供商的模型列表，支持配置管理和模型操作
  */
@@ -70,178 +42,39 @@ export default function ProviderPage() {
   const searchParams = useSearchParams();
   const selectedProviderId = searchParams.get("provider");
 
-  // 状态管理
-  const [searchTerm, setSearchTerm] = useState("");
-  const [configDialogOpen, setConfigDialogOpen] = useState(false);
-  const [addModelDialogOpen, setAddModelDialogOpen] = useState(false);
-  const [editModelDialogOpen, setEditModelDialogOpen] = useState(false);
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
-  const [selectedGroupForAdd, setSelectedGroupForAdd] = useState<string>("");
-  const [selectedModelForEdit, setSelectedModelForEdit] =
-    useState<Model | null>(null);
-  const [selectedModelForDelete, setSelectedModelForDelete] =
-    useState<Model | null>(null);
-  const [groupManageDialogOpen, setGroupManageDialogOpen] = useState(false);
-
-  // API hooks
-  const { providers, toggleEnabled } = useProvidersWithActions();
-  const { remove: removeModel } = useModelsWithActions();
-
-  const provider = useMemo(() => {
-    return providers.find((p) => p.id === selectedProviderId) as ProviderModel;
-  }, [providers, selectedProviderId]);
-
+  // 使用自定义 hook 管理页面状态和逻辑
   const {
+    provider,
     models,
+    modelGroups,
+    filteredModels,
+    filteredModelGroups,
+    availableGroups,
     isLoading,
     error,
-    refresh: refreshModels,
-  } = useModelsByProviderSWR(selectedProviderId);
-
-  // 按组分组模型
-  const modelGroups = useMemo((): ModelGroup[] => {
-    if (!models || models.length === 0) return [];
-
-    const groups: Record<string, Model[]> = {};
-
-    models.forEach((model) => {
-      const groupName = model.group || "未分组";
-      if (!groups[groupName]) {
-        groups[groupName] = [];
-      }
-      groups[groupName].push(model);
-    });
-
-    // 转换为数组并排序
-    const sortedGroups = Object.entries(groups)
-      .map(([groupName, models]) => ({
-        groupName,
-        models: models.sort((a, b) => a.name.localeCompare(b.name)),
-        count: models.length,
-      }))
-      .sort((a, b) => {
-        // 未分组放最后
-        if (a.groupName === "未分组") return 1;
-        if (b.groupName === "未分组") return -1;
-        return a.groupName.localeCompare(b.groupName);
-      });
-
-    return sortedGroups;
-  }, [models]);
-
-  // 所有模型的搜索过滤
-  const filteredModels = useMemo(() => {
-    if (!models || !searchTerm.trim()) return models;
-
-    const term = searchTerm.toLowerCase();
-    return models.filter(
-      (model) =>
-        model.name.toLowerCase().includes(term) ||
-        model.id.toLowerCase().includes(term) ||
-        model.description?.toLowerCase().includes(term) ||
-        model.owned_by?.toLowerCase().includes(term) ||
-        JSON.parse(model.typeJson as string).some((type: string) =>
-          type.toLowerCase().includes(term),
-        ),
-    );
-  }, [models, searchTerm]);
-
-  // 根据搜索结果重新分组
-  const filteredModelGroups = useMemo((): ModelGroup[] => {
-    if (!filteredModels || filteredModels.length === 0) return [];
-
-    const groups: Record<string, Model[]> = {};
-
-    filteredModels.forEach((model) => {
-      const groupName = model.group || "未分组";
-      if (!groups[groupName]) {
-        groups[groupName] = [];
-      }
-      groups[groupName].push(model);
-    });
-
-    return Object.entries(groups)
-      .map(([groupName, models]) => ({
-        groupName,
-        models: models.sort((a, b) => a.name.localeCompare(b.name)),
-        count: models.length,
-      }))
-      .sort((a, b) => {
-        if (a.groupName === "未分组") return 1;
-        if (b.groupName === "未分组") return -1;
-        return a.groupName.localeCompare(b.groupName);
-      });
-  }, [filteredModels]);
-
-  /**
-   * 处理模型点击事件
-   */
-  const onModelClick = (model: Model) => {
-    console.log("选中模型:", model.name);
-    // 这里可以添加模型选择逻辑
-  };
-
-  /**
-   * 处理模型编辑
-   */
-  const onModelEdit = (model: Model) => {
-    setSelectedModelForEdit(model);
-    setEditModelDialogOpen(true);
-  };
-
-  /**
-   * 处理模型删除
-   */
-  const onModelDelete = (model: Model) => {
-    setSelectedModelForDelete(model);
-    setDeleteAlertOpen(true);
-  };
-
-  /**
-   * 确认删除模型
-   */
-  const confirmDeleteModel = async () => {
-    if (!selectedModelForDelete) return;
-
-    try {
-      await removeModel(selectedModelForDelete.id);
-      refreshModels();
-      setDeleteAlertOpen(false);
-      setSelectedModelForDelete(null);
-    } catch (error) {
-      console.error("删除模型失败:", error);
-    }
-  };
-
-  /**
-   * 处理供应商启用状态切换
-   */
-  const onToggleEnabled = async () => {
-    if (!provider) return;
-
-    try {
-      await toggleEnabled(provider.id);
-    } catch (error) {
-      console.error("切换提供商状态失败:", error);
-    }
-  };
-
-  /**
-   * 处理添加模型对话框打开
-   */
-  const onOpenAddModel = (groupName?: string) => {
-    setSelectedGroupForAdd(groupName || "");
-    setAddModelDialogOpen(true);
-  };
-
-  /**
-   * 获取可用的分组列表
-   */
-  const availableGroups = useMemo(() => {
-    return modelGroups
-      .map((g) => g.groupName)
-      .filter((name) => name !== "未分组");
-  }, [modelGroups]);
+    searchTerm,
+    setSearchTerm,
+    configDialogOpen,
+    setConfigDialogOpen,
+    addModelDialogOpen,
+    setAddModelDialogOpen,
+    editModelDialogOpen,
+    setEditModelDialogOpen,
+    deleteAlertOpen,
+    setDeleteAlertOpen,
+    groupManageDialogOpen,
+    setGroupManageDialogOpen,
+    selectedGroupForAdd,
+    selectedModelForEdit,
+    selectedModelForDelete,
+    onModelClick,
+    onModelEdit,
+    onModelDelete,
+    confirmDeleteModel,
+    onToggleEnabled,
+    onOpenAddModel,
+    refreshModels,
+  } = useProviderPage(selectedProviderId);
 
   // 没有选中提供商时的状态
   if (!selectedProviderId) {
@@ -293,7 +126,8 @@ export default function ProviderPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center">
-                {provider?.name && renderProviderAvatar(provider.name)}
+                {provider?.name &&
+                  renderProviderAvatar({ providerName: provider.name })}
               </div>
               <div>
                 <div className="flex items-center space-x-2">
@@ -374,7 +208,8 @@ export default function ProviderPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex h-10 w-10 items-center justify-center">
-              {provider?.name && renderProviderAvatar(provider.name)}
+              {provider?.name &&
+                renderProviderAvatar({ providerName: provider.name })}
             </div>
             <div>
               <div className="flex items-center space-x-2">
