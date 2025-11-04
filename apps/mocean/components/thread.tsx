@@ -24,6 +24,8 @@ import { TooltipIconButton } from "@/components/tooltip-icon-button";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { Toolbar } from "./custom/toolbar";
+
 export const Thread: FC = () => {
   return (
     <ThreadPrimitive.Root className="box-border flex h-full flex-col overflow-hidden bg-background">
@@ -44,6 +46,9 @@ export const Thread: FC = () => {
 
         <div className="sticky bottom-0 mt-3 flex w-full flex-col items-center justify-end rounded-t-lg bg-inherit pb-4">
           <ThreadScrollToBottom />
+          <div className="flex w-full">
+            <Toolbar />
+          </div>
           <Composer />
         </div>
       </ThreadPrimitive.Viewport>
