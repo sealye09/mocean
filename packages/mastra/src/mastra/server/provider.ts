@@ -43,8 +43,8 @@ const typeParamSchema = z.object({
 });
 
 // zod类型推导
-type CreateProviderInput = z.infer<typeof createProviderSchema>;
-type UpdateProviderInput = z.infer<typeof updateProviderSchema>;
+export type CreateProviderInput = z.infer<typeof createProviderSchema>;
+export type UpdateProviderInput = z.infer<typeof updateProviderSchema>;
 
 /**
  * 获取所有提供商
@@ -377,6 +377,27 @@ const toggleProviderEnabled = async (id: string) => {
     })),
   };
 };
+
+/**
+ * Prisma 数据库操作返回类型
+ */
+export type ProvidersListResult = Awaited<ReturnType<typeof getProviders>>;
+export type EnabledProvidersResult = Awaited<
+  ReturnType<typeof getEnabledProviders>
+>;
+export type ProviderDetailResult = Awaited<ReturnType<typeof getProviderById>>;
+export type ProvidersByTypeResult = Awaited<
+  ReturnType<typeof getProvidersByType>
+>;
+export type ProvidersByModelResult = Awaited<
+  ReturnType<typeof getProvidersByModel>
+>;
+export type ProviderCreateResult = Awaited<ReturnType<typeof createProvider>>;
+export type ProviderUpdateResult = Awaited<ReturnType<typeof updateProvider>>;
+export type ProviderDeleteResult = Awaited<ReturnType<typeof deleteProvider>>;
+export type ProviderToggleResult = Awaited<
+  ReturnType<typeof toggleProviderEnabled>
+>;
 
 export {
   getProviders,

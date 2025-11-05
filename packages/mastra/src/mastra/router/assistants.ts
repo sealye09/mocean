@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
 import { PREFIX } from "../api/base-client";
+import { createCommonRunTime } from "../runtime/CommonRunTime";
 import {
   assistantIdParamSchema,
   assistantThreadIdParamSchema,
@@ -16,8 +17,7 @@ import {
   getAssistants,
   updateAssistant,
   updateAssistantSchema,
-} from "../prisma/assistant";
-import { createCommonRunTime } from "../runtime/CommonRunTime";
+} from "../server/assistant";
 
 /**
  * 获取所有助手的路由处理器

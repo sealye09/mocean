@@ -1,68 +1,20 @@
 /// <reference lib="dom" />
 import { ProviderType } from "generated/prisma/enums";
-import { ProviderModel } from "generated/prisma/models";
 
 import {
-  createProvider as createProviderPrisma,
-  deleteProvider as deleteProviderPrisma,
-  getEnabledProviders,
-  getProviderById as getProviderByIdPrisma,
-  getProvidersByModel as getProvidersByModelPrisma,
-  getProvidersByType as getProvidersByTypePrisma,
-  getProviders as getProvidersPrisma,
-  toggleProviderEnabled as toggleProviderEnabledPrisma,
-  updateProvider as updateProviderPrisma,
-} from "../prisma/provider";
+  CreateProviderInput,
+  EnabledProvidersResult,
+  ProviderCreateResult,
+  ProviderDeleteResult,
+  ProviderDetailResult,
+  ProviderToggleResult,
+  ProviderUpdateResult,
+  ProvidersByModelResult,
+  ProvidersByTypeResult,
+  ProvidersListResult,
+  UpdateProviderInput,
+} from "../server/provider";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
-
-/**
- * 提供商创建和更新的输入类型
- */
-export type ProviderInput = Pick<
-  ProviderModel,
-  | "type"
-  | "name"
-  | "apiKey"
-  | "apiHost"
-  | "apiVersion"
-  | "enabled"
-  | "isSystem"
-  | "isAuthed"
-  | "rateLimit"
-  | "isNotSupportArrayContent"
-  | "notes"
->;
-
-/**
- * Prisma 数据库操作返回类型
- */
-export type ProvidersListResult = Awaited<
-  ReturnType<typeof getProvidersPrisma>
->;
-export type EnabledProvidersResult = Awaited<
-  ReturnType<typeof getEnabledProviders>
->;
-export type ProviderDetailResult = Awaited<
-  ReturnType<typeof getProviderByIdPrisma>
->;
-export type ProvidersByTypeResult = Awaited<
-  ReturnType<typeof getProvidersByTypePrisma>
->;
-export type ProvidersByModelResult = Awaited<
-  ReturnType<typeof getProvidersByModelPrisma>
->;
-export type ProviderCreateResult = Awaited<
-  ReturnType<typeof createProviderPrisma>
->;
-export type ProviderUpdateResult = Awaited<
-  ReturnType<typeof updateProviderPrisma>
->;
-export type ProviderDeleteResult = Awaited<
-  ReturnType<typeof deleteProviderPrisma>
->;
-export type ProviderToggleResult = Awaited<
-  ReturnType<typeof toggleProviderEnabledPrisma>
->;
 
 /**
  * 提供商 API 客户端类
@@ -128,7 +80,7 @@ export class ProvidersApiClient extends BaseApiClient {
    * @param provider - 包含提供商信息的对象
    */
   async createProvider(
-    provider: ProviderInput,
+    provider: CreateProviderInput,
   ): Promise<ApiResponse<ProviderCreateResult>> {
     return this.post<ProviderCreateResult>("/providers", provider);
   }
@@ -141,7 +93,7 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async updateProvider(
     id: string,
-    provider: Partial<ProviderInput>,
+    provider: UpdateProviderInput,
   ): Promise<ApiResponse<ProviderUpdateResult>> {
     return this.put<ProviderUpdateResult>(`/providers/${id}`, provider);
   }
@@ -204,7 +156,7 @@ export const providersApiMethods = {
    * 创建提供商
    * @param providerData - 提供商数据
    */
-  createProvider: (providerData: ProviderInput) =>
+  createProvider: (providerData: CreateProviderInput) =>
     providersApi.createProvider(providerData),
 
   /**
@@ -212,7 +164,7 @@ export const providersApiMethods = {
    * @param id - 提供商ID
    * @param providerData - 更新数据
    */
-  updateProvider: (id: string, providerData: Partial<ProviderInput>) =>
+  updateProvider: (id: string, providerData: UpdateProviderInput) =>
     providersApi.updateProvider(id, providerData),
 
   /**

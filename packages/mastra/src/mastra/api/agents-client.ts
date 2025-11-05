@@ -1,44 +1,15 @@
 /// <reference lib="dom" />
-import { AgentModel } from "generated/prisma/models";
-
 import {
-  createAgent as createAgentPrisma,
-  deleteAgent as deleteAgentPrisma,
-  getAgentByGroup as getAgentByGroupPrisma,
-  getAgentById as getAgentByIdPrisma,
-  getAgents as getAgentsPrisma,
-  updateAgent as updateAgentPrisma,
-} from "../prisma/agent";
+  AgentCreateResult,
+  AgentDeleteResult,
+  AgentDetailResult,
+  AgentUpdateResult,
+  AgentsByGroupResult,
+  AgentsListResult,
+  CreateAgentInput,
+  UpdateAgentInput,
+} from "../server/agent";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
-
-/**
- * 代理创建和更新的输入类型
- */
-export type AgentInput = Pick<
-  AgentModel,
-  | "name"
-  | "description"
-  | "prompt"
-  | "type"
-  | "emoji"
-  | "groupJson"
-  | "enableWebSearch"
-  | "webSearchProviderId"
-  | "enableGenerateImage"
-  | "knowledgeRecognition"
->;
-
-/**
- * Prisma 数据库操作返回类型
- */
-export type AgentsListResult = Awaited<ReturnType<typeof getAgentsPrisma>>;
-export type AgentDetailResult = Awaited<ReturnType<typeof getAgentByIdPrisma>>;
-export type AgentCreateResult = Awaited<ReturnType<typeof createAgentPrisma>>;
-export type AgentUpdateResult = Awaited<ReturnType<typeof updateAgentPrisma>>;
-export type AgentDeleteResult = Awaited<ReturnType<typeof deleteAgentPrisma>>;
-export type AgentsByGroupResult = Awaited<
-  ReturnType<typeof getAgentByGroupPrisma>
->;
 
 /**
  * 代理 API 客户端类
@@ -72,7 +43,7 @@ export class AgentsApiClient extends BaseApiClient {
    * @param agentData - 代理信息对象
    */
   async createAgent(
-    agentData: AgentInput,
+    agentData: CreateAgentInput,
   ): Promise<ApiResponse<AgentCreateResult>> {
     return this.post<AgentCreateResult>("/agents", agentData);
   }
@@ -85,7 +56,7 @@ export class AgentsApiClient extends BaseApiClient {
    */
   async updateAgent(
     id: string,
-    agentData: Partial<AgentInput>,
+    agentData: UpdateAgentInput,
   ): Promise<ApiResponse<AgentUpdateResult>> {
     return this.put<AgentUpdateResult>(`/agents/${id}`, agentData);
   }
@@ -136,14 +107,15 @@ export const agentsApiMethods = {
    * 创建代理
    * @param agentData - 代理数据
    */
-  createAgent: (agentData: AgentInput) => agentsApi.createAgent(agentData),
+  createAgent: (agentData: CreateAgentInput) =>
+    agentsApi.createAgent(agentData),
 
   /**
    * 更新代理
    * @param id - 代理ID
    * @param agentData - 更新数据
    */
-  updateAgent: (id: string, agentData: Partial<AgentInput>) =>
+  updateAgent: (id: string, agentData: UpdateAgentInput) =>
     agentsApi.updateAgent(id, agentData),
 
   /**

@@ -16,7 +16,7 @@ import {
   typeParamSchema,
   updateProvider,
   updateProviderSchema,
-} from "../prisma/provider";
+} from "../server/provider";
 
 /**
  * 获取所有提供商的路由处理器

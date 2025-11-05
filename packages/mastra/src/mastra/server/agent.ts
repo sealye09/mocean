@@ -40,8 +40,8 @@ const groupParamSchema = z.object({
 });
 
 // zod类型推导
-type CreateAgentInput = z.infer<typeof createAgentSchema>;
-type UpdateAgentInput = z.infer<typeof updateAgentSchema>;
+export type CreateAgentInput = z.infer<typeof createAgentSchema>;
+export type UpdateAgentInput = z.infer<typeof updateAgentSchema>;
 
 /**
  * 获取所有代理
@@ -166,6 +166,16 @@ const getAgentWithSettingsByAgentId = async (agentId: string) => {
   });
   return agent;
 };
+
+/**
+ * Prisma 数据库操作返回类型
+ */
+export type AgentsListResult = Awaited<ReturnType<typeof getAgents>>;
+export type AgentDetailResult = Awaited<ReturnType<typeof getAgentById>>;
+export type AgentCreateResult = Awaited<ReturnType<typeof createAgent>>;
+export type AgentUpdateResult = Awaited<ReturnType<typeof updateAgent>>;
+export type AgentDeleteResult = Awaited<ReturnType<typeof deleteAgent>>;
+export type AgentsByGroupResult = Awaited<ReturnType<typeof getAgentByGroup>>;
 
 export {
   getAgents,

@@ -49,9 +49,9 @@ const modelProviderRelationSchema = z.object({
 });
 
 // zod类型推导
-type CreateModelInput = z.infer<typeof createModelSchema>;
-type UpdateModelInput = z.infer<typeof updateModelSchema>;
-type ModelProviderRelation = z.infer<typeof modelProviderRelationSchema>;
+export type CreateModelInput = z.infer<typeof createModelSchema>;
+export type UpdateModelInput = z.infer<typeof updateModelSchema>;
+export type ModelProviderRelation = z.infer<typeof modelProviderRelationSchema>;
 
 /**
  * 获取所有模型
@@ -517,6 +517,32 @@ const getModelProviderRelations = async (modelId: string) => {
 
   return relations;
 };
+
+/**
+ * Prisma 数据库操作返回类型
+ */
+export type ModelsListResult = Awaited<ReturnType<typeof getModels>>;
+export type ModelDetailResult = Awaited<ReturnType<typeof getModelById>>;
+export type ModelsByProviderResult = Awaited<
+  ReturnType<typeof getModelsByProvider>
+>;
+export type ModelsByTypeResult = Awaited<ReturnType<typeof getModelsByType>>;
+export type ModelsByGroupResult = Awaited<ReturnType<typeof getModelsByGroup>>;
+export type ModelCreateResult = Awaited<ReturnType<typeof createModel>>;
+export type ModelUpdateResult = Awaited<ReturnType<typeof updateModel>>;
+export type ModelDeleteResult = Awaited<ReturnType<typeof deleteModel>>;
+export type ModelsBatchCreateResult = Awaited<
+  ReturnType<typeof createManyModels>
+>;
+export type ModelProviderRelationAddResult = Awaited<
+  ReturnType<typeof addModelProviderRelation>
+>;
+export type ModelProviderRelationRemoveResult = Awaited<
+  ReturnType<typeof removeModelProviderRelation>
+>;
+export type ModelProviderRelationsResult = Awaited<
+  ReturnType<typeof getModelProviderRelations>
+>;
 
 export {
   getModels,

@@ -1,91 +1,40 @@
 /// <reference lib="dom" />
 import { ModelType } from "generated/prisma/enums";
-import { ModelModel } from "generated/prisma/models";
 
 import {
-  addModelProviderRelation as addModelProviderRelationPrisma,
-  createManyModels as createManyModelsPrisma,
-  createModel as createModelPrisma,
-  deleteModel as deleteModelPrisma,
-  getModelById as getModelByIdPrisma,
-  getModelProviderRelations as getModelProviderRelationsPrisma,
-  getModelsByGroup as getModelsByGroupPrisma,
-  getModelsByProvider as getModelsByProviderPrisma,
-  getModelsByType as getModelsByTypePrisma,
-  getModels as getModelsPrisma,
-  removeModelProviderRelation as removeModelProviderRelationPrisma,
-  updateModel as updateModelPrisma,
-} from "../prisma/model";
+  CreateModelInput,
+  ModelCreateResult,
+  ModelDeleteResult,
+  ModelDetailResult,
+  ModelProviderRelation,
+  ModelProviderRelationAddResult,
+  ModelProviderRelationRemoveResult,
+  ModelProviderRelationsResult,
+  ModelUpdateResult,
+  ModelsBatchCreateResult,
+  ModelsByGroupResult,
+  ModelsByProviderResult,
+  ModelsByTypeResult,
+  ModelsListResult,
+  UpdateModelInput,
+} from "../server/model";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
-
-/**
- * 模型创建和更新的输入类型
- */
-export type ModelInput = Pick<
-  ModelModel,
-  "id" | "name" | "group" | "owned_by" | "description" | "typeJson"
-> & {
-  providerIds: string[];
-};
 
 /**
  * 模型创建输入类型（包含类型数组）
  */
-export type ModelCreateInput = Omit<ModelInput, "typeJson"> & {
+export type ModelCreateInputWithTypes = Omit<CreateModelInput, "typeJson"> & {
   types: ModelType[];
 };
 
 /**
  * 模型更新输入类型
  */
-export type ModelUpdateInput = Partial<Omit<ModelInput, "id" | "typeJson">> & {
+export type ModelUpdateInputWithTypes = Partial<
+  Omit<UpdateModelInput, "typeJson">
+> & {
   types?: ModelType[];
 };
-
-/**
- * 模型与提供商关联类型
- */
-export type ModelProviderRelation = {
-  modelId: string;
-  providerId: string;
-};
-
-/**
- * 批量创建结果类型
- */
-export type BatchCreateResult = {
-  count: number;
-};
-
-/**
- * Prisma 数据库操作返回类型
- */
-export type ModelsListResult = Awaited<ReturnType<typeof getModelsPrisma>>;
-export type ModelDetailResult = Awaited<ReturnType<typeof getModelByIdPrisma>>;
-export type ModelsByProviderResult = Awaited<
-  ReturnType<typeof getModelsByProviderPrisma>
->;
-export type ModelsByTypeResult = Awaited<
-  ReturnType<typeof getModelsByTypePrisma>
->;
-export type ModelsByGroupResult = Awaited<
-  ReturnType<typeof getModelsByGroupPrisma>
->;
-export type ModelCreateResult = Awaited<ReturnType<typeof createModelPrisma>>;
-export type ModelUpdateResult = Awaited<ReturnType<typeof updateModelPrisma>>;
-export type ModelDeleteResult = Awaited<ReturnType<typeof deleteModelPrisma>>;
-export type ModelsBatchCreateResult = Awaited<
-  ReturnType<typeof createManyModelsPrisma>
->;
-export type ModelProviderRelationAddResult = Awaited<
-  ReturnType<typeof addModelProviderRelationPrisma>
->;
-export type ModelProviderRelationRemoveResult = Awaited<
-  ReturnType<typeof removeModelProviderRelationPrisma>
->;
-export type ModelProviderRelationsResult = Awaited<
-  ReturnType<typeof getModelProviderRelationsPrisma>
->;
 
 /**
  * 模型 API 客户端类
@@ -152,7 +101,7 @@ export class ModelsApiClient extends BaseApiClient {
    * @param model - 包含模型信息的对象
    */
   async createModel(
-    model: ModelCreateInput,
+    model: ModelCreateInputWithTypes,
   ): Promise<ApiResponse<ModelCreateResult>> {
     // 转换types为typeJson格式
     const payload = {
@@ -171,7 +120,7 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async updateModel(
     id: string,
-    model: ModelUpdateInput,
+    model: ModelUpdateInputWithTypes,
   ): Promise<ApiResponse<ModelUpdateResult>> {
     // 转换types为typeJson格式
     const payload = model.types
@@ -199,7 +148,7 @@ export class ModelsApiClient extends BaseApiClient {
    * @param models - 模型信息数组
    */
   async createManyModels(
-    models: ModelCreateInput[],
+    models: ModelCreateInputWithTypes[],
   ): Promise<ApiResponse<ModelsBatchCreateResult>> {
     // 转换types为typeJson格式
     const payload = models.map((model) => ({
@@ -299,14 +248,14 @@ export const modelsApiMethods = {
    * 创建模型
    * @param modelData - 模型数据
    */
-  createModel: (modelData: ModelCreateInput) =>
+  createModel: (modelData: ModelCreateInputWithTypes) =>
     modelsApi.createModel(modelData),
 
   /**
    * 批量创建模型
    * @param modelsData - 模型数据数组
    */
-  createManyModels: (modelsData: ModelCreateInput[]) =>
+  createManyModels: (modelsData: ModelCreateInputWithTypes[]) =>
     modelsApi.createManyModels(modelsData),
 
   /**
@@ -314,7 +263,7 @@ export const modelsApiMethods = {
    * @param id - 模型ID
    * @param modelData - 更新数据
    */
-  updateModel: (id: string, modelData: Partial<ModelCreateInput>) =>
+  updateModel: (id: string, modelData: ModelUpdateInputWithTypes) =>
     modelsApi.updateModel(id, modelData),
 
   /**
