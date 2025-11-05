@@ -1,3 +1,4 @@
+import { StorageThreadType } from "@mastra/core";
 import { UIMessage } from "ai";
 import { z } from "zod";
 
@@ -181,6 +182,19 @@ const getAssistantWithModelByAssistantId = async (assistantId: string) => {
   });
   return assistant;
 };
+
+/**
+ * Prisma 数据库操作返回类型
+ */
+export type AssistantsListResult = Awaited<ReturnType<typeof getAssistants>>;
+export type AssistantDetailResult = Awaited<
+  ReturnType<typeof getAssistantById>
+>;
+export type AssistantCreateResult = Awaited<ReturnType<typeof createAssistant>>;
+export type AssistantUpdateResult = Awaited<ReturnType<typeof updateAssistant>>;
+export type AssistantDeleteResult = Awaited<ReturnType<typeof deleteAssistant>>;
+export type AssistantThreadsResult = StorageThreadType[];
+export type AssistantUIMessagesResult = UIMessage[];
 
 export {
   getAssistants,

@@ -13,7 +13,7 @@ import {
   idParamSchema,
   updateAgent,
   updateAgentSchema,
-} from "../prisma/agent";
+} from "../server/agent";
 
 /**
  * 获取所有智能体的路由处理器

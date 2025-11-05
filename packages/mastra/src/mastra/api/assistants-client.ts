@@ -1,38 +1,16 @@
 /// <reference lib="dom" />
-import { StorageThreadType } from "@mastra/core";
-import { UIMessage } from "ai";
-
 import {
+  AssistantCreateResult,
+  AssistantDeleteResult,
+  AssistantDetailResult,
+  AssistantThreadsResult,
+  AssistantUIMessagesResult,
+  AssistantUpdateResult,
+  AssistantsListResult,
   CreateAssistantInput,
   UpdateAssistantInput,
-  createAssistant as createAssistantPrisma,
-  deleteAssistant as deleteAssistantPrisma,
-  getAssistantById as getAssistantByIdPrisma,
-  getAssistants as getAssistantsPrisma,
-  updateAssistant as updateAssistantPrisma,
-} from "../prisma/assistant";
+} from "../server/assistant";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
-
-/**
- * Prisma 数据库操作返回类型
- */
-export type AssistantsListResult = Awaited<
-  ReturnType<typeof getAssistantsPrisma>
->;
-export type AssistantDetailResult = Awaited<
-  ReturnType<typeof getAssistantByIdPrisma>
->;
-export type AssistantCreateResult = Awaited<
-  ReturnType<typeof createAssistantPrisma>
->;
-export type AssistantUpdateResult = Awaited<
-  ReturnType<typeof updateAssistantPrisma>
->;
-export type AssistantDeleteResult = Awaited<
-  ReturnType<typeof deleteAssistantPrisma>
->;
-export type AssistantThreadsResult = StorageThreadType[];
-export type AssistantUIMessagesResult = UIMessage[];
 
 /**
  * 助手 API 客户端类

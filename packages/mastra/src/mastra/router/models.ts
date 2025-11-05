@@ -22,7 +22,7 @@ import {
   typeParamSchema,
   updateModel,
   updateModelSchema,
-} from "../prisma/model";
+} from "../server/model";
 
 /**
  * 获取所有模型的路由处理器
