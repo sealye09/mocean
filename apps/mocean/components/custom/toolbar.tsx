@@ -37,12 +37,12 @@ export function Toolbar() {
   };
 
   return (
-    <div className="flex items-center gap-4 p-4">
+    <>
       <ModelSelector
         providers={providers}
         value={selectedModel}
         onChange={onModelChange}
       />
-    </div>
+    </>
   );
 }

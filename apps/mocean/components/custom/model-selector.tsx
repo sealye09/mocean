@@ -5,7 +5,6 @@ import { useState } from "react";
 import Image from "next/image";
 
 import { ModelModel, ProviderModel } from "@mocean/mastra/prismaType";
-import { ChevronDown } from "lucide-react";
 
 import { renderProviderAvatar as RenderProviderAvatar } from "@/app/provider/components/CustomerIcon";
 import { getModelLogo } from "@/app/provider/constant";
@@ -19,6 +18,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 /**
@@ -89,11 +89,11 @@ export function ModelSelector({
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="link"
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-10 justify-between gap-2 border-brand-primary/20 hover:border-brand-primary/40 hover:from-brand-primary/10 hover:to-brand-secondary/10",
+            "h-10 justify-between gap-2 border-brand-primary/20 py-0 !no-underline hover:border-brand-primary/40 hover:from-brand-primary/10 hover:to-brand-secondary/10 focus-visible:outline-none focus-visible:ring-0",
             className,
           )}
           onClick={() => setOpen(!open)}
@@ -114,7 +114,6 @@ export function ModelSelector({
           ) : (
             <span className="text-muted-foreground">选择模型</span>
           )}
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
 
@@ -122,7 +121,7 @@ export function ModelSelector({
         className="overflow-y-auto"
         align="start"
         side="top"
-        sideOffset={8}
+        sideOffset={-8}
       >
         {providers.map((provider) => (
           <DropdownMenuSub key={provider.id}>
@@ -137,38 +136,43 @@ export function ModelSelector({
               <span className="font-medium">{provider.name}</span>
             </DropdownMenuSubTrigger>
 
-            <DropdownMenuSubContent className="max-h-40 overflow-y-auto">
-              {provider.modelList && provider.modelList.length > 0 ? (
-                provider.modelList.map((model) => (
-                  <DropdownMenuItem
-                    key={model.id}
-                    className={cn(
-                      "cursor-pointer gap-2",
-                      value?.modelId === model.id &&
-                        "bg-brand-primary/10 font-medium text-brand-primary",
-                    )}
-                    onSelect={() => onSelectModel(provider, model)}
-                  >
-                    <div className="h-4 w-4 shrink-0">
-                      <Image
-                        src={
-                          getModelLogo(model.id as keyof typeof getModelLogo) ??
-                          ""
-                        }
-                        alt={model.name}
-                        width={16}
-                        height={16}
-                        className="h-full w-full object-contain"
-                      />
+            <DropdownMenuSubContent className="p-0">
+              <ScrollArea className="h-52">
+                <div className="p-1">
+                  {provider.modelList && provider.modelList.length > 0 ? (
+                    provider.modelList.map((model) => (
+                      <DropdownMenuItem
+                        key={model.id}
+                        className={cn(
+                          "cursor-pointer gap-2",
+                          value?.modelId === model.id &&
+                            "bg-brand-primary/10 font-medium text-brand-primary",
+                        )}
+                        onSelect={() => onSelectModel(provider, model)}
+                      >
+                        <div className="h-4 w-4 shrink-0">
+                          <Image
+                            src={
+                              getModelLogo(
+                                model.id as keyof typeof getModelLogo,
+                              ) ?? ""
+                            }
+                            alt={model.name}
+                            width={14}
+                            height={14}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                        <span className="truncate text-sm">{model.name}</span>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                      暂无模型
                     </div>
-                    <span className="truncate">{model.name}</span>
-                  </DropdownMenuItem>
-                ))
-              ) : (
-                <div className="px-2 py-6 text-center text-sm text-muted-foreground">
-                  暂无模型
+                  )}
                 </div>
-              )}
+              </ScrollArea>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         ))}

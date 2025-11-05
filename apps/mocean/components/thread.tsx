@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { Toolbar } from "./custom/toolbar";
+import { Textarea } from "./ui/textarea";
 
 export const Thread: FC = () => {
   return (
@@ -46,9 +47,6 @@ export const Thread: FC = () => {
 
         <div className="sticky bottom-0 mt-3 flex w-full flex-col items-center justify-end rounded-t-lg bg-inherit pb-4">
           <ThreadScrollToBottom />
-          <div className="flex w-full">
-            <Toolbar />
-          </div>
           <Composer />
         </div>
       </ThreadPrimitive.Viewport>
@@ -112,13 +110,15 @@ const ThreadWelcomeSuggestions: FC = () => {
 
 const Composer: FC = () => {
   return (
-    <ComposerPrimitive.Root className="flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in focus-within:border-ring/20">
-      <ComposerPrimitive.Input
-        rows={1}
-        autoFocus
-        placeholder="Write a message..."
-        className="max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none placeholder:text-muted-foreground focus:ring-0 disabled:cursor-not-allowed"
-      />
+    <ComposerPrimitive.Root className="flex w-full flex-wrap items-end rounded-lg border bg-inherit shadow-sm transition-colors ease-in focus-within:border-ring/20">
+      <ComposerPrimitive.Input asChild>
+        <Textarea
+          rows={1}
+          autoFocus
+          placeholder="有什么可以帮你的吗..."
+          className="max-h-40 flex-grow resize-none border-none bg-transparent p-2 text-sm shadow-none outline-none placeholder:text-muted-foreground focus:ring-0 focus-visible:ring-0 disabled:cursor-not-allowed"
+        />
+      </ComposerPrimitive.Input>
       <ComposerAction />
     </ComposerPrimitive.Root>
   );
@@ -126,30 +126,35 @@ const Composer: FC = () => {
 
 const ComposerAction: FC = () => {
   return (
-    <>
-      <ThreadPrimitive.If running={false}>
-        <ComposerPrimitive.Send asChild>
-          <TooltipIconButton
-            tooltip="Send"
-            variant="default"
-            className="my-2.5 size-8 p-2 transition-opacity ease-in"
-          >
-            <SendHorizontalIcon />
-          </TooltipIconButton>
-        </ComposerPrimitive.Send>
-      </ThreadPrimitive.If>
-      <ThreadPrimitive.If running>
-        <ComposerPrimitive.Cancel asChild>
-          <TooltipIconButton
-            tooltip="Cancel"
-            variant="default"
-            className="my-2.5 size-8 p-2 transition-opacity ease-in"
-          >
-            <CircleStopIcon />
-          </TooltipIconButton>
-        </ComposerPrimitive.Cancel>
-      </ThreadPrimitive.If>
-    </>
+    <div className="flex w-full items-center justify-center px-2">
+      <div className="flex flex-1 items-center">
+        <Toolbar />
+      </div>
+      <>
+        <ThreadPrimitive.If running={false}>
+          <ComposerPrimitive.Send asChild>
+            <TooltipIconButton
+              tooltip="Send"
+              variant="default"
+              className="my-2.5 size-8 bg-brand-primary p-2 transition-opacity ease-in hover:bg-brand-primary/90"
+            >
+              <SendHorizontalIcon />
+            </TooltipIconButton>
+          </ComposerPrimitive.Send>
+        </ThreadPrimitive.If>
+        <ThreadPrimitive.If running>
+          <ComposerPrimitive.Cancel asChild>
+            <TooltipIconButton
+              tooltip="Cancel"
+              variant="default"
+              className="my-2.5 size-8 bg-brand-primary p-2 transition-opacity ease-in hover:bg-brand-primary/90"
+            >
+              <CircleStopIcon />
+            </TooltipIconButton>
+          </ComposerPrimitive.Cancel>
+        </ThreadPrimitive.If>
+      </>
+    </div>
   );
 };
 
