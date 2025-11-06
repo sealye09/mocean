@@ -81,29 +81,6 @@ export function useMastraRuntime({
         void refresh();
       }, 5000);
     },
-
-    // experimental_prepareRequestBody: ({
-    //   id,
-    //   messages,
-    //   requestData,
-    //   requestBody,
-    // }) => {
-    //   const assistantId = useStore.getState().activeAssistant?.id;
-
-    //   // 确保 activeThread 存在，如果不存在则创建新的并更新状态
-    //   if (!activeThread) {
-    //     setActiveThread(generateId());
-    //   }
-
-    //   return Object.assign(
-    //     { id },
-    //     requestBody,
-    //     requestData,
-    //     { threadId: activeThread },
-    //     { messages: [messages[messages.length - 1]] },
-    //     { assistantId },
-    //   );
-    // },
   });
 
   return runtime;
