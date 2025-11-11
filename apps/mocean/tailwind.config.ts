@@ -56,8 +56,33 @@ const config = {
         },
         // 品牌主题色
         brand: {
-          primary: "hsl(var(--brand-primary))",
-          secondary: "hsl(var(--brand-secondary))",
+          primary: {
+            50: "hsl(var(--brand-primary-50))",
+            100: "hsl(var(--brand-primary-100))",
+            200: "hsl(var(--brand-primary-200))",
+            300: "hsl(var(--brand-primary-300))",
+            400: "hsl(var(--brand-primary-400))",
+            500: "hsl(var(--brand-primary-500))",
+            600: "hsl(var(--brand-primary-600))",
+            700: "hsl(var(--brand-primary-700))",
+            800: "hsl(var(--brand-primary-800))",
+            900: "hsl(var(--brand-primary-900))",
+            950: "hsl(var(--brand-primary-950))",
+            DEFAULT: "hsl(var(--brand-primary))",
+          },
+          secondary: {
+            50: "hsl(var(--brand-secondary-50))",
+            100: "hsl(var(--brand-secondary-100))",
+            200: "hsl(var(--brand-secondary-200))",
+            300: "hsl(var(--brand-secondary-300))",
+            400: "hsl(var(--brand-secondary-400))",
+            500: "hsl(var(--brand-secondary-500))",
+            600: "hsl(var(--brand-secondary-600))",
+            700: "hsl(var(--brand-secondary-700))",
+            800: "hsl(var(--brand-secondary-800))",
+            900: "hsl(var(--brand-secondary-900))",
+            950: "hsl(var(--brand-secondary-950))",
+          },
           gradient: {
             from: "hsl(var(--brand-gradient-from))",
             to: "hsl(var(--brand-gradient-to))",
@@ -83,9 +108,12 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       backgroundImage: {
-        "gradient-brand": "linear-gradient(to bottom right, hsl(var(--brand-gradient-from)), hsl(var(--brand-gradient-to)))",
-        "gradient-brand-active": "linear-gradient(to bottom right, hsl(var(--brand-primary)), hsl(var(--brand-secondary)))",
-        "gradient-success": "linear-gradient(to bottom right, hsl(var(--success)), hsl(var(--info)))",
+        "gradient-brand":
+          "linear-gradient(to bottom right, hsl(var(--brand-gradient-from)), hsl(var(--brand-gradient-to)))",
+        "gradient-brand-active":
+          "linear-gradient(to bottom right, hsl(var(--brand-primary)), hsl(var(--brand-secondary)))",
+        "gradient-success":
+          "linear-gradient(to bottom right, hsl(var(--success)), hsl(var(--info)))",
       },
       keyframes: {
         "accordion-down": {

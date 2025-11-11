@@ -44,12 +44,34 @@
 
       --chart-5: 27 87% 67%;
 
-      /* 品牌主题色 */
-      --brand-primary: 271 91% 65%;
-      --brand-secondary: 271 91% 55%;
-      --brand-gradient-from: 217 91% 60%;
-      --brand-gradient-to: 271 91% 65%;
-      --brand-text: 0 0% 98%;
+      /* 品牌主题色 - 基于 sky blue */
+      --brand-primary-50: 197 100% 95%;
+      --brand-primary-100: 198 100% 91%;
+      --brand-primary-200: 199 100% 85%;
+      --brand-primary-300: 199 100% 74%;
+      --brand-primary-400: 199 93% 60%;
+      --brand-primary-500: 199 89% 48%;
+      --brand-primary-600: 199 98% 39%;
+      --brand-primary-700: 200 98% 32%;
+      --brand-primary-800: 201 90% 28%;
+      --brand-primary-900: 202 80% 24%;
+      --brand-primary-950: 204 80% 16%;
+      
+      --brand-secondary-50: 210 40% 98%;
+      --brand-secondary-100: 210 40% 96%;
+      --brand-secondary-200: 214 32% 91%;
+      --brand-secondary-300: 213 27% 84%;
+      --brand-secondary-400: 215 20% 65%;
+      --brand-secondary-500: 215 16% 47%;
+      --brand-secondary-600: 215 19% 35%;
+      --brand-secondary-700: 215 25% 27%;
+      --brand-secondary-800: 217 33% 17%;
+      --brand-secondary-900: 222 47% 11%;
+      --brand-secondary-950: 229 84% 5%;
+      
+      --brand-primary: 199 89% 48%;
+      --brand-gradient-from: 199 98% 39%;
+      --brand-gradient-to: 199 89% 48%;
 
       /* 状态颜色 */
       --success: 142 76% 36%;
@@ -94,12 +116,34 @@
       --chart-4: 280 65% 60%;
       --chart-5: 340 75% 55%;
 
-      /* 品牌主题色 - 暗黑模式 */
-      --brand-primary: 271 81% 75%;
-      --brand-secondary: 271 81% 65%;
-      --brand-gradient-from: 217 81% 70%;
-      --brand-gradient-to: 271 81% 75%;
-      --brand-text: 0 0% 9%;
+      /* 品牌主题色 - 暗黑模式，基于 purple/violet */
+      --brand-primary-50: 250 100% 98%;
+      --brand-primary-100: 251 91% 95%;
+      --brand-primary-200: 251 95% 92%;
+      --brand-primary-300: 252 95% 85%;
+      --brand-primary-400: 255 92% 76%;
+      --brand-primary-500: 258 90% 66%;
+      --brand-primary-600: 262 83% 58%;
+      --brand-primary-700: 263 70% 50%;
+      --brand-primary-800: 263 69% 42%;
+      --brand-primary-900: 264 67% 35%;
+      --brand-primary-950: 261 73% 23%;
+      
+      --brand-secondary-50: 0 0% 0%;
+      --brand-secondary-100: 222 47% 11%;
+      --brand-secondary-200: 217 33% 17%;
+      --brand-secondary-300: 215 25% 27%;
+      --brand-secondary-400: 215 19% 35%;
+      --brand-secondary-500: 215 16% 47%;
+      --brand-secondary-600: 215 20% 65%;
+      --brand-secondary-700: 213 27% 84%;
+      --brand-secondary-800: 214 32% 91%;
+      --brand-secondary-900: 210 40% 96%;
+      --brand-secondary-950: 210 40% 98%;
+      
+      --brand-primary: 258 90% 66%;
+      --brand-gradient-from: 262 83% 58%;
+      --brand-gradient-to: 258 90% 66%;
 
       /* 状态颜色 - 暗黑模式 */
       --success: 142 70% 45%;
