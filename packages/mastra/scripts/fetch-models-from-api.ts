@@ -3,9 +3,48 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { z } from "zod";
 
+import { PrismaClient, ProviderType } from "../generated/prisma/index.js";
+
 // ES Module compatibility
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// 初始化 Prisma Client
+const prisma = new PrismaClient();
+
+// 定义 provider 配置数据的类型
+type ProviderConfigData = Record<
+  string,
+  {
+    api?: {
+      url?: string;
+    };
+    websites?: {
+      official?: string;
+      apiKey?: string;
+      docs?: string;
+      models?: string;
+    };
+  }
+>;
+
+// 动态加载 provider 配置数据
+let providerConfigData: ProviderConfigData = {};
+
+/**
+ * 加载 provider 配置数据
+ * @returns Promise<ProviderConfigData> - 加载后的配置数据
+ */
+async function loadProviderConfig(): Promise<ProviderConfigData> {
+  try {
+    const configPath = join(__dirname, "..", "data", "provider.json");
+    const configContent = await fs.readFile(configPath, "utf-8");
+    return JSON.parse(configContent) as ProviderConfigData;
+  } catch (error) {
+    console.warn("⚠️  无法加载 provider 配置文件，将使用默认空配置:", error);
+    return {};
+  }
+}
 
 // 使用爬虫脚本中的模型数据结构
 interface ModelCapability {
@@ -27,17 +66,28 @@ interface ProviderInfo {
   id: string;
   name: string;
   type: string;
+  url?: string;
   modelCount: number;
-  url: string;
   isGateway?: boolean; // 新增：标识是否为网关
   isPopular?: boolean; // 新增：标识是否为热门供应商
+}
+
+interface GatewayInfo {
+  id: string;
+  name: string;
+  type: string;
+  url?: string;
+  supportedProviders: string[]; // 支持的供应商列表
+  modelsByProvider: Record<string, ModelCapability[]>; // 按供应商分组的模型
+  totalModels: number; // 模型总数
+  modelCountByProvider: Record<string, number>; // 各供应商的模型数统计
 }
 
 interface ScrapedData {
   providers: ProviderInfo[];
   models: ModelCapability[];
   skippedProviders: ProviderInfo[];
-  gateways: ProviderInfo[]; // 新增：单独列出网关
+  gateways: GatewayInfo[]; // 新增：单独列出网关
   metadata: {
     scrapedAt: string;
     totalProviders: number;
@@ -72,35 +122,30 @@ const ModelsDevCostSchema = z.object({
   output: z.number().optional(),
 });
 
-const ModelsDevModelSchema = z
-  .object({
-    id: z.string().optional(),
-    context: z.number().optional(),
-    limit: ModelsDevLimitSchema.optional(),
-    modalities: ModelsDevModalitiesSchema.optional(),
-    tool_call: z.boolean().optional(),
-    reasoning: z.boolean().optional(),
-    cost: ModelsDevCostSchema.optional(),
-  })
-  .passthrough(); // Allow additional properties
+const ModelsDevModelSchema = z.looseObject({
+  id: z.string().optional(),
+  context: z.number().optional(),
+  limit: ModelsDevLimitSchema.optional(),
+  modalities: ModelsDevModalitiesSchema.optional(),
+  tool_call: z.boolean().optional(),
+  reasoning: z.boolean().optional(),
+  cost: ModelsDevCostSchema.optional(),
+});
 
-const ModelsDevProviderSchema = z
-  .object({
-    id: z.string().optional(),
-    name: z.string().optional(),
-    url: z.string().optional(),
-    npm: z.string().optional(),
-    models: z.record(ModelsDevModelSchema).optional(),
-  })
-  .passthrough(); // Allow additional properties
+const ModelsDevProviderSchema = z.looseObject({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  url: z.string().optional(),
+  npm: z.string().optional(),
+  models: z.record(z.string(), ModelsDevModelSchema).optional(),
+});
 
 // Allow provider values to be either an object or a string (for aliases)
 const ModelsDevResponseSchema = z.record(
+  z.string(),
   z.union([z.string(), ModelsDevProviderSchema]),
 );
 
-type ModelsDevModel = z.infer<typeof ModelsDevModelSchema>;
-type ModelsDevProvider = z.infer<typeof ModelsDevProviderSchema>;
 type ModelsDevResponse = z.infer<typeof ModelsDevResponseSchema>;
 
 // 从 generate-model-docs.ts 中参考的常量
@@ -117,7 +162,12 @@ const POPULAR_PROVIDERS = [
 const GATEWAY_PROVIDERS = ["netlify", "openrouter", "vercel"];
 
 /**
- * 格式化供应商名称
+ * 格式化供应商名称，将供应商ID转换为可读的显示名称
+ * @param name - 供应商ID或名称
+ * @returns 格式化后的供应商名称
+ * @example
+ * formatProviderName("openai") // returns "OpenAI"
+ * formatProviderName("fireworks-ai") // returns "Fireworks AI"
  */
 function formatProviderName(name: string): string {
   const specialCases: Record<string, string> = {
@@ -156,9 +206,11 @@ function formatProviderName(name: string): string {
 }
 
 /**
- * 从 models.dev API 获取所有数据
+ * 从 models.dev API 获取原始数据
+ * @returns Promise<ModelsDevResponse> - 解析后的API响应数据
+ * @throws {Error} 当API请求失败时
  */
-async function fetchModelsDevData(): Promise<ScrapedData> {
+async function fetchApiData(): Promise<ModelsDevResponse> {
   console.log("🔍 正在从 models.dev API 获取数据...");
 
   try {
@@ -167,18 +219,216 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // 获取 API 响应数据
-    // 注意：Zod v4 的 schema 定义在上面，用于类型推导和文档
-    // 由于 Zod v4 在运行时验证存在兼容性问题，这里使用类型断言
+    // 获取 API 响应数据并验证
     const data = (await response.json()) as ModelsDevResponse;
+    return ModelsDevResponseSchema.parse(data);
+  } catch (error) {
+    console.error("❌ 获取 models.dev 数据失败:", error);
+    throw error;
+  }
+}
+
+/**
+ * 解析网关模型ID，提取供应商和实际模型ID
+ * @param modelId - 完整的模型ID，格式为 "供应商/模型ID"
+ * @returns 包含供应商和模型ID的对象，如果格式无效则返回null
+ * @example
+ * parseGatewayModelId("anthropic/claude-3.5-haiku")
+ * // returns { provider: "anthropic", modelId: "claude-3.5-haiku" }
+ */
+function parseGatewayModelId(
+  modelId: string,
+): { provider: string; modelId: string } | null {
+  const separatorIndex = modelId.indexOf("/");
+  if (separatorIndex === -1) {
+    return null;
+  }
+
+  return {
+    provider: modelId.substring(0, separatorIndex),
+    modelId: modelId.substring(separatorIndex + 1),
+  };
+}
+
+/**
+ * 从解析的模型数据创建ModelCapability对象
+ * @param parsedModel - Zod解析后的模型数据
+ * @param modelId - 模型ID
+ * @param providerId - 供应商ID
+ * @param providerName - 供应商显示名称
+ * @returns ModelCapability对象
+ */
+function createModelCapability(
+  parsedModel: z.infer<typeof ModelsDevModelSchema>,
+  modelId: string,
+  providerId: string,
+  providerName: string,
+): ModelCapability {
+  return {
+    id: modelId,
+    provider: providerId,
+    name: modelId,
+    group: providerName,
+    contextLength: parsedModel.limit?.context || parsedModel.context || null,
+    supportsTools: parsedModel.tool_call !== false,
+    supportsReasoning: parsedModel.reasoning === true,
+    supportsImage: parsedModel.modalities?.input?.includes("image") || false,
+    supportsAudio: parsedModel.modalities?.input?.includes("audio") || false,
+    supportsVideo: parsedModel.modalities?.input?.includes("video") || false,
+    inputPricePerMillion: parsedModel.cost?.input || null,
+    outputPricePerMillion: parsedModel.cost?.output || null,
+  };
+}
+
+/**
+ * 处理网关供应商的数据
+ * @param providerId - 网关供应商ID
+ * @param providerName - 网关供应商名称
+ * @param modelEntries - 模型条目数组
+ * @returns 网关信息对象
+ */
+function processGatewayProvider(
+  providerId: string,
+  providerName: string,
+  modelEntries: [string, unknown][],
+): GatewayInfo {
+  const modelsByProvider: Record<string, ModelCapability[]> = {};
+  const modelCountByProvider: Record<string, number> = {};
+  const supportedProviders: Set<string> = new Set();
+  let totalModels = 0;
+
+  // 处理网关中的每个模型
+  for (const [modelId, modelData] of modelEntries) {
+    const parsedModel = ModelsDevModelSchema.parse(modelData);
+
+    // 解析模型ID格式：供应商前缀/模型ID
+    const parsedId = parseGatewayModelId(modelId);
+    if (!parsedId) {
+      console.warn(
+        `⚠️  ${providerName}: 模型 ${modelId} 格式不符合 "供应商/模型ID" 格式，跳过`,
+      );
+      continue;
+    }
+
+    const { provider: modelProvider, modelId: actualModelId } = parsedId;
+
+    // 记录支持的供应商
+    supportedProviders.add(modelProvider);
+
+    // 创建模型对象
+    const model = createModelCapability(
+      parsedModel,
+      actualModelId,
+      modelProvider,
+      formatProviderName(modelProvider),
+    );
+
+    // 按供应商分组
+    if (!modelsByProvider[modelProvider]) {
+      modelsByProvider[modelProvider] = [];
+      modelCountByProvider[modelProvider] = 0;
+    }
+    modelsByProvider[modelProvider].push(model);
+    modelCountByProvider[modelProvider]++;
+    totalModels++;
+  }
+
+  console.log(
+    `✅ ${providerName} (网关): 找到 ${totalModels} 个模型，支持 ${supportedProviders.size} 个供应商`,
+  );
+
+  return {
+    id: providerId,
+    name: providerName,
+    type: providerId,
+    url: `https://mastra.ai/models/gateways/${providerId}`,
+    supportedProviders: Array.from(supportedProviders).sort(),
+    modelsByProvider,
+    totalModels,
+    modelCountByProvider,
+  };
+}
+
+/**
+ * 处理普通供应商的数据
+ * @param providerId - 供应商ID
+ * @param providerName - 供应商名称
+ * @param isPopular - 是否为热门供应商
+ * @param modelEntries - 模型条目数组
+ * @param models - 模型数组（用于添加处理后的模型）
+ * @returns 供应商信息对象
+ */
+function processRegularProvider(
+  providerId: string,
+  providerName: string,
+  isPopular: boolean,
+  modelEntries: [string, unknown][],
+  models: ModelCapability[],
+): ProviderInfo {
+  // 处理每个模型
+  for (const [modelId, modelData] of modelEntries) {
+    const parsedModel = ModelsDevModelSchema.parse(modelData);
+    const model = createModelCapability(
+      parsedModel,
+      modelId,
+      providerId,
+      providerName,
+    );
+    models.push(model);
+  }
+
+  console.log(`✅ ${providerName}: 找到 ${modelEntries.length} 个模型`);
+
+  return {
+    id: providerId,
+    name: providerName,
+    type: providerId,
+    modelCount: modelEntries.length,
+    isPopular,
+  };
+}
+
+/**
+ * 创建跳过的供应商信息
+ * @param providerId - 供应商ID
+ * @param providerName - 供应商名称
+ * @param isGateway - 是否为网关
+ * @param isPopular - 是否为热门供应商
+ * @returns 供应商信息对象
+ */
+function createSkippedProvider(
+  providerId: string,
+  providerName: string,
+  isGateway: boolean,
+  isPopular: boolean,
+): ProviderInfo {
+  return {
+    id: providerId,
+    name: providerName,
+    type: providerId,
+    modelCount: 0,
+    isGateway,
+    isPopular,
+  };
+}
+
+/**
+ * 从 models.dev API 获取并处理所有数据
+ * @returns Promise<ScrapedData> - 包含所有处理后数据的对象
+ * @throws {Error} 当数据获取或处理失败时
+ */
+async function fetchModelsDevData(): Promise<ScrapedData> {
+  try {
+    // 获取和解析API数据
+    const parsedData = await fetchApiData();
 
     const providers: ProviderInfo[] = [];
     const models: ModelCapability[] = [];
     const skippedProviders: ProviderInfo[] = [];
-    const gateways: ProviderInfo[] = [];
+    const gateways: GatewayInfo[] = [];
 
     // 遍历所有供应商
-    for (const [providerId, providerData] of Object.entries(data)) {
+    for (const [providerId, providerData] of Object.entries(parsedData)) {
       // 跳过字符串类型的值（别名或引用）
       if (typeof providerData === "string") {
         console.log(`⏭️  ${providerId}: 别名引用，跳过`);
@@ -190,92 +440,63 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
         continue;
       }
 
-      const providerName = providerData.name || formatProviderName(providerId);
+      const provider = ModelsDevProviderSchema.parse(providerData);
+      const providerName = provider.name || formatProviderName(providerId);
       const isGateway = GATEWAY_PROVIDERS.includes(providerId);
       const isPopular = POPULAR_PROVIDERS.includes(providerId);
 
       // 检查是否有模型数据
-      if (!providerData.models || typeof providerData.models !== "object") {
-        skippedProviders.push({
-          id: providerId,
-          name: providerName,
-          type: providerId,
-          modelCount: 0,
-          url: `/models/providers/${providerId}`,
+      if (!provider.models || typeof provider.models !== "object") {
+        const skippedProvider = createSkippedProvider(
+          providerId,
+          providerName,
           isGateway,
           isPopular,
-        });
+        );
+        skippedProviders.push(skippedProvider);
         console.log(`❌ ${providerName}: 没有模型数据，跳过`);
         continue;
       }
 
-      const modelEntries = Object.entries(providerData.models);
+      const modelEntries = Object.entries(provider.models);
       if (modelEntries.length === 0) {
-        skippedProviders.push({
-          id: providerId,
-          name: providerName,
-          type: providerId,
-          modelCount: 0,
-          url: `/models/providers/${providerId}`,
+        const skippedProvider = createSkippedProvider(
+          providerId,
+          providerName,
           isGateway,
           isPopular,
-        });
+        );
+        skippedProviders.push(skippedProvider);
         console.log(`❌ ${providerName}: 模型列表为空，跳过`);
         continue;
       }
 
-      // 创建供应商信息
-      const providerInfo: ProviderInfo = {
-        id: providerId,
-        name: providerName,
-        type: providerId,
-        modelCount: modelEntries.length,
-        url: `/models/providers/${providerId}`,
-        isGateway,
-        isPopular,
-      };
-
-      // 根据类型分类
+      // 网关和普通供应商分开处理
       if (isGateway) {
-        gateways.push(providerInfo);
+        const gatewayInfo = processGatewayProvider(
+          providerId,
+          providerName,
+          modelEntries,
+        );
+        gateways.push(gatewayInfo);
+      } else {
+        const providerInfo = processRegularProvider(
+          providerId,
+          providerName,
+          isPopular,
+          modelEntries,
+          models,
+        );
+        providers.push(providerInfo);
       }
-      providers.push(providerInfo);
-
-      // 处理每个模型
-      for (const [modelId, modelData] of modelEntries) {
-        if (!modelData || typeof modelData !== "object") {
-          continue;
-        }
-
-        const model: ModelCapability = {
-          id: `${providerId}/${modelId}`,
-          provider: providerId,
-          name: modelId,
-          group: providerName,
-          contextLength: modelData.limit?.context || modelData.context || null,
-          supportsTools: modelData.tool_call !== false,
-          supportsReasoning: modelData.reasoning === true,
-          supportsImage:
-            modelData.modalities?.input?.includes("image") || false,
-          supportsAudio:
-            modelData.modalities?.input?.includes("audio") || false,
-          supportsVideo:
-            modelData.modalities?.input?.includes("video") || false,
-          inputPricePerMillion: modelData.cost?.input || null,
-          outputPricePerMillion: modelData.cost?.output || null,
-        };
-
-        models.push(model);
-      }
-
-      console.log(`✅ ${providerName}: 找到 ${modelEntries.length} 个模型`);
     }
 
-    // 排序
+    // 排序所有数据
     providers.sort((a, b) => a.name.localeCompare(b.name));
     models.sort((a, b) => a.id.localeCompare(b.id));
     gateways.sort((a, b) => a.name.localeCompare(b.name));
 
+    // 创建最终结果
     const scrapedData: ScrapedData = {
       providers,
       models,
@@ -290,6 +511,7 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
       },
     };
 
+    // 输出统计信息
     console.log(`\n🎯 数据获取完成:`);
     console.log(`   - 总供应商数: ${providers.length}`);
     console.log(`   - 网关数: ${gateways.length}`);
@@ -330,7 +552,7 @@ async function saveData(data: ScrapedData) {
       name: provider.name,
       type: provider.type,
       modelCount: provider.modelCount,
-      url: `https://mastra.ai${provider.url}`,
+      url: `https://mastra.ai/models/providers/${provider.id}`,
       isGateway: provider.isGateway || false,
       isPopular: provider.isPopular || false,
     };
@@ -355,15 +577,18 @@ async function saveData(data: ScrapedData) {
     JSON.stringify(modelData, null, 2),
   );
 
-  // 保存网关数据
-  const gatewayData: Record<string, ProviderInfo> = {};
+  // 保存网关数据（包含完整的支持供应商和模型信息）
+  const gatewayData: Record<string, GatewayInfo> = {};
   data.gateways.forEach((gateway) => {
     gatewayData[gateway.id] = {
       id: gateway.id,
       name: gateway.name,
       type: gateway.type,
-      modelCount: gateway.modelCount,
-      url: `https://mastra.ai${gateway.url}`,
+      url: gateway.url,
+      supportedProviders: gateway.supportedProviders,
+      modelsByProvider: gateway.modelsByProvider,
+      totalModels: gateway.totalModels,
+      modelCountByProvider: gateway.modelCountByProvider,
     };
   });
 
@@ -383,7 +608,7 @@ async function saveData(data: ScrapedData) {
       name: provider.name,
       type: provider.type,
       modelCount: provider.modelCount,
-      url: `https://mastra.ai${provider.url}`,
+      url: `https://mastra.ai/models/providers/${provider.id}`,
       reason: "无模型数据或模型列表为空",
       skippedAt: data.metadata.scrapedAt,
     };
@@ -411,13 +636,474 @@ async function main() {
   try {
     console.log("🚀 开始从 models.dev API 获取 Mastra 模型数据...\n");
 
-    const data = await fetchModelsDevData();
-    await saveData(data);
+    // 0. 加载 provider 配置数据
+    providerConfigData = await loadProviderConfig();
 
-    console.log("\n✅ 所有数据已成功获取并保存！");
+    // 1. 从API获取数据
+    const data = await fetchModelsDevData();
+
+    // 2. （可选）保存到文件用于备份或调试
+    // await saveData(data);
+
+    // 3. 直接插入到数据库
+    await insertProvidersAndModels(data);
+
+    console.log("\n✅ 所有数据已成功获取并插入数据库！");
   } catch (error) {
     console.error("\n❌ 执行过程中出现错误:", error);
     process.exit(1);
+  }
+}
+
+/**
+ * 模型去重和关联关系提取
+ * @param data - 从API获取的完整数据
+ * @returns 去重后的模型列表和模型-供应商关联关系
+ */
+function deduplicateModels(data: ScrapedData): {
+  uniqueModels: ModelCapability[];
+  modelProviderRelations: Array<{ modelId: string; providerId: string }>;
+} {
+  const modelMap = new Map<
+    string,
+    ModelCapability & { providers: Set<string> }
+  >();
+
+  // 1. 处理普通供应商的模型
+  for (const model of data.models) {
+    if (modelMap.has(model.id)) {
+      // 模型已存在，添加供应商
+      modelMap.get(model.id).providers.add(model.provider);
+    } else {
+      // 新模型，创建记录
+      modelMap.set(model.id, {
+        ...model,
+        providers: new Set([model.provider]),
+      });
+    }
+  }
+
+  // 2. 处理网关中的模型
+  for (const gateway of data.gateways) {
+    // 遍历网关支持的每个供应商的模型
+    for (const [providerPrefix, models] of Object.entries(
+      gateway.modelsByProvider,
+    )) {
+      for (const model of models) {
+        if (modelMap.has(model.id)) {
+          // 模型已存在，添加网关作为供应商
+          modelMap.get(model.id).providers.add(gateway.id);
+          // 同时也可以关联原始供应商（可选）
+          modelMap.get(model.id).providers.add(model.provider);
+        } else {
+          // 新模型，创建记录
+          modelMap.set(model.id, {
+            ...model,
+            providers: new Set([gateway.id, model.provider]),
+          });
+        }
+      }
+    }
+  }
+
+  // 3. 转换为数组格式
+  const uniqueModels: ModelCapability[] = [];
+  const modelProviderRelations: Array<{ modelId: string; providerId: string }> =
+    [];
+
+  for (const [modelId, modelData] of modelMap.entries()) {
+    // 添加去重后的模型（不包含providers字段）
+    const { providers, ...modelWithoutProviders } = modelData;
+    uniqueModels.push(modelWithoutProviders);
+
+    // 为每个供应商创建关联关系
+    for (const providerId of providers) {
+      modelProviderRelations.push({ modelId, providerId });
+    }
+  }
+
+  console.log(`\n🔍 模型去重结果:`);
+  console.log(`   - 原始模型数（含重复）: ${data.models.length}`);
+  console.log(`   - 去重后模型数: ${uniqueModels.length}`);
+  console.log(`   - 模型-供应商关联数: ${modelProviderRelations.length}`);
+
+  return { uniqueModels, modelProviderRelations };
+}
+
+/**
+ * 根据模型能力确定模型类型
+ * @param model - 模型能力数据
+ * @returns 模型类型数组
+ */
+function determineModelTypes(model: ModelCapability): string[] {
+  const types: string[] = ["text"]; // 默认所有模型都支持文本
+
+  if (model.supportsImage) {
+    types.push("vision");
+  }
+
+  if (model.supportsReasoning) {
+    types.push("reasoning");
+  }
+
+  if (model.supportsTools) {
+    types.push("function_calling");
+  }
+
+  // 可以根据模型名称或其他特征添加更多类型判断
+  // 例如：embedding 模型通常名称中包含 "embedding"
+  if (model.name.toLowerCase().includes("embedding")) {
+    types.push("embedding");
+  }
+
+  return types;
+}
+
+/**
+ * 将供应商ID映射到ProviderType枚举值
+ * @param providerId - 供应商ID（如 "fireworks-ai"）
+ * @returns ProviderType枚举值（如 "fireworks_ai"）
+ */
+function mapProviderIdToType(providerId: string): ProviderType {
+  // 完整的映射表
+  const mapping: Record<string, ProviderType> = {
+    // 主流供应商
+    openai: "openai",
+    anthropic: "anthropic",
+    google: "google",
+    gemini: "gemini",
+    deepseek: "deepseek",
+    groq: "groq",
+    mistral: "mistral",
+
+    // 网关供应商
+    netlify: "netlify",
+    openrouter: "openrouter",
+    vercel: "vercel",
+
+    // 其他供应商（命名转换）
+    "fireworks-ai": "fireworks_ai",
+    fireworks: "fireworks_ai",
+    "github-models": "github_models",
+    github: "github_models",
+    "azure-openai": "azure_openai",
+    xai: "xai",
+    "xai-cn": "xai_cn",
+    grok: "xai",
+
+    // Together AI
+    together: "togetherai",
+    togetherai: "togetherai",
+
+    // 中国供应商
+    zhipu: "zhipuai",
+    zhipuai: "zhipuai",
+    moonshot: "moonshotai",
+    moonshotai: "moonshotai",
+    "moonshotai-cn": "moonshotai_cn",
+    modelscope: "modelscope",
+    dashscope: "alibaba",
+    alibaba: "alibaba",
+    "alibaba-cn": "alibaba_cn",
+
+    // 其他已知供应商
+    huggingface: "huggingface",
+    perplexity: "perplexity",
+    nvidia: "nvidia",
+    lmstudio: "lmstudio",
+    ollama: "lmstudio", // Ollama 映射到 LMStudio
+
+    // Inference 供应商
+    baseten: "baseten",
+    cerebras: "cerebras",
+    deepinfra: "deepinfra",
+    fastrouter: "fastrouter",
+    inference: "inference",
+    nebius: "nebius",
+    upstage: "upstage",
+    venice: "venice",
+    vultr: "vultr",
+  };
+
+  // 如果在映射表中找到，返回映射值
+  if (mapping[providerId]) {
+    return mapping[providerId];
+  }
+
+  // 默认返回 openai_compatible
+  console.warn(
+    `⚠️  供应商 "${providerId}" 未在映射表中找到，使用 openai_compatible 类型`,
+  );
+  return "openai_compatible";
+}
+
+/**
+ * 将数据插入数据库
+ * @param data - 从API获取的完整数据
+ */
+async function insertProvidersAndModels(data: ScrapedData) {
+  console.log("\n💾 开始插入数据到数据库...");
+
+  try {
+    // 1. 模型去重
+    const { uniqueModels, modelProviderRelations } = deduplicateModels(data);
+
+    // 2. 使用事务插入所有数据
+    const result = await prisma.$transaction(
+      async (tx) => {
+        let providersCreated = 0;
+        let providersUpdated = 0;
+        let gatewaysCreated = 0;
+        let gatewaysUpdated = 0;
+        let modelsCreated = 0;
+        let modelsUpdated = 0;
+        let relationsCreated = 0;
+
+        // 3. 插入普通供应商
+        console.log("\n📦 插入供应商数据...");
+        for (const provider of data.providers) {
+          const config = providerConfigData[provider.id];
+          const providerType = mapProviderIdToType(provider.id);
+
+          // 检查是否已存在
+          const existing = await tx.provider.findUnique({
+            where: { id: provider.id },
+          });
+
+          const providerData = {
+            type: providerType,
+            name: provider.name,
+            apiHost: config?.api?.url,
+            apiVersion: null,
+            enabled: false,
+            isSystem: false,
+            isAuthed: false,
+            isGateway: false,
+            isPopular: provider.isPopular || false,
+            modelCount: provider.modelCount,
+            officialWebsite: config?.websites?.official,
+            apiKeyUrl: config?.websites?.apiKey,
+            docsUrl: config?.websites?.docs,
+            modelsUrl: config?.websites?.models,
+          };
+
+          if (existing) {
+            // 更新现有供应商（保留apiKey）
+            await tx.provider.update({
+              where: { id: provider.id },
+              data: providerData,
+            });
+            providersUpdated++;
+          } else {
+            // 创建新供应商
+            await tx.provider.create({
+              data: {
+                id: provider.id,
+                apiKey: "", // 默认为空，用户后续填写
+                ...providerData,
+              },
+            });
+            providersCreated++;
+          }
+        }
+
+        // 4. 插入网关
+        console.log("\n🌐 插入网关数据...");
+        for (const gateway of data.gateways) {
+          const config = providerConfigData[gateway.id];
+          const providerType = mapProviderIdToType(gateway.id);
+
+          // 检查是否已存在
+          const existing = await tx.provider.findUnique({
+            where: { id: gateway.id },
+          });
+
+          const gatewayData = {
+            type: providerType,
+            name: gateway.name,
+            apiHost: config?.api?.url,
+            apiVersion: null,
+            enabled: false,
+            isSystem: false,
+            isAuthed: false,
+            isGateway: true,
+            isPopular: false,
+            modelCount: gateway.totalModels,
+            officialWebsite: config?.websites?.official,
+            apiKeyUrl: config?.websites?.apiKey,
+            docsUrl: config?.websites?.docs,
+            modelsUrl: config?.websites?.models,
+          };
+
+          if (existing) {
+            // 更新现有网关
+            await tx.provider.update({
+              where: { id: gateway.id },
+              data: gatewayData,
+            });
+            gatewaysUpdated++;
+          } else {
+            // 创建新网关
+            await tx.provider.create({
+              data: {
+                id: gateway.id,
+                apiKey: "",
+                ...gatewayData,
+              },
+            });
+            gatewaysCreated++;
+          }
+        }
+
+        // 5. 批量插入模型
+        console.log("\n🤖 插入模型数据...");
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < uniqueModels.length; i += BATCH_SIZE) {
+          const batch = uniqueModels.slice(i, i + BATCH_SIZE);
+
+          for (const model of batch) {
+            const modelTypes = determineModelTypes(model);
+
+            // 检查是否已存在
+            const existing = await tx.model.findUnique({
+              where: { id: model.id },
+            });
+
+            const modelData = {
+              name: model.name,
+              group: model.group,
+              typeJson: JSON.stringify(modelTypes),
+              contextLength: model.contextLength,
+              supportsTools: model.supportsTools,
+              supportsReasoning: model.supportsReasoning,
+              supportsImage: model.supportsImage,
+              supportsAudio: model.supportsAudio,
+              supportsVideo: model.supportsVideo,
+              inputPricePerMillion: model.inputPricePerMillion,
+              outputPricePerMillion: model.outputPricePerMillion,
+            };
+
+            if (existing) {
+              // 更新现有模型
+              await tx.model.update({
+                where: { id: model.id },
+                data: modelData,
+              });
+              modelsUpdated++;
+            } else {
+              // 创建新模型
+              await tx.model.create({
+                data: {
+                  id: model.id,
+                  ...modelData,
+                },
+              });
+              modelsCreated++;
+            }
+          }
+
+          // 输出进度
+          const progress = Math.min(i + BATCH_SIZE, uniqueModels.length);
+          console.log(
+            `   处理进度: ${progress}/${uniqueModels.length} (${Math.round((progress / uniqueModels.length) * 100)}%)`,
+          );
+        }
+
+        // 6. 建立模型-供应商关联关系
+        console.log("\n🔗 建立模型-供应商关联关系...");
+        for (const relation of modelProviderRelations) {
+          // 检查供应商是否存在
+          const providerExists = await tx.provider.findUnique({
+            where: { id: relation.providerId },
+          });
+
+          if (!providerExists) {
+            // 如果供应商不存在，尝试创建它
+            const providerType = mapProviderIdToType(relation.providerId);
+            const config = providerConfigData[relation.providerId];
+
+            try {
+              await tx.provider.create({
+                data: {
+                  id: relation.providerId,
+                  type: providerType as never,
+                  name: formatProviderName(relation.providerId),
+                  apiKey: "",
+                  apiHost: config?.api?.url,
+                  enabled: false,
+                  isSystem: false,
+                  isGateway: false,
+                  isPopular: false,
+                  officialWebsite: config?.websites?.official,
+                  apiKeyUrl: config?.websites?.apiKey,
+                  docsUrl: config?.websites?.docs,
+                  modelsUrl: config?.websites?.models,
+                },
+              });
+              console.log(
+                `   ℹ️  自动创建缺失的供应商: ${relation.providerId}`,
+              );
+            } catch (error) {
+              console.warn(
+                `   ⚠️  无法创建供应商 ${relation.providerId}，跳过关联`,
+              );
+              continue;
+            }
+          }
+
+          // 使用 upsert 避免重复插入
+          await tx.modelProvider.upsert({
+            where: {
+              modelId_providerId: {
+                modelId: relation.modelId,
+                providerId: relation.providerId,
+              },
+            },
+            update: {},
+            create: {
+              modelId: relation.modelId,
+              providerId: relation.providerId,
+            },
+          });
+          relationsCreated++;
+        }
+
+        return {
+          providersCreated,
+          providersUpdated,
+          gatewaysCreated,
+          gatewaysUpdated,
+          modelsCreated,
+          modelsUpdated,
+          relationsCreated,
+        };
+      },
+      {
+        maxWait: 10000, // 最大等待时间 10秒
+        timeout: 60000, // 超时时间 60秒
+      },
+    );
+
+    // 输出统计信息
+    console.log("\n✅ 数据插入完成！");
+    console.log(`\n📊 统计信息:`);
+    console.log(`   供应商:`);
+    console.log(`     - 新建: ${result.providersCreated}`);
+    console.log(`     - 更新: ${result.providersUpdated}`);
+    console.log(`   网关:`);
+    console.log(`     - 新建: ${result.gatewaysCreated}`);
+    console.log(`     - 更新: ${result.gatewaysUpdated}`);
+    console.log(`   模型:`);
+    console.log(`     - 新建: ${result.modelsCreated}`);
+    console.log(`     - 更新: ${result.modelsUpdated}`);
+    console.log(`   关联关系:`);
+    console.log(`     - 创建: ${result.relationsCreated}`);
+  } catch (error) {
+    console.error("\n❌ 数据库插入失败:", error);
+    throw error;
+  } finally {
+    // 关闭 Prisma Client 连接
+    await prisma.$disconnect();
   }
 }
 
@@ -425,4 +1111,4 @@ async function main() {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 main();
 
-export { fetchModelsDevData, saveData };
+export { fetchModelsDevData, saveData, mapProviderIdToType };

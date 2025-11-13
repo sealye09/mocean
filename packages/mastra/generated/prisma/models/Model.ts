@@ -20,8 +20,22 @@ export type ModelModel = runtime.Types.Result.DefaultSelection<Prisma.$ModelPayl
 
 export type AggregateModel = {
   _count: ModelCountAggregateOutputType | null
+  _avg: ModelAvgAggregateOutputType | null
+  _sum: ModelSumAggregateOutputType | null
   _min: ModelMinAggregateOutputType | null
   _max: ModelMaxAggregateOutputType | null
+}
+
+export type ModelAvgAggregateOutputType = {
+  contextLength: number | null
+  inputPricePerMillion: number | null
+  outputPricePerMillion: number | null
+}
+
+export type ModelSumAggregateOutputType = {
+  contextLength: number | null
+  inputPricePerMillion: number | null
+  outputPricePerMillion: number | null
 }
 
 export type ModelMinAggregateOutputType = {
@@ -30,6 +44,14 @@ export type ModelMinAggregateOutputType = {
   group: string | null
   owned_by: string | null
   description: string | null
+  contextLength: number | null
+  supportsTools: boolean | null
+  supportsReasoning: boolean | null
+  supportsImage: boolean | null
+  supportsAudio: boolean | null
+  supportsVideo: boolean | null
+  inputPricePerMillion: number | null
+  outputPricePerMillion: number | null
 }
 
 export type ModelMaxAggregateOutputType = {
@@ -38,6 +60,14 @@ export type ModelMaxAggregateOutputType = {
   group: string | null
   owned_by: string | null
   description: string | null
+  contextLength: number | null
+  supportsTools: boolean | null
+  supportsReasoning: boolean | null
+  supportsImage: boolean | null
+  supportsAudio: boolean | null
+  supportsVideo: boolean | null
+  inputPricePerMillion: number | null
+  outputPricePerMillion: number | null
 }
 
 export type ModelCountAggregateOutputType = {
@@ -47,9 +77,29 @@ export type ModelCountAggregateOutputType = {
   owned_by: number
   description: number
   typeJson: number
+  contextLength: number
+  supportsTools: number
+  supportsReasoning: number
+  supportsImage: number
+  supportsAudio: number
+  supportsVideo: number
+  inputPricePerMillion: number
+  outputPricePerMillion: number
   _all: number
 }
 
+
+export type ModelAvgAggregateInputType = {
+  contextLength?: true
+  inputPricePerMillion?: true
+  outputPricePerMillion?: true
+}
+
+export type ModelSumAggregateInputType = {
+  contextLength?: true
+  inputPricePerMillion?: true
+  outputPricePerMillion?: true
+}
 
 export type ModelMinAggregateInputType = {
   id?: true
@@ -57,6 +107,14 @@ export type ModelMinAggregateInputType = {
   group?: true
   owned_by?: true
   description?: true
+  contextLength?: true
+  supportsTools?: true
+  supportsReasoning?: true
+  supportsImage?: true
+  supportsAudio?: true
+  supportsVideo?: true
+  inputPricePerMillion?: true
+  outputPricePerMillion?: true
 }
 
 export type ModelMaxAggregateInputType = {
@@ -65,6 +123,14 @@ export type ModelMaxAggregateInputType = {
   group?: true
   owned_by?: true
   description?: true
+  contextLength?: true
+  supportsTools?: true
+  supportsReasoning?: true
+  supportsImage?: true
+  supportsAudio?: true
+  supportsVideo?: true
+  inputPricePerMillion?: true
+  outputPricePerMillion?: true
 }
 
 export type ModelCountAggregateInputType = {
@@ -74,6 +140,14 @@ export type ModelCountAggregateInputType = {
   owned_by?: true
   description?: true
   typeJson?: true
+  contextLength?: true
+  supportsTools?: true
+  supportsReasoning?: true
+  supportsImage?: true
+  supportsAudio?: true
+  supportsVideo?: true
+  inputPricePerMillion?: true
+  outputPricePerMillion?: true
   _all?: true
 }
 
@@ -115,6 +189,18 @@ export type ModelAggregateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ModelAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ModelSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ModelMinAggregateInputType
@@ -145,6 +231,8 @@ export type ModelGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   _count?: ModelCountAggregateInputType | true
+  _avg?: ModelAvgAggregateInputType
+  _sum?: ModelSumAggregateInputType
   _min?: ModelMinAggregateInputType
   _max?: ModelMaxAggregateInputType
 }
@@ -156,7 +244,17 @@ export type ModelGroupByOutputType = {
   owned_by: string | null
   description: string | null
   typeJson: runtime.JsonValue
+  contextLength: number | null
+  supportsTools: boolean
+  supportsReasoning: boolean
+  supportsImage: boolean
+  supportsAudio: boolean
+  supportsVideo: boolean
+  inputPricePerMillion: number | null
+  outputPricePerMillion: number | null
   _count: ModelCountAggregateOutputType | null
+  _avg: ModelAvgAggregateOutputType | null
+  _sum: ModelSumAggregateOutputType | null
   _min: ModelMinAggregateOutputType | null
   _max: ModelMaxAggregateOutputType | null
 }
@@ -186,6 +284,14 @@ export type ModelWhereInput = {
   owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
   description?: Prisma.StringNullableFilter<"Model"> | string | null
   typeJson?: Prisma.JsonFilter<"Model">
+  contextLength?: Prisma.IntNullableFilter<"Model"> | number | null
+  supportsTools?: Prisma.BoolFilter<"Model"> | boolean
+  supportsReasoning?: Prisma.BoolFilter<"Model"> | boolean
+  supportsImage?: Prisma.BoolFilter<"Model"> | boolean
+  supportsAudio?: Prisma.BoolFilter<"Model"> | boolean
+  supportsVideo?: Prisma.BoolFilter<"Model"> | boolean
+  inputPricePerMillion?: Prisma.FloatNullableFilter<"Model"> | number | null
+  outputPricePerMillion?: Prisma.FloatNullableFilter<"Model"> | number | null
   providers?: Prisma.ModelProviderListRelationFilter
   assistants?: Prisma.AssistantListRelationFilter
   defaultForAssistants?: Prisma.AssistantListRelationFilter
@@ -202,6 +308,14 @@ export type ModelOrderByWithRelationInput = {
   owned_by?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   typeJson?: Prisma.SortOrder
+  contextLength?: Prisma.SortOrderInput | Prisma.SortOrder
+  supportsTools?: Prisma.SortOrder
+  supportsReasoning?: Prisma.SortOrder
+  supportsImage?: Prisma.SortOrder
+  supportsAudio?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrderInput | Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrderInput | Prisma.SortOrder
   providers?: Prisma.ModelProviderOrderByRelationAggregateInput
   assistants?: Prisma.AssistantOrderByRelationAggregateInput
   defaultForAssistants?: Prisma.AssistantOrderByRelationAggregateInput
@@ -221,6 +335,14 @@ export type ModelWhereUniqueInput = Prisma.AtLeast<{
   owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
   description?: Prisma.StringNullableFilter<"Model"> | string | null
   typeJson?: Prisma.JsonFilter<"Model">
+  contextLength?: Prisma.IntNullableFilter<"Model"> | number | null
+  supportsTools?: Prisma.BoolFilter<"Model"> | boolean
+  supportsReasoning?: Prisma.BoolFilter<"Model"> | boolean
+  supportsImage?: Prisma.BoolFilter<"Model"> | boolean
+  supportsAudio?: Prisma.BoolFilter<"Model"> | boolean
+  supportsVideo?: Prisma.BoolFilter<"Model"> | boolean
+  inputPricePerMillion?: Prisma.FloatNullableFilter<"Model"> | number | null
+  outputPricePerMillion?: Prisma.FloatNullableFilter<"Model"> | number | null
   providers?: Prisma.ModelProviderListRelationFilter
   assistants?: Prisma.AssistantListRelationFilter
   defaultForAssistants?: Prisma.AssistantListRelationFilter
@@ -237,9 +359,19 @@ export type ModelOrderByWithAggregationInput = {
   owned_by?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   typeJson?: Prisma.SortOrder
+  contextLength?: Prisma.SortOrderInput | Prisma.SortOrder
+  supportsTools?: Prisma.SortOrder
+  supportsReasoning?: Prisma.SortOrder
+  supportsImage?: Prisma.SortOrder
+  supportsAudio?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrderInput | Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ModelCountOrderByAggregateInput
+  _avg?: Prisma.ModelAvgOrderByAggregateInput
   _max?: Prisma.ModelMaxOrderByAggregateInput
   _min?: Prisma.ModelMinOrderByAggregateInput
+  _sum?: Prisma.ModelSumOrderByAggregateInput
 }
 
 export type ModelScalarWhereWithAggregatesInput = {
@@ -252,6 +384,14 @@ export type ModelScalarWhereWithAggregatesInput = {
   owned_by?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
   typeJson?: Prisma.JsonWithAggregatesFilter<"Model">
+  contextLength?: Prisma.IntNullableWithAggregatesFilter<"Model"> | number | null
+  supportsTools?: Prisma.BoolWithAggregatesFilter<"Model"> | boolean
+  supportsReasoning?: Prisma.BoolWithAggregatesFilter<"Model"> | boolean
+  supportsImage?: Prisma.BoolWithAggregatesFilter<"Model"> | boolean
+  supportsAudio?: Prisma.BoolWithAggregatesFilter<"Model"> | boolean
+  supportsVideo?: Prisma.BoolWithAggregatesFilter<"Model"> | boolean
+  inputPricePerMillion?: Prisma.FloatNullableWithAggregatesFilter<"Model"> | number | null
+  outputPricePerMillion?: Prisma.FloatNullableWithAggregatesFilter<"Model"> | number | null
 }
 
 export type ModelCreateInput = {
@@ -261,6 +401,14 @@ export type ModelCreateInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
@@ -277,6 +425,14 @@ export type ModelUncheckedCreateInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -293,6 +449,14 @@ export type ModelUpdateInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
@@ -309,6 +473,14 @@ export type ModelUncheckedUpdateInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -325,6 +497,14 @@ export type ModelCreateManyInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
 }
 
 export type ModelUpdateManyMutationInput = {
@@ -334,6 +514,14 @@ export type ModelUpdateManyMutationInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type ModelUncheckedUpdateManyInput = {
@@ -343,6 +531,14 @@ export type ModelUncheckedUpdateManyInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type ModelNullableScalarRelationFilter = {
@@ -357,6 +553,20 @@ export type ModelCountOrderByAggregateInput = {
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
   typeJson?: Prisma.SortOrder
+  contextLength?: Prisma.SortOrder
+  supportsTools?: Prisma.SortOrder
+  supportsReasoning?: Prisma.SortOrder
+  supportsImage?: Prisma.SortOrder
+  supportsAudio?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrder
+}
+
+export type ModelAvgOrderByAggregateInput = {
+  contextLength?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrder
 }
 
 export type ModelMaxOrderByAggregateInput = {
@@ -365,6 +575,14 @@ export type ModelMaxOrderByAggregateInput = {
   group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contextLength?: Prisma.SortOrder
+  supportsTools?: Prisma.SortOrder
+  supportsReasoning?: Prisma.SortOrder
+  supportsImage?: Prisma.SortOrder
+  supportsAudio?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrder
 }
 
 export type ModelMinOrderByAggregateInput = {
@@ -373,6 +591,20 @@ export type ModelMinOrderByAggregateInput = {
   group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  contextLength?: Prisma.SortOrder
+  supportsTools?: Prisma.SortOrder
+  supportsReasoning?: Prisma.SortOrder
+  supportsImage?: Prisma.SortOrder
+  supportsAudio?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrder
+}
+
+export type ModelSumOrderByAggregateInput = {
+  contextLength?: Prisma.SortOrder
+  inputPricePerMillion?: Prisma.SortOrder
+  outputPricePerMillion?: Prisma.SortOrder
 }
 
 export type ModelScalarRelationFilter = {
@@ -426,6 +658,14 @@ export type ModelUpdateOneWithoutTopicNestedInput = {
   delete?: Prisma.ModelWhereInput | boolean
   connect?: Prisma.ModelWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ModelUpdateToOneWithWhereWithoutTopicInput, Prisma.ModelUpdateWithoutTopicInput>, Prisma.ModelUncheckedUpdateWithoutTopicInput>
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type ModelCreateNestedOneWithoutAssistantSettingsInput = {
@@ -495,6 +735,14 @@ export type ModelCreateWithoutAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
@@ -510,6 +758,14 @@ export type ModelUncheckedCreateWithoutAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
@@ -530,6 +786,14 @@ export type ModelCreateWithoutDefaultForAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
@@ -545,6 +809,14 @@ export type ModelUncheckedCreateWithoutDefaultForAssistantsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
@@ -576,6 +848,14 @@ export type ModelUpdateWithoutAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
@@ -591,6 +871,14 @@ export type ModelUncheckedUpdateWithoutAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
@@ -617,6 +905,14 @@ export type ModelUpdateWithoutDefaultForAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
@@ -632,6 +928,14 @@ export type ModelUncheckedUpdateWithoutDefaultForAssistantsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
@@ -647,6 +951,14 @@ export type ModelCreateWithoutTopicInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
@@ -662,6 +974,14 @@ export type ModelUncheckedCreateWithoutTopicInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -693,6 +1013,14 @@ export type ModelUpdateWithoutTopicInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
@@ -708,6 +1036,14 @@ export type ModelUncheckedUpdateWithoutTopicInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -723,6 +1059,14 @@ export type ModelCreateWithoutAssistantSettingsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
@@ -738,6 +1082,14 @@ export type ModelUncheckedCreateWithoutAssistantSettingsInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -769,6 +1121,14 @@ export type ModelUpdateWithoutAssistantSettingsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
@@ -784,6 +1144,14 @@ export type ModelUncheckedUpdateWithoutAssistantSettingsInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -799,6 +1167,14 @@ export type ModelCreateWithoutKnowledgeBasesInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
@@ -814,6 +1190,14 @@ export type ModelUncheckedCreateWithoutKnowledgeBasesInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -834,6 +1218,14 @@ export type ModelCreateWithoutRerankForInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
@@ -849,6 +1241,14 @@ export type ModelUncheckedCreateWithoutRerankForInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
@@ -880,6 +1280,14 @@ export type ModelUpdateWithoutKnowledgeBasesInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
@@ -895,6 +1303,14 @@ export type ModelUncheckedUpdateWithoutKnowledgeBasesInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -921,6 +1337,14 @@ export type ModelUpdateWithoutRerankForInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
@@ -936,6 +1360,14 @@ export type ModelUncheckedUpdateWithoutRerankForInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
@@ -951,6 +1383,14 @@ export type ModelCreateWithoutProvidersInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
@@ -966,6 +1406,14 @@ export type ModelUncheckedCreateWithoutProvidersInput = {
   owned_by?: string | null
   description?: string | null
   typeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: number | null
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
   assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
   defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
@@ -997,6 +1445,14 @@ export type ModelUpdateWithoutProvidersInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
@@ -1012,6 +1468,14 @@ export type ModelUncheckedUpdateWithoutProvidersInput = {
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   typeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
   defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
@@ -1112,6 +1576,14 @@ export type ModelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  contextLength?: boolean
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: boolean
+  outputPricePerMillion?: boolean
   providers?: boolean | Prisma.Model$providersArgs<ExtArgs>
   assistants?: boolean | Prisma.Model$assistantsArgs<ExtArgs>
   defaultForAssistants?: boolean | Prisma.Model$defaultForAssistantsArgs<ExtArgs>
@@ -1129,6 +1601,14 @@ export type ModelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  contextLength?: boolean
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: boolean
+  outputPricePerMillion?: boolean
 }, ExtArgs["result"]["model"]>
 
 export type ModelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1138,6 +1618,14 @@ export type ModelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  contextLength?: boolean
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: boolean
+  outputPricePerMillion?: boolean
 }, ExtArgs["result"]["model"]>
 
 export type ModelSelectScalar = {
@@ -1147,9 +1635,17 @@ export type ModelSelectScalar = {
   owned_by?: boolean
   description?: boolean
   typeJson?: boolean
+  contextLength?: boolean
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  inputPricePerMillion?: boolean
+  outputPricePerMillion?: boolean
 }
 
-export type ModelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "group" | "owned_by" | "description" | "typeJson", ExtArgs["result"]["model"]>
+export type ModelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "group" | "owned_by" | "description" | "typeJson" | "contextLength" | "supportsTools" | "supportsReasoning" | "supportsImage" | "supportsAudio" | "supportsVideo" | "inputPricePerMillion" | "outputPricePerMillion", ExtArgs["result"]["model"]>
 export type ModelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   providers?: boolean | Prisma.Model$providersArgs<ExtArgs>
   assistants?: boolean | Prisma.Model$assistantsArgs<ExtArgs>
@@ -1181,6 +1677,14 @@ export type $ModelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     owned_by: string | null
     description: string | null
     typeJson: runtime.JsonValue
+    contextLength: number | null
+    supportsTools: boolean
+    supportsReasoning: boolean
+    supportsImage: boolean
+    supportsAudio: boolean
+    supportsVideo: boolean
+    inputPricePerMillion: number | null
+    outputPricePerMillion: number | null
   }, ExtArgs["result"]["model"]>
   composites: {}
 }
@@ -1617,6 +2121,14 @@ export interface ModelFieldRefs {
   readonly owned_by: Prisma.FieldRef<"Model", 'String'>
   readonly description: Prisma.FieldRef<"Model", 'String'>
   readonly typeJson: Prisma.FieldRef<"Model", 'Json'>
+  readonly contextLength: Prisma.FieldRef<"Model", 'Int'>
+  readonly supportsTools: Prisma.FieldRef<"Model", 'Boolean'>
+  readonly supportsReasoning: Prisma.FieldRef<"Model", 'Boolean'>
+  readonly supportsImage: Prisma.FieldRef<"Model", 'Boolean'>
+  readonly supportsAudio: Prisma.FieldRef<"Model", 'Boolean'>
+  readonly supportsVideo: Prisma.FieldRef<"Model", 'Boolean'>
+  readonly inputPricePerMillion: Prisma.FieldRef<"Model", 'Float'>
+  readonly outputPricePerMillion: Prisma.FieldRef<"Model", 'Float'>
 }
     
 
