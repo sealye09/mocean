@@ -762,14 +762,6 @@ export type KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput = {
   deleteMany?: Prisma.KnowledgeBaseScalarWhereInput | Prisma.KnowledgeBaseScalarWhereInput[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type KnowledgeBaseCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.KnowledgeBaseCreateWithoutItemsInput, Prisma.KnowledgeBaseUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.KnowledgeBaseCreateOrConnectWithoutItemsInput

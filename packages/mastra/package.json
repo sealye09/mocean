@@ -14,8 +14,7 @@
     "import-providers-models": "tsx scripts/import-providers-models.ts",
     "import-assistants": "tsx scripts/import-assistants.ts",
     "check-types": "tsc --noEmit",
-    "scrape-models": "tsx scripts/scrape-mastra-models-fixed.ts",
-    "generate-models-json": "tsx scripts/"
+    "fetch-models-from-api": "tsx scripts/fetch-models-from-api.ts"
   },
   "exports": {
     "./prismaType": {

@@ -157,11 +157,11 @@ export type UseAgentsApiReturn = Pick<
  */
 export const useAgentsApi = (): UseAgentsApiReturn => {
   return {
-    getAgents: agentsApi.getAgents.bind(agentsApi),
-    getAgentById: agentsApi.getAgentById.bind(agentsApi),
-    createAgent: agentsApi.createAgent.bind(agentsApi),
-    updateAgent: agentsApi.updateAgent.bind(agentsApi),
-    deleteAgent: agentsApi.deleteAgent.bind(agentsApi),
-    getAgentByGroup: agentsApi.getAgentByGroup.bind(agentsApi),
+    getAgents: agentsApiMethods.getAgents,
+    getAgentById: agentsApiMethods.getAgentById,
+    createAgent: agentsApiMethods.createAgent,
+    updateAgent: agentsApiMethods.updateAgent,
+    deleteAgent: agentsApiMethods.deleteAgent,
+    getAgentByGroup: agentsApiMethods.getAgentByGroup,
   };
 };
