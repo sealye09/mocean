@@ -110,7 +110,7 @@ export default function ProviderPage() {
     return (
       <div className="flex h-full items-center justify-center p-8">
         <div className="text-center">
-          <p className="mb-2 text-sm text-red-500">加载模型数据失败</p>
+          <p className="mb-2 text-sm text-destructive">加载模型数据失败</p>
           <p className="text-xs text-muted-foreground">{error.message}</p>
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function ProviderPage() {
                 <h1 className="text-lg font-semibold">{provider?.name}</h1>
                 <div className="flex items-center space-x-1">
                   <Switch
-                    className="data-[state=checked]:bg-purple-500"
+                    className="data-[state=checked]:bg-brand-primary"
                     checked={provider?.enabled}
                     onCheckedChange={onToggleEnabled}
                   />
@@ -379,7 +379,7 @@ export default function ProviderPage() {
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteModel}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               删除
             </AlertDialogAction>

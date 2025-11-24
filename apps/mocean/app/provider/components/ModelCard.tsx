@@ -29,16 +29,17 @@ const MODEL_TYPE_ICONS = {
  */
 const getModelTypeColor = (type: string) => {
   const colorMap = {
-    text: "bg-blue-100 text-info dark:bg-blue-900/30",
-    vision: "bg-purple-100 text-brand-primary dark:bg-purple-900/30",
-    embedding: "bg-green-100 text-success dark:bg-green-900/30",
-    reasoning: "bg-orange-100 text-orange-600 dark:bg-orange-900/30",
-    function_calling: "bg-red-100 text-red-600 dark:bg-red-900/30",
-    web_search: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30",
+    text: "bg-info/10 text-info dark:bg-info/20",
+    vision: "bg-brand-primary/10 text-brand-primary dark:bg-brand-primary/20",
+    embedding: "bg-success/10 text-success dark:bg-success/20",
+    reasoning: "bg-warning/10 text-warning dark:bg-warning/20",
+    function_calling:
+      "bg-destructive/10 text-destructive dark:bg-destructive/20",
+    web_search:
+      "bg-brand-secondary-400/10 text-brand-secondary-700 dark:bg-brand-secondary-400/20",
   };
   return (
-    colorMap[type as keyof typeof colorMap] ||
-    "bg-gray-100 text-gray-600 dark:bg-gray-900/30"
+    colorMap[type as keyof typeof colorMap] || "bg-muted text-muted-foreground"
   );
 };
 
@@ -170,7 +171,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
               e.stopPropagation();
               onDelete(model);
             }}
-            className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600"
+            className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive/90"
             title="删除模型"
           >
             <Trash2 className="h-4 w-4" />

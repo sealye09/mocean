@@ -50,6 +50,7 @@ enum ProviderType {
   cerebras
   chutes
   cloudflare_workers_ai
+  cohere
   cortecs
   deepinfra
   fastrouter
@@ -69,9 +70,11 @@ enum ProviderType {
   morph
   nebius
   nvidia
+  ollama_cloud
   opencode
   ovhcloud
   perplexity
+  poe
   requesty
   scaleway
   submodel
