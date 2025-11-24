@@ -287,7 +287,7 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => onStartDelete(group)}
-                                className="h-8 px-2 text-red-600 hover:text-red-700"
+                                className="h-8 px-2 text-destructive hover:text-destructive/90"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -362,7 +362,7 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               <span>确认删除分组</span>
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -383,7 +383,7 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
             <AlertDialogAction
               onClick={onConfirmDelete}
               disabled={isSubmitting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               {isSubmitting ? (
                 <>

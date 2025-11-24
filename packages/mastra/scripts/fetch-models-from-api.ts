@@ -51,6 +51,69 @@ interface ScrapedData {
  *
  * 参考自 generate-model-docs.ts 中的 schema 定义
  */
+interface ApiModel {
+  /** 模型ID */
+  id: string;
+  /** 模型名称 */
+  name: string;
+  /** 是否支持附件 */
+  attachment: boolean;
+  /** 是否支持推理 */
+  reasoning: boolean;
+  /** 是否支持工具调用 */
+  tool_call: boolean;
+  /** 是否支持温度调节 */
+  temperature: boolean;
+  /** 知识库截止日期 */
+  knowledge: string;
+  /** 发布日期 */
+  release_date: string;
+  /** 最后更新日期 */
+  last_updated: string;
+  /** 支持的模态 */
+  modalities: {
+    /** 输入模态 */
+    input: string[];
+    /** 输出模态 */
+    output: string[];
+  };
+  /** 是否开放权重 */
+  open_weights: boolean;
+  /** 价格信息 */
+  cost: {
+    /** 输入价格 */
+    input: number;
+    /** 输出价格 */
+    output: number;
+    /** 缓存读取价格 */
+    cache_read: number;
+  };
+  /** 限制信息 */
+  limit: {
+    /** 上下文长度限制 */
+    context: number;
+    /** 输出长度限制 */
+    output: number;
+  };
+}
+
+interface ApiProvider {
+  /** 供应商ID */
+  id: string;
+  /** 环境变量 */
+  env: string[];
+  /** NPM 包名 */
+  npm: string;
+  /** API 地址 */
+  api: string;
+  /** 供应商名称 */
+  name: string;
+  /** 文档地址 */
+  doc: string;
+  /** 模型列表 */
+  models: Record<string, ApiModel>;
+}
+
 const ModelsDevModalitiesSchema = z.object({
   input: z.array(z.string()).optional(),
   output: z.array(z.string()).optional(),
@@ -64,23 +127,32 @@ const ModelsDevLimitSchema = z.object({
 const ModelsDevCostSchema = z.object({
   input: z.number().optional(),
   output: z.number().optional(),
+  cache_read: z.number().optional(),
 });
 
 const ModelsDevModelSchema = z.looseObject({
   id: z.string().optional(),
-  context: z.number().optional(),
-  limit: ModelsDevLimitSchema.optional(),
-  modalities: ModelsDevModalitiesSchema.optional(),
-  tool_call: z.boolean().optional(),
+  name: z.string().optional(),
+  attachment: z.boolean().optional(),
   reasoning: z.boolean().optional(),
+  tool_call: z.boolean().optional(),
+  temperature: z.boolean().optional(),
+  knowledge: z.string().optional(),
+  release_date: z.string().optional(),
+  last_updated: z.string().optional(),
+  modalities: ModelsDevModalitiesSchema.optional(),
+  open_weights: z.boolean().optional(),
   cost: ModelsDevCostSchema.optional(),
+  limit: ModelsDevLimitSchema.optional(),
 });
 
 const ModelsDevProviderSchema = z.looseObject({
   id: z.string().optional(),
   name: z.string().optional(),
-  url: z.string().optional(),
+  env: z.array(z.string()).optional(),
   npm: z.string().optional(),
+  api: z.string().optional(),
+  doc: z.string().optional(),
   models: z.record(z.string(), ModelsDevModelSchema).optional(),
 });
 
@@ -164,7 +236,7 @@ async function fetchApiData(): Promise<ModelsDevResponse> {
     }
 
     // 获取 API 响应数据并验证
-    const data = (await response.json()) as ModelsDevResponse;
+    const data = (await response.json()) as ApiProvider;
     return ModelsDevResponseSchema.parse(data);
   } catch (error) {
     console.error("❌ 获取 models.dev 数据失败:", error);
@@ -191,7 +263,7 @@ function createModelCapability(
     provider: providerId,
     name: modelId,
     group: providerName,
-    contextLength: parsedModel.limit?.context || parsedModel.context || null,
+    contextLength: parsedModel.limit?.context || null,
     supportsTools: parsedModel.tool_call !== false,
     supportsReasoning: parsedModel.reasoning === true,
     supportsImage: parsedModel.modalities?.input?.includes("image") || false,
@@ -221,9 +293,10 @@ function processRegularProvider(
   // 处理每个模型
   for (const [modelId, modelData] of modelEntries) {
     const parsedModel = ModelsDevModelSchema.parse(modelData);
+    const canonicalModelId = parsedModel.id || modelId;
     const model = createModelCapability(
       parsedModel,
-      modelId,
+      canonicalModelId,
       providerId,
       providerName,
     );
@@ -296,14 +369,17 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
       }
 
       const provider = ModelsDevProviderSchema.parse(providerData);
-      const providerName = provider.name || formatProviderName(providerId);
-      const isGateway = GATEWAY_PROVIDERS.includes(providerId);
-      const isPopular = POPULAR_PROVIDERS.includes(providerId);
+      // 优先使用 API 返回的 ID，如果没有则使用 key
+      const canonicalProviderId = provider.id || providerId;
+      const providerName =
+        provider.name || formatProviderName(canonicalProviderId);
+      const isGateway = GATEWAY_PROVIDERS.includes(canonicalProviderId);
+      const isPopular = POPULAR_PROVIDERS.includes(canonicalProviderId);
 
       // 检查是否有模型数据
       if (!provider.models || typeof provider.models !== "object") {
         const skippedProvider = createSkippedProvider(
-          providerId,
+          canonicalProviderId,
           providerName,
           isGateway,
           isPopular,
@@ -316,7 +392,7 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
       const modelEntries = Object.entries(provider.models);
       if (modelEntries.length === 0) {
         const skippedProvider = createSkippedProvider(
-          providerId,
+          canonicalProviderId,
           providerName,
           isGateway,
           isPopular,
@@ -327,7 +403,7 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
       }
 
       const result = processRegularProvider(
-        providerId,
+        canonicalProviderId,
         providerName,
         isPopular,
         modelEntries,
@@ -507,6 +583,18 @@ async function insertProvidersAndModels(data: ScrapedData) {
         let modelsCreated = 0;
         let modelsUpdated = 0;
         let relationsCreated = 0;
+
+        // 2.1 清理旧的关联关系
+        // 为了防止数据库中残留 API 已删除的模型关联，我们需要先删除这些供应商的所有现有关联
+        const providerIds = data.providers.map((p) => p.id);
+        console.log("\n🧹 清理旧的关联关系...");
+        await tx.modelProvider.deleteMany({
+          where: {
+            providerId: {
+              in: providerIds,
+            },
+          },
+        });
 
         // 3. 插入普通供应商
         console.log("\n📦 插入供应商数据...");

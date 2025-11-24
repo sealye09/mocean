@@ -204,7 +204,7 @@ export const AgentDetailDialog: React.FC<AgentDetailDialogProps> = ({
               </Button>
               {onCreateAssistant && (
                 <Button
-                  onClick={void onSelectAgent}
+                  onClick={onSelectAgent}
                   disabled={isCreatingAssistant}
                   className="flex items-center space-x-2 bg-gradient-brand hover:bg-gradient-brand-active disabled:opacity-50"
                 >

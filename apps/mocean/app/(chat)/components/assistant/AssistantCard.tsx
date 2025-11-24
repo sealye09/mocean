@@ -1,4 +1,4 @@
-import { AssistantModel } from "@mocean/mastra/prismaType";
+import { Assistant } from "@mocean/mastra/prismaType";
 import { Bot, Calendar, Globe, Image, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +14,8 @@ import {
 import { useStore } from "../../../store/useStore";
 
 interface AssistantCardProps {
-  assistant: AssistantModel;
-  onClick: (assistant: AssistantModel) => void;
+  assistant: Assistant;
+  onClick: (assistant: Assistant) => void;
 }
 
 const AssistantCard: React.FC<AssistantCardProps> = ({
@@ -49,7 +49,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
               className={`flex h-10 w-10 items-center justify-center rounded-lg text-lg font-semibold transition-all duration-200 ${
                 isActive
                   ? "scale-105 bg-gradient-brand-active text-brand-primary-500"
-                  : "text-brand-main bg-gradient-brand"
+                  : "bg-gradient-brand text-brand-main"
               }`}
             >
               {assistant.emoji || <Bot className="h-5 w-5" />}
