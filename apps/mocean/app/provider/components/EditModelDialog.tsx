@@ -271,6 +271,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                 onChange={(e) => onFormDataChange("name", e.target.value)}
                 placeholder="如：GPT-4 Turbo"
                 required
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -281,7 +282,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                 value={formData.group}
                 onValueChange={(value) => onFormDataChange("group", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="focus:ring-brand-primary-500">
                   <SelectValue placeholder="选择分组" />
                 </SelectTrigger>
                 <SelectContent>
@@ -304,6 +305,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                   onChange={(e) => onFormDataChange("newGroup", e.target.value)}
                   placeholder="请输入新分组名称"
                   required
+                  className="focus-visible:ring-brand-primary-500"
                 />
               </div>
             )}
@@ -347,6 +349,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                         id={`type-${type.value}`}
                         checked={formData.types.includes(type.value)}
                         onCheckedChange={() => onTypeToggle(type.value)}
+                        className="data-[state=checked]:border-brand-primary-500 data-[state=checked]:bg-brand-primary-500"
                       />
                       <Label
                         htmlFor={`type-${type.value}`}
@@ -374,6 +377,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                 value={formData.ownedBy}
                 onChange={(e) => onFormDataChange("ownedBy", e.target.value)}
                 placeholder="如：OpenAI, Anthropic"
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -388,6 +392,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                 }
                 placeholder="描述模型的特点和用途..."
                 rows={3}
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
           </div>
@@ -409,6 +414,7 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
                 formData.types.length === 0 ||
                 (formData.group === "新建分组" && !formData.newGroup.trim())
               }
+              className="bg-brand-primary-500 hover:bg-brand-primary-600"
             >
               {isSubmitting ? (
                 <>
