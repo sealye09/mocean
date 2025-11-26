@@ -312,6 +312,7 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
                     placeholder="请输入分组名称"
                     autoFocus
                     required
+                    className="focus-visible:ring-brand-primary-500"
                   />
                   {mode === "edit" && (
                     <p className="text-xs text-muted-foreground">
@@ -339,6 +340,7 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
                 <Button
                   onClick={mode === "add" ? onConfirmAdd : onConfirmEdit}
                   disabled={isSubmitting || !groupName.trim()}
+                  className="bg-brand-primary-500 hover:bg-brand-primary-600"
                 >
                   {isSubmitting ? (
                     <>

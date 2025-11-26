@@ -161,6 +161,7 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                 onChange={(e) => onFormDataChange("name", e.target.value)}
                 placeholder="请输入供应商名称"
                 required
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -174,6 +175,7 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                 onChange={(e) => onFormDataChange("apiKey", e.target.value)}
                 placeholder="请输入API密钥"
                 required
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -186,6 +188,7 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                 onChange={(e) => onFormDataChange("apiHost", e.target.value)}
                 placeholder="https://api.example.com"
                 required
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -197,6 +200,7 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                 value={formData.apiVersion}
                 onChange={(e) => onFormDataChange("apiVersion", e.target.value)}
                 placeholder="v1, v2 等"
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -210,6 +214,7 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                 onChange={(e) => onFormDataChange("rateLimit", e.target.value)}
                 placeholder="如：60"
                 min="1"
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
 
@@ -254,6 +259,7 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                 onChange={(e) => onFormDataChange("notes", e.target.value)}
                 placeholder="供应商相关备注信息..."
                 rows={3}
+                className="focus-visible:ring-brand-primary-500"
               />
             </div>
           </div>
@@ -267,7 +273,11 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
             >
               取消
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-brand-primary-500 hover:bg-brand-primary-600"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
