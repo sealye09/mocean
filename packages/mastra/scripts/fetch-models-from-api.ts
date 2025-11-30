@@ -1,9 +1,8 @@
 import { z } from "zod";
-
-import { Provider, Model, ProviderType } from "../generated/prisma/index.js";
-import { prisma } from "../src/mastra/server/index.js";
 import { tr } from "zod/v4/locales";
 
+import { Model, Provider, ProviderType } from "../generated/prisma/index.js";
+import { prisma } from "../src/mastra/server/index.js";
 
 const ModelsDevModalitiesSchema = z.object({
   input: z.array(z.string()).optional(),
@@ -47,8 +46,6 @@ const ModelsDevProviderSchema = z.looseObject({
   models: z.record(z.string(), ModelsDevModelSchema).optional(),
 });
 
-
-
 // Allow provider values to be either an object or a string (for aliases)
 const ModelsDevResponseSchema = z.record(
   z.string(),
@@ -57,9 +54,9 @@ const ModelsDevResponseSchema = z.record(
 
 type ModelsDevResponse = z.infer<typeof ModelsDevResponseSchema>;
 
-type ApiProviderInfo = z.infer<typeof ModelsDevProviderSchema>
+type ApiProviderInfo = z.infer<typeof ModelsDevProviderSchema>;
 
-type ApiModelInfo = z.infer<typeof ModelsDevModelSchema>
+type ApiModelInfo = z.infer<typeof ModelsDevModelSchema>;
 
 const GATEWAY_PROVIDERS = ["netlify", "openrouter", "vercel"];
 
@@ -83,8 +80,6 @@ interface ScrapedData {
     totalModels: number;
   };
 }
-
-
 
 /**
  * 从 models.dev API 获取原始数据
@@ -124,7 +119,7 @@ function createPrismaModel({
 }: {
   parsedModel: ApiModelInfo;
   providerId: string;
-  providerName: string
+  providerName: string;
 }): Model & { providerId: string } {
   return {
     id: parsedModel.id,
@@ -136,7 +131,8 @@ function createPrismaModel({
     isSystem: true,
     contextLength: parsedModel.limit?.context || null,
     supportsAttachments: parsedModel.attachment || false,
-    supportsEmbedding: parsedModel.name?.toLowerCase().includes("embedding") || false,
+    supportsEmbedding:
+      parsedModel.name?.toLowerCase().includes("embedding") || false,
     supportsTools: parsedModel.tool_call,
     supportsReasoning: parsedModel.reasoning,
     supportsImage: parsedModel.modalities?.input?.includes("image") || false,
@@ -159,7 +155,10 @@ function createPrismaModel({
 function processRegularProvider({
   provider,
   apiModelInfos,
-}: { provider: ApiProviderInfo, apiModelInfos: Array<[string, ApiModelInfo]> }): {
+}: {
+  provider: ApiProviderInfo;
+  apiModelInfos: Array<[string, ApiModelInfo]>;
+}): {
   providerInfo: Partial<Provider>;
   models: Array<Model & { providerId: string }>;
 } {
@@ -294,7 +293,7 @@ function deduplicateModels(data: ScrapedData): {
 } {
   const modelMap = new Map<
     string,
-    ScrapedData['models'][number] & { providers: Set<string> }
+    ScrapedData["models"][number] & { providers: Set<string> }
   >();
 
   // 1. 处理普通供应商的模型
@@ -318,7 +317,7 @@ function deduplicateModels(data: ScrapedData): {
 
   for (const [modelId, modelData] of modelMap.entries()) {
     // 添加去重后的模型（不包含providers字段）
-    const { providers, providerId, ...modelWithoutProviders } = modelData;
+    const { providers, providerIds, ...modelWithoutProviders } = modelData;
     uniqueModels.push(modelWithoutProviders);
 
     // 为每个供应商创建关联关系
@@ -334,7 +333,6 @@ function deduplicateModels(data: ScrapedData): {
 
   return { uniqueModels, modelProviderRelations };
 }
-
 
 /**
  * 将短横线连接的字符串转换为下划线连接
@@ -451,7 +449,7 @@ async function insertProvidersAndModels(data: ScrapedData) {
             } else {
               // 创建新模型
               await tx.model.create({
-                data: model
+                data: model,
               });
               modelsCreated++;
             }
@@ -473,7 +471,7 @@ async function insertProvidersAndModels(data: ScrapedData) {
           });
 
           if (!providerExists) {
-            continue
+            continue;
           }
 
           // 使用 upsert 避免重复插入

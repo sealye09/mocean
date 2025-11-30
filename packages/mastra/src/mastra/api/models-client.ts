@@ -221,17 +221,16 @@ export const modelsApiMethods = {
  * React Hook 风格的 API 调用方法返回类型
  * @description 从 ModelsApiClient 类中提取方法类型，自动保持类型同步
  */
-export type UseModelsApiReturn = Pick<
-  ModelsApiClient,
-  | "getModels"
-  | "getModelById"
-  | "getModelsByProvider"
-  | "getModelsByGroup"
-  | "createModel"
-  | "createManyModels"
-  | "updateModel"
-  | "deleteModel"
->;
+export type UseModelsApiReturn = {
+  getModels: ModelsApiClient["getModels"];
+  getModelById: ModelsApiClient["getModelById"];
+  getModelsByProvider: ModelsApiClient["getModelsByProvider"];
+  getModelsByGroup: ModelsApiClient["getModelsByGroup"];
+  createModel: ModelsApiClient["createModel"];
+  createManyModels: ModelsApiClient["createManyModels"];
+  updateModel: ModelsApiClient["updateModel"];
+  deleteModel: ModelsApiClient["deleteModel"];
+};
 
 /**
  * React Hook 风格的 API 调用方法
@@ -243,15 +242,29 @@ export type UseModelsApiReturn = Pick<
  * const api = useModelsApi();
  * const response = await api.getModels();
  */
-export const useModelsApi = (): UseModelsApiReturn => {
-  return {
-    getModels: modelsApi.getModels.bind(modelsApi),
-    getModelById: modelsApi.getModelById.bind(modelsApi),
-    getModelsByProvider: modelsApi.getModelsByProvider.bind(modelsApi),
-    getModelsByGroup: modelsApi.getModelsByGroup.bind(modelsApi),
-    createModel: modelsApi.createModel.bind(modelsApi),
-    createManyModels: modelsApi.createManyModels.bind(modelsApi),
-    updateModel: modelsApi.updateModel.bind(modelsApi),
-    deleteModel: modelsApi.deleteModel.bind(modelsApi),
-  };
-};
+export const useModelsApi = (): UseModelsApiReturn => ({
+  getModels: modelsApi.getModels.bind(
+    modelsApi,
+  ) as ModelsApiClient["getModels"],
+  getModelById: modelsApi.getModelById.bind(
+    modelsApi,
+  ) as ModelsApiClient["getModelById"],
+  getModelsByProvider: modelsApi.getModelsByProvider.bind(
+    modelsApi,
+  ) as ModelsApiClient["getModelsByProvider"],
+  getModelsByGroup: modelsApi.getModelsByGroup.bind(
+    modelsApi,
+  ) as ModelsApiClient["getModelsByGroup"],
+  createModel: modelsApi.createModel.bind(
+    modelsApi,
+  ) as ModelsApiClient["createModel"],
+  createManyModels: modelsApi.createManyModels.bind(
+    modelsApi,
+  ) as ModelsApiClient["createManyModels"],
+  updateModel: modelsApi.updateModel.bind(
+    modelsApi,
+  ) as ModelsApiClient["updateModel"],
+  deleteModel: modelsApi.deleteModel.bind(
+    modelsApi,
+  ) as ModelsApiClient["deleteModel"],
+});
