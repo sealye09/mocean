@@ -89,8 +89,6 @@ export {
   modelsApi,
   modelsApiMethods,
   useModelsApi,
-  type ModelCreateInputWithTypes,
-  type ModelUpdateInputWithTypes,
 } from "./models-client";
 
 // 模型类型
@@ -100,7 +98,6 @@ export {
   type ModelsListResult,
   type ModelDetailResult,
   type ModelsByProviderResult,
-  type ModelsByTypeResult,
   type ModelsByGroupResult,
   type ModelCreateResult,
   type ModelUpdateResult,
