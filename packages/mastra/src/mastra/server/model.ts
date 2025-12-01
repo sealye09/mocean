@@ -22,10 +22,12 @@ const createModelSchema = z.object({
   inputPricePerMillion: z.number().nonnegative().nullable().optional(),
   outputPricePerMillion: z.number().nonnegative().nullable().optional(),
   providers: z
-    .array(z.object({
-      providerId: z.string().min(1, "提供商ID不能为空"),
-      group: z.string().min(1, "分组不能为空"),
-    }))
+    .array(
+      z.object({
+        providerId: z.string().min(1, "提供商ID不能为空"),
+        group: z.string().min(1, "分组不能为空"),
+      }),
+    )
     .min(1, "至少需要一个提供商"),
 });
 
@@ -44,10 +46,14 @@ const updateModelSchema = z.object({
   supportsEmbedding: z.boolean().optional(),
   inputPricePerMillion: z.number().nonnegative().nullable().optional(),
   outputPricePerMillion: z.number().nonnegative().nullable().optional(),
-  providers: z.array(z.object({
-    providerId: z.string().min(1, "提供商ID不能为空"),
-    group: z.string().min(1, "分组不能为空"),
-  })).optional(),
+  providers: z
+    .array(
+      z.object({
+        providerId: z.string().min(1, "提供商ID不能为空"),
+        group: z.string().min(1, "分组不能为空"),
+      }),
+    )
+    .optional(),
 });
 
 const idParamSchema = z.object({
@@ -170,6 +176,7 @@ const getModelsByProvider = async (providerId: string) => {
   // 整理提供商信息
   return models.map((model) => ({
     ...model,
+    providers: model.providers.filter((p) => p.providerId === providerId),
     providerList: model.providers
       .map((p) => p.provider)
       .filter((p) => p.id === providerId),

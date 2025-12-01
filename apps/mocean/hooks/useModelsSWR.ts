@@ -1,4 +1,4 @@
-import { useModelsApi } from "@mocean/mastra/apiClient";
+import { ModelsByProviderResult, useModelsApi } from "@mocean/mastra/apiClient";
 import { type Model } from "@mocean/mastra/prismaType";
 import useSWR, { type KeyedMutator } from "swr";
 
@@ -78,7 +78,10 @@ export function useModelSWR(id: string | null) {
 export function useModelsByProviderSWR(providerId: string | null) {
   const { getModelsByProvider } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR<
+    ModelsByProviderResult,
+    Error | undefined
+  >(
     providerId ? `models-provider-${providerId}` : null,
     async () => {
       if (!providerId) return [];
