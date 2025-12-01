@@ -69,7 +69,7 @@ interface ScrapedData {
   /** 成功获取的供应商列表 */
   providers: Partial<Provider>[];
   /** 所有供应商提供的模型列表 */
-  models: Array<Model & { providerId: string }>;
+  models: Array<Model & { providerId: string; groupName: string }>;
   /** 爬取操作的元数据信息 */
   metadata: {
     /** 爬取操作的时间戳（ISO 8601 格式） */
@@ -120,14 +120,14 @@ function createPrismaModel({
   parsedModel: ApiModelInfo;
   providerId: string;
   providerName: string;
-}): Model & { providerId: string } {
+}): Model & { providerId: string; groupName: string } {
   return {
     id: parsedModel.id,
     providerId: providerId,
     owned_by: providerId,
     description: "",
     name: parsedModel.name,
-    group: providerName,
+    groupName: providerName,
     isSystem: true,
     contextLength: parsedModel.limit?.context || null,
     supportsAttachments: parsedModel.attachment || false,
@@ -160,9 +160,9 @@ function processRegularProvider({
   apiModelInfos: Array<[string, ApiModelInfo]>;
 }): {
   providerInfo: Partial<Provider>;
-  models: Array<Model & { providerId: string }>;
+  models: Array<Model & { providerId: string; groupName: string }>;
 } {
-  const models: Array<Model & { providerId: string }> = [];
+  const models: Array<Model & { providerId: string; groupName: string }> = [];
 
   // 处理每个模型
   for (const [modelId, modelData] of apiModelInfos) {
@@ -204,7 +204,7 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
     const parsedData = await fetchApiData();
 
     const providers: ApiProviderInfo[] = [];
-    const models: (Model & { providerId: string })[] = [];
+    const models: (Model & { providerId: string; groupName: string })[] = [];
     const skippedProviders: ApiProviderInfo[] = [];
 
     // 遍历所有供应商
@@ -283,116 +283,46 @@ async function main() {
 }
 
 /**
- * 选择模型的主要供应商
- * @description 用于确定模型的 owned_by 和 group 字段，选择最"官方"的供应商
- * @param modelId - 模型ID
- * @param providerIds - 提供该模型的所有供应商ID数组
- * @returns 主要供应商的ID
- */
-function selectPrimaryProvider(modelId: string, providerIds: string[]): string {
-  // 1. 如果只有一个供应商，直接返回
-  if (providerIds.length === 1) {
-    return providerIds[0];
-  }
-
-  // 2. 按优先级排序供应商：非网关 > 网关
-  const nonGatewayProviders = providerIds.filter(
-    (id) => !GATEWAY_PROVIDERS.includes(id),
-  );
-  const gatewayProviders = providerIds.filter((id) =>
-    GATEWAY_PROVIDERS.includes(id),
-  );
-
-  // 3. 优先从非网关供应商中查找匹配
-  const candidateProviders =
-    nonGatewayProviders.length > 0 ? nonGatewayProviders : gatewayProviders;
-
-  // 4. 查找模型ID前缀匹配的供应商（如 gpt-4 → openai）
-  const prefixMatch = candidateProviders.find((providerId) =>
-    modelId.startsWith(providerId),
-  );
-  if (prefixMatch) {
-    return prefixMatch;
-  }
-
-  // 5. 查找模型ID包含供应商名称的情况（如 claude-3 → anthropic）
-  const containsMatch = candidateProviders.find((providerId) =>
-    modelId.includes(providerId),
-  );
-  if (containsMatch) {
-    return containsMatch;
-  }
-
-  // 6. 返回第一个非网关供应商，如果没有则返回第一个供应商
-  return candidateProviders[0] || providerIds[0];
-}
-
-/**
- * 模型去重和关联关系提取
+ * 准备模型数据和关联关系
  * @param data - 从API获取的完整数据
- * @returns 去重后的模型列表和模型-供应商关联关系
+ * @returns 模型列表和模型-供应商关联关系
  */
-function deduplicateModels(data: ScrapedData): {
-  uniqueModels: Array<Model>;
-  modelProviderRelations: Array<{ modelId: string; providerId: string }>;
+function prepareModelsAndRelations(data: ScrapedData): {
+  models: Array<Model>;
+  modelProviderRelations: Array<{
+    modelId: string;
+    providerId: string;
+    group: string;
+  }>;
 } {
-  const modelMap = new Map<
-    string,
-    ScrapedData["models"][number] & { providers: Set<string> }
-  >();
+  const models: Array<Model> = [];
+  const modelProviderRelations: Array<{
+    modelId: string;
+    providerId: string;
+    group: string;
+  }> = [];
 
-  // 1. 处理普通供应商的模型
-  for (const model of data.models) {
-    if (modelMap.has(model.id)) {
-      // 模型已存在，添加供应商
-      modelMap.get(model.id).providers.add(model.providerId);
-    } else {
-      // 新模型，创建记录
-      modelMap.set(model.id, {
-        ...model,
-        providers: new Set([model.providerId]),
-      });
-    }
-  }
-
-  // 3. 转换为数组格式
-  const uniqueModels: Array<Model> = [];
-  const modelProviderRelations: Array<{ modelId: string; providerId: string }> =
-    [];
-
-  for (const [modelId, modelData] of modelMap.entries()) {
-    // 添加去重后的模型（移除临时的 providerId 和 providers 字段）
+  // 处理每个模型，保留所有模型实例
+  for (const modelData of data.models) {
+    // 移除临时的 providerId 和 groupName 字段
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { providers, providerId, ...modelWithoutProviders } = modelData;
+    const { providerId, groupName, ...modelWithoutProviderId } = modelData;
 
-    // 选择主要供应商：用于确定 owned_by 和 group
-    const providerArray = Array.from(providers);
-    const primaryProviderId = selectPrimaryProvider(modelId, providerArray);
+    models.push(modelWithoutProviderId);
 
-    // 从 data.providers 中获取主要供应商的名称
-    const primaryProviderInfo = data.providers.find(
-      (p) => p.id === primaryProviderId,
-    );
-    const primaryProviderName = primaryProviderInfo?.name || primaryProviderId;
-
-    uniqueModels.push({
-      ...modelWithoutProviders,
-      owned_by: primaryProviderId, // 使用选定的主要供应商
-      group: primaryProviderName, // 使用主要供应商的名称作为分组
+    // 创建模型-供应商关联关系，包含分组信息
+    modelProviderRelations.push({
+      modelId: modelData.id,
+      providerId: modelData.providerId,
+      group: modelData.groupName,
     });
-
-    // 为每个供应商创建关联关系
-    for (const providerId of providers) {
-      modelProviderRelations.push({ modelId, providerId });
-    }
   }
 
-  console.log(`\n🔍 模型去重结果:`);
-  console.log(`   - 原始模型数（含重复）: ${data.models.length}`);
-  console.log(`   - 去重后模型数: ${uniqueModels.length}`);
+  console.log(`\n📊 模型数据统计:`);
+  console.log(`   - 总模型数: ${models.length}`);
   console.log(`   - 模型-供应商关联数: ${modelProviderRelations.length}`);
 
-  return { uniqueModels, modelProviderRelations };
+  return { models, modelProviderRelations };
 }
 
 /**
@@ -421,8 +351,8 @@ async function insertProvidersAndModels(data: ScrapedData) {
   console.log("\n💾 开始插入数据到数据库...");
 
   try {
-    // 1. 模型去重
-    const { uniqueModels, modelProviderRelations } = deduplicateModels(data);
+    // 1. 准备模型数据和关联关系
+    const { models, modelProviderRelations } = prepareModelsAndRelations(data);
 
     // 2. 使用事务插入所有数据
     const result = await prisma.$transaction(
@@ -491,8 +421,8 @@ async function insertProvidersAndModels(data: ScrapedData) {
         // 5. 批量插入模型
         console.log("\n🤖 插入模型数据...");
         const BATCH_SIZE = 50;
-        for (let i = 0; i < uniqueModels.length; i += BATCH_SIZE) {
-          const batch = uniqueModels.slice(i, i + BATCH_SIZE);
+        for (let i = 0; i < models.length; i += BATCH_SIZE) {
+          const batch = models.slice(i, i + BATCH_SIZE);
 
           for (const model of batch) {
             // 检查是否已存在
@@ -517,9 +447,9 @@ async function insertProvidersAndModels(data: ScrapedData) {
           }
 
           // 输出进度
-          const progress = Math.min(i + BATCH_SIZE, uniqueModels.length);
+          const progress = Math.min(i + BATCH_SIZE, models.length);
           console.log(
-            `   处理进度: ${progress}/${uniqueModels.length} (${Math.round((progress / uniqueModels.length) * 100)}%)`,
+            `   处理进度: ${progress}/${models.length} (${Math.round((progress / models.length) * 100)}%)`,
           );
         }
 
@@ -543,10 +473,13 @@ async function insertProvidersAndModels(data: ScrapedData) {
                 providerId: relation.providerId,
               },
             },
-            update: {},
+            update: {
+              group: relation.group,
+            },
             create: {
               modelId: relation.modelId,
               providerId: relation.providerId,
+              group: relation.group,
             },
           });
           relationsCreated++;

@@ -27,16 +27,19 @@ export type AggregateModelProvider = {
 export type ModelProviderMinAggregateOutputType = {
   modelId: string | null
   providerId: string | null
+  group: string | null
 }
 
 export type ModelProviderMaxAggregateOutputType = {
   modelId: string | null
   providerId: string | null
+  group: string | null
 }
 
 export type ModelProviderCountAggregateOutputType = {
   modelId: number
   providerId: number
+  group: number
   _all: number
 }
 
@@ -44,16 +47,19 @@ export type ModelProviderCountAggregateOutputType = {
 export type ModelProviderMinAggregateInputType = {
   modelId?: true
   providerId?: true
+  group?: true
 }
 
 export type ModelProviderMaxAggregateInputType = {
   modelId?: true
   providerId?: true
+  group?: true
 }
 
 export type ModelProviderCountAggregateInputType = {
   modelId?: true
   providerId?: true
+  group?: true
   _all?: true
 }
 
@@ -132,6 +138,7 @@ export type ModelProviderGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type ModelProviderGroupByOutputType = {
   modelId: string
   providerId: string
+  group: string | null
   _count: ModelProviderCountAggregateOutputType | null
   _min: ModelProviderMinAggregateOutputType | null
   _max: ModelProviderMaxAggregateOutputType | null
@@ -158,6 +165,7 @@ export type ModelProviderWhereInput = {
   NOT?: Prisma.ModelProviderWhereInput | Prisma.ModelProviderWhereInput[]
   modelId?: Prisma.StringFilter<"ModelProvider"> | string
   providerId?: Prisma.StringFilter<"ModelProvider"> | string
+  group?: Prisma.StringNullableFilter<"ModelProvider"> | string | null
   model?: Prisma.XOR<Prisma.ModelScalarRelationFilter, Prisma.ModelWhereInput>
   provider?: Prisma.XOR<Prisma.ProviderScalarRelationFilter, Prisma.ProviderWhereInput>
 }
@@ -165,6 +173,7 @@ export type ModelProviderWhereInput = {
 export type ModelProviderOrderByWithRelationInput = {
   modelId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
+  group?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.ModelOrderByWithRelationInput
   provider?: Prisma.ProviderOrderByWithRelationInput
 }
@@ -176,6 +185,7 @@ export type ModelProviderWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ModelProviderWhereInput | Prisma.ModelProviderWhereInput[]
   modelId?: Prisma.StringFilter<"ModelProvider"> | string
   providerId?: Prisma.StringFilter<"ModelProvider"> | string
+  group?: Prisma.StringNullableFilter<"ModelProvider"> | string | null
   model?: Prisma.XOR<Prisma.ModelScalarRelationFilter, Prisma.ModelWhereInput>
   provider?: Prisma.XOR<Prisma.ProviderScalarRelationFilter, Prisma.ProviderWhereInput>
 }, "modelId_providerId">
@@ -183,6 +193,7 @@ export type ModelProviderWhereUniqueInput = Prisma.AtLeast<{
 export type ModelProviderOrderByWithAggregationInput = {
   modelId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
+  group?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ModelProviderCountOrderByAggregateInput
   _max?: Prisma.ModelProviderMaxOrderByAggregateInput
   _min?: Prisma.ModelProviderMinOrderByAggregateInput
@@ -194,9 +205,11 @@ export type ModelProviderScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ModelProviderScalarWhereWithAggregatesInput | Prisma.ModelProviderScalarWhereWithAggregatesInput[]
   modelId?: Prisma.StringWithAggregatesFilter<"ModelProvider"> | string
   providerId?: Prisma.StringWithAggregatesFilter<"ModelProvider"> | string
+  group?: Prisma.StringNullableWithAggregatesFilter<"ModelProvider"> | string | null
 }
 
 export type ModelProviderCreateInput = {
+  group?: string | null
   model: Prisma.ModelCreateNestedOneWithoutProvidersInput
   provider: Prisma.ProviderCreateNestedOneWithoutModelsInput
 }
@@ -204,9 +217,11 @@ export type ModelProviderCreateInput = {
 export type ModelProviderUncheckedCreateInput = {
   modelId: string
   providerId: string
+  group?: string | null
 }
 
 export type ModelProviderUpdateInput = {
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.ModelUpdateOneRequiredWithoutProvidersNestedInput
   provider?: Prisma.ProviderUpdateOneRequiredWithoutModelsNestedInput
 }
@@ -214,20 +229,23 @@ export type ModelProviderUpdateInput = {
 export type ModelProviderUncheckedUpdateInput = {
   modelId?: Prisma.StringFieldUpdateOperationsInput | string
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelProviderCreateManyInput = {
   modelId: string
   providerId: string
+  group?: string | null
 }
 
 export type ModelProviderUpdateManyMutationInput = {
-
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelProviderUncheckedUpdateManyInput = {
   modelId?: Prisma.StringFieldUpdateOperationsInput | string
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelProviderListRelationFilter = {
@@ -248,16 +266,19 @@ export type ModelProviderModelIdProviderIdCompoundUniqueInput = {
 export type ModelProviderCountOrderByAggregateInput = {
   modelId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
 }
 
 export type ModelProviderMaxOrderByAggregateInput = {
   modelId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
 }
 
 export type ModelProviderMinOrderByAggregateInput = {
   modelId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
 }
 
 export type ModelProviderCreateNestedManyWithoutProviderInput = {
@@ -345,11 +366,13 @@ export type ModelProviderUncheckedUpdateManyWithoutModelNestedInput = {
 }
 
 export type ModelProviderCreateWithoutProviderInput = {
+  group?: string | null
   model: Prisma.ModelCreateNestedOneWithoutProvidersInput
 }
 
 export type ModelProviderUncheckedCreateWithoutProviderInput = {
   modelId: string
+  group?: string | null
 }
 
 export type ModelProviderCreateOrConnectWithoutProviderInput = {
@@ -383,14 +406,17 @@ export type ModelProviderScalarWhereInput = {
   NOT?: Prisma.ModelProviderScalarWhereInput | Prisma.ModelProviderScalarWhereInput[]
   modelId?: Prisma.StringFilter<"ModelProvider"> | string
   providerId?: Prisma.StringFilter<"ModelProvider"> | string
+  group?: Prisma.StringNullableFilter<"ModelProvider"> | string | null
 }
 
 export type ModelProviderCreateWithoutModelInput = {
+  group?: string | null
   provider: Prisma.ProviderCreateNestedOneWithoutModelsInput
 }
 
 export type ModelProviderUncheckedCreateWithoutModelInput = {
   providerId: string
+  group?: string | null
 }
 
 export type ModelProviderCreateOrConnectWithoutModelInput = {
@@ -420,34 +446,42 @@ export type ModelProviderUpdateManyWithWhereWithoutModelInput = {
 
 export type ModelProviderCreateManyProviderInput = {
   modelId: string
+  group?: string | null
 }
 
 export type ModelProviderUpdateWithoutProviderInput = {
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.ModelUpdateOneRequiredWithoutProvidersNestedInput
 }
 
 export type ModelProviderUncheckedUpdateWithoutProviderInput = {
   modelId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelProviderUncheckedUpdateManyWithoutProviderInput = {
   modelId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelProviderCreateManyModelInput = {
   providerId: string
+  group?: string | null
 }
 
 export type ModelProviderUpdateWithoutModelInput = {
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.ProviderUpdateOneRequiredWithoutModelsNestedInput
 }
 
 export type ModelProviderUncheckedUpdateWithoutModelInput = {
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelProviderUncheckedUpdateManyWithoutModelInput = {
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -455,6 +489,7 @@ export type ModelProviderUncheckedUpdateManyWithoutModelInput = {
 export type ModelProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   modelId?: boolean
   providerId?: boolean
+  group?: boolean
   model?: boolean | Prisma.ModelDefaultArgs<ExtArgs>
   provider?: boolean | Prisma.ProviderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["modelProvider"]>
@@ -462,6 +497,7 @@ export type ModelProviderSelect<ExtArgs extends runtime.Types.Extensions.Interna
 export type ModelProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   modelId?: boolean
   providerId?: boolean
+  group?: boolean
   model?: boolean | Prisma.ModelDefaultArgs<ExtArgs>
   provider?: boolean | Prisma.ProviderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["modelProvider"]>
@@ -469,6 +505,7 @@ export type ModelProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types
 export type ModelProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   modelId?: boolean
   providerId?: boolean
+  group?: boolean
   model?: boolean | Prisma.ModelDefaultArgs<ExtArgs>
   provider?: boolean | Prisma.ProviderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["modelProvider"]>
@@ -476,9 +513,10 @@ export type ModelProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
 export type ModelProviderSelectScalar = {
   modelId?: boolean
   providerId?: boolean
+  group?: boolean
 }
 
-export type ModelProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"modelId" | "providerId", ExtArgs["result"]["modelProvider"]>
+export type ModelProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"modelId" | "providerId" | "group", ExtArgs["result"]["modelProvider"]>
 export type ModelProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   model?: boolean | Prisma.ModelDefaultArgs<ExtArgs>
   provider?: boolean | Prisma.ProviderDefaultArgs<ExtArgs>
@@ -501,6 +539,7 @@ export type $ModelProviderPayload<ExtArgs extends runtime.Types.Extensions.Inter
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     modelId: string
     providerId: string
+    group: string | null
   }, ExtArgs["result"]["modelProvider"]>
   composites: {}
 }
@@ -928,6 +967,7 @@ export interface Prisma__ModelProviderClient<T, Null = never, ExtArgs extends ru
 export interface ModelProviderFieldRefs {
   readonly modelId: Prisma.FieldRef<"ModelProvider", 'String'>
   readonly providerId: Prisma.FieldRef<"ModelProvider", 'String'>
+  readonly group: Prisma.FieldRef<"ModelProvider", 'String'>
 }
     
 

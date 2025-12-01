@@ -41,7 +41,6 @@ export type ModelSumAggregateOutputType = {
 export type ModelMinAggregateOutputType = {
   id: string | null
   name: string | null
-  group: string | null
   owned_by: string | null
   description: string | null
   isSystem: boolean | null
@@ -60,7 +59,6 @@ export type ModelMinAggregateOutputType = {
 export type ModelMaxAggregateOutputType = {
   id: string | null
   name: string | null
-  group: string | null
   owned_by: string | null
   description: string | null
   isSystem: boolean | null
@@ -79,7 +77,6 @@ export type ModelMaxAggregateOutputType = {
 export type ModelCountAggregateOutputType = {
   id: number
   name: number
-  group: number
   owned_by: number
   description: number
   isSystem: number
@@ -112,7 +109,6 @@ export type ModelSumAggregateInputType = {
 export type ModelMinAggregateInputType = {
   id?: true
   name?: true
-  group?: true
   owned_by?: true
   description?: true
   isSystem?: true
@@ -131,7 +127,6 @@ export type ModelMinAggregateInputType = {
 export type ModelMaxAggregateInputType = {
   id?: true
   name?: true
-  group?: true
   owned_by?: true
   description?: true
   isSystem?: true
@@ -150,7 +145,6 @@ export type ModelMaxAggregateInputType = {
 export type ModelCountAggregateInputType = {
   id?: true
   name?: true
-  group?: true
   owned_by?: true
   description?: true
   isSystem?: true
@@ -256,7 +250,6 @@ export type ModelGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type ModelGroupByOutputType = {
   id: string
   name: string
-  group: string
   owned_by: string | null
   description: string | null
   isSystem: boolean
@@ -298,7 +291,6 @@ export type ModelWhereInput = {
   NOT?: Prisma.ModelWhereInput | Prisma.ModelWhereInput[]
   id?: Prisma.StringFilter<"Model"> | string
   name?: Prisma.StringFilter<"Model"> | string
-  group?: Prisma.StringFilter<"Model"> | string
   owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
   description?: Prisma.StringNullableFilter<"Model"> | string | null
   isSystem?: Prisma.BoolFilter<"Model"> | boolean
@@ -324,7 +316,6 @@ export type ModelWhereInput = {
 export type ModelOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -353,7 +344,6 @@ export type ModelWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ModelWhereInput[]
   NOT?: Prisma.ModelWhereInput | Prisma.ModelWhereInput[]
   name?: Prisma.StringFilter<"Model"> | string
-  group?: Prisma.StringFilter<"Model"> | string
   owned_by?: Prisma.StringNullableFilter<"Model"> | string | null
   description?: Prisma.StringNullableFilter<"Model"> | string | null
   isSystem?: Prisma.BoolFilter<"Model"> | boolean
@@ -379,7 +369,6 @@ export type ModelWhereUniqueInput = Prisma.AtLeast<{
 export type ModelOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -406,7 +395,6 @@ export type ModelScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ModelScalarWhereWithAggregatesInput | Prisma.ModelScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Model"> | string
   name?: Prisma.StringWithAggregatesFilter<"Model"> | string
-  group?: Prisma.StringWithAggregatesFilter<"Model"> | string
   owned_by?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Model"> | string | null
   isSystem?: Prisma.BoolWithAggregatesFilter<"Model"> | boolean
@@ -425,7 +413,6 @@ export type ModelScalarWhereWithAggregatesInput = {
 export type ModelCreateInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -451,7 +438,6 @@ export type ModelCreateInput = {
 export type ModelUncheckedCreateInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -477,7 +463,6 @@ export type ModelUncheckedCreateInput = {
 export type ModelUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -503,7 +488,6 @@ export type ModelUpdateInput = {
 export type ModelUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -529,7 +513,6 @@ export type ModelUncheckedUpdateInput = {
 export type ModelCreateManyInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -548,7 +531,6 @@ export type ModelCreateManyInput = {
 export type ModelUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -567,7 +549,6 @@ export type ModelUpdateManyMutationInput = {
 export type ModelUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -591,7 +572,6 @@ export type ModelNullableScalarRelationFilter = {
 export type ModelCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -616,7 +596,6 @@ export type ModelAvgOrderByAggregateInput = {
 export type ModelMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -635,7 +614,6 @@ export type ModelMaxOrderByAggregateInput = {
 export type ModelMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  group?: Prisma.SortOrder
   owned_by?: Prisma.SortOrder
   description?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -781,7 +759,6 @@ export type ModelUpdateOneRequiredWithoutProvidersNestedInput = {
 export type ModelCreateWithoutAssistantsInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -806,7 +783,6 @@ export type ModelCreateWithoutAssistantsInput = {
 export type ModelUncheckedCreateWithoutAssistantsInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -836,7 +812,6 @@ export type ModelCreateOrConnectWithoutAssistantsInput = {
 export type ModelCreateWithoutDefaultForAssistantsInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -861,7 +836,6 @@ export type ModelCreateWithoutDefaultForAssistantsInput = {
 export type ModelUncheckedCreateWithoutDefaultForAssistantsInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -902,7 +876,6 @@ export type ModelUpdateToOneWithWhereWithoutAssistantsInput = {
 export type ModelUpdateWithoutAssistantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -927,7 +900,6 @@ export type ModelUpdateWithoutAssistantsInput = {
 export type ModelUncheckedUpdateWithoutAssistantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -963,7 +935,6 @@ export type ModelUpdateToOneWithWhereWithoutDefaultForAssistantsInput = {
 export type ModelUpdateWithoutDefaultForAssistantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -988,7 +959,6 @@ export type ModelUpdateWithoutDefaultForAssistantsInput = {
 export type ModelUncheckedUpdateWithoutDefaultForAssistantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1013,7 +983,6 @@ export type ModelUncheckedUpdateWithoutDefaultForAssistantsInput = {
 export type ModelCreateWithoutTopicInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1038,7 +1007,6 @@ export type ModelCreateWithoutTopicInput = {
 export type ModelUncheckedCreateWithoutTopicInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1079,7 +1047,6 @@ export type ModelUpdateToOneWithWhereWithoutTopicInput = {
 export type ModelUpdateWithoutTopicInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1104,7 +1071,6 @@ export type ModelUpdateWithoutTopicInput = {
 export type ModelUncheckedUpdateWithoutTopicInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1129,7 +1095,6 @@ export type ModelUncheckedUpdateWithoutTopicInput = {
 export type ModelCreateWithoutAssistantSettingsInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1154,7 +1119,6 @@ export type ModelCreateWithoutAssistantSettingsInput = {
 export type ModelUncheckedCreateWithoutAssistantSettingsInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1195,7 +1159,6 @@ export type ModelUpdateToOneWithWhereWithoutAssistantSettingsInput = {
 export type ModelUpdateWithoutAssistantSettingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1220,7 +1183,6 @@ export type ModelUpdateWithoutAssistantSettingsInput = {
 export type ModelUncheckedUpdateWithoutAssistantSettingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1245,7 +1207,6 @@ export type ModelUncheckedUpdateWithoutAssistantSettingsInput = {
 export type ModelCreateWithoutKnowledgeBasesInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1270,7 +1231,6 @@ export type ModelCreateWithoutKnowledgeBasesInput = {
 export type ModelUncheckedCreateWithoutKnowledgeBasesInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1300,7 +1260,6 @@ export type ModelCreateOrConnectWithoutKnowledgeBasesInput = {
 export type ModelCreateWithoutRerankForInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1325,7 +1284,6 @@ export type ModelCreateWithoutRerankForInput = {
 export type ModelUncheckedCreateWithoutRerankForInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1366,7 +1324,6 @@ export type ModelUpdateToOneWithWhereWithoutKnowledgeBasesInput = {
 export type ModelUpdateWithoutKnowledgeBasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1391,7 +1348,6 @@ export type ModelUpdateWithoutKnowledgeBasesInput = {
 export type ModelUncheckedUpdateWithoutKnowledgeBasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1427,7 +1383,6 @@ export type ModelUpdateToOneWithWhereWithoutRerankForInput = {
 export type ModelUpdateWithoutRerankForInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1452,7 +1407,6 @@ export type ModelUpdateWithoutRerankForInput = {
 export type ModelUncheckedUpdateWithoutRerankForInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1477,7 +1431,6 @@ export type ModelUncheckedUpdateWithoutRerankForInput = {
 export type ModelCreateWithoutProvidersInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1502,7 +1455,6 @@ export type ModelCreateWithoutProvidersInput = {
 export type ModelUncheckedCreateWithoutProvidersInput = {
   id: string
   name: string
-  group: string
   owned_by?: string | null
   description?: string | null
   isSystem?: boolean
@@ -1543,7 +1495,6 @@ export type ModelUpdateToOneWithWhereWithoutProvidersInput = {
 export type ModelUpdateWithoutProvidersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1568,7 +1519,6 @@ export type ModelUpdateWithoutProvidersInput = {
 export type ModelUncheckedUpdateWithoutProvidersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.StringFieldUpdateOperationsInput | string
   owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1678,7 +1628,6 @@ export type ModelCountOutputTypeCountTopicArgs<ExtArgs extends runtime.Types.Ext
 export type ModelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  group?: boolean
   owned_by?: boolean
   description?: boolean
   isSystem?: boolean
@@ -1705,7 +1654,6 @@ export type ModelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type ModelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  group?: boolean
   owned_by?: boolean
   description?: boolean
   isSystem?: boolean
@@ -1724,7 +1672,6 @@ export type ModelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type ModelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  group?: boolean
   owned_by?: boolean
   description?: boolean
   isSystem?: boolean
@@ -1743,7 +1690,6 @@ export type ModelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type ModelSelectScalar = {
   id?: boolean
   name?: boolean
-  group?: boolean
   owned_by?: boolean
   description?: boolean
   isSystem?: boolean
@@ -1759,7 +1705,7 @@ export type ModelSelectScalar = {
   outputPricePerMillion?: boolean
 }
 
-export type ModelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "group" | "owned_by" | "description" | "isSystem" | "contextLength" | "supportsAttachments" | "supportsTools" | "supportsReasoning" | "supportsImage" | "supportsAudio" | "supportsVideo" | "supportsEmbedding" | "inputPricePerMillion" | "outputPricePerMillion", ExtArgs["result"]["model"]>
+export type ModelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "owned_by" | "description" | "isSystem" | "contextLength" | "supportsAttachments" | "supportsTools" | "supportsReasoning" | "supportsImage" | "supportsAudio" | "supportsVideo" | "supportsEmbedding" | "inputPricePerMillion" | "outputPricePerMillion", ExtArgs["result"]["model"]>
 export type ModelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   providers?: boolean | Prisma.Model$providersArgs<ExtArgs>
   assistants?: boolean | Prisma.Model$assistantsArgs<ExtArgs>
@@ -1787,7 +1733,6 @@ export type $ModelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    group: string
     owned_by: string | null
     description: string | null
     isSystem: boolean
@@ -2233,7 +2178,6 @@ export interface Prisma__ModelClient<T, Null = never, ExtArgs extends runtime.Ty
 export interface ModelFieldRefs {
   readonly id: Prisma.FieldRef<"Model", 'String'>
   readonly name: Prisma.FieldRef<"Model", 'String'>
-  readonly group: Prisma.FieldRef<"Model", 'String'>
   readonly owned_by: Prisma.FieldRef<"Model", 'String'>
   readonly description: Prisma.FieldRef<"Model", 'String'>
   readonly isSystem: Prisma.FieldRef<"Model", 'Boolean'>
