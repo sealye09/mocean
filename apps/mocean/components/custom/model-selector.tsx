@@ -73,17 +73,35 @@ interface ModelSelectorProps {
 /**
  * 按组分组模型
  *
- * @description 将模型列表按 group 字段分组并排序
- * @param models - 模型列表
+ * @description 将模型列表按模型-供应商分组分组并排序
+ * @param models - 模型列表（需要包含 providers 关联）
+ * @param providerId - 当前供应商ID
  * @returns 分组后的模型数组
  */
-const transformModelGroups = (models: Model[]): ModelGroup[] => {
+const transformModelGroups = (
+  models: Model[],
+  providerId?: string
+): ModelGroup[] => {
   if (!models || models.length === 0) return [];
 
   const groups: Record<string, Model[]> = {};
 
   models.forEach((model) => {
-    const groupName = model.group || "未分组";
+    // 根据当前供应商获取分组
+    let groupName = "未分组";
+
+    if (providerId && (model as any).providers) {
+      const providerRelation = (model as any).providers.find(
+        (p: any) => p.providerId === providerId
+      );
+      if (providerRelation && providerRelation.group) {
+        groupName = providerRelation.group;
+      }
+    } else if ((model as any).providers && (model as any).providers.length > 0) {
+      // 默认使用第一个供应商的分组
+      groupName = (model as any).providers[0].group || "未分组";
+    }
+
     if (!groups[groupName]) {
       groups[groupName] = [];
     }
@@ -119,7 +137,7 @@ export function ModelSelector({
   const providersWithGroups = useMemo(() => {
     return providers.map((provider) => ({
       ...provider,
-      modelGroups: transformModelGroups(provider.modelList || []),
+      modelGroups: transformModelGroups(provider.modelList || [], provider.id),
     }));
   }, [providers]);
 

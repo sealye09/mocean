@@ -75,7 +75,7 @@ export function useProviderPage(selectedProviderId: string | null) {
   /**
    * 按组分组模型
    *
-   * @description 将模型列表按 group 字段分组，并排序
+   * @description 将模型列表按模型-供应商分组分组，并排序
    * @returns 分组后的模型数组
    */
   const modelGroups = useMemo((): ModelGroup[] => {
@@ -84,11 +84,29 @@ export function useProviderPage(selectedProviderId: string | null) {
     const groups: Record<string, Model[]> = {};
 
     models.forEach((model) => {
-      const groupName = model.group || "未分组";
-      if (!groups[groupName]) {
+      // 根据当前供应商获取分组
+      let groupName = "未分组";
+
+      if (selectedProviderId && (model as any).providers) {
+        const providerRelation = (model as any).providers.find(
+          (p: any) => p.providerId === selectedProviderId
+        );
+        if (providerRelation && providerRelation.group) {
+          groupName = providerRelation.group;
+        }
+      } else if ((model as any).providers && (model as any).providers.length > 0) {
+        // 默认使用第一个供应商的分组
+        groupName = (model as any).providers[0].group || "未分组";
+      }
+
+      // 初始化分组如果不存在
+      if (!(groupName in groups)) {
         groups[groupName] = [];
       }
-      groups[groupName].push(model);
+      const groupArray = groups[groupName];
+      if (groupArray) {
+        groupArray.push(model);
+      }
     });
 
     // 转换为数组并排序
@@ -106,7 +124,7 @@ export function useProviderPage(selectedProviderId: string | null) {
       });
 
     return sortedGroups;
-  }, [models]);
+  }, [models, selectedProviderId]);
 
   /**
    * 搜索过滤模型

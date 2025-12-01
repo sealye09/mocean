@@ -221,7 +221,6 @@ model FileType {
 model Model {
   id          String  @id
   name        String
-  group       String
   owned_by    String?
   description String?
   isSystem    Boolean @default(false)
@@ -461,6 +460,7 @@ model ModelProvider {
   modelId    String
   provider   Provider @relation(fields: [providerId], references: [id])
   providerId String
+  group      String?
 
   @@id([modelId, providerId])
 }

@@ -119,9 +119,15 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
       // 默认文本能力
       if (types.length === 0) types.push("text");
 
+      // 从 providers[0].group 获取分组（使用第一个供应商的分组）
+      let group = "未分组";
+      if ((model as any).providers && (model as any).providers.length > 0) {
+        group = (model as any).providers[0].group || "未分组";
+      }
+
       setFormData({
         name: model.name || "",
-        group: model.group || "未分组",
+        group: group,
         types: types,
         ownedBy: model.owned_by || "",
         description: model.description || "",
@@ -209,11 +215,20 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
       const finalGroup =
         formData.group === "新建分组" ? formData.newGroup : formData.group;
 
+      // 从 providers 获取供应商信息
+      const providers =
+        ((model as any).providers && (model as any).providers.length > 0)
+          ? (model as any).providers.map((p: any) => ({
+              providerId: p.providerId,
+              group: finalGroup === "未分组" ? undefined : finalGroup,
+            }))
+          : [];
+
       const updateData = {
         name: formData.name.trim(),
-        group: finalGroup === "未分组" ? undefined : finalGroup,
         owned_by: formData.ownedBy.trim() || null,
         description: formData.description.trim() || null,
+        providers: providers.length > 0 ? providers : undefined,
         // 根据类型设置能力标志
         supportsTools: formData.types.includes("function_calling"),
         supportsReasoning: formData.types.includes("reasoning"),

@@ -180,10 +180,14 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
       const modelData = {
         name: formData.name.trim(),
         id: formData.id.trim(),
-        group: finalGroup || "未分组",
         description: formData.description.trim() || null,
         owned_by: formData.ownedBy.trim() || null,
-        providerIds: [providerId],
+        providers: [
+          {
+            providerId,
+            group: finalGroup || "未分组",
+          },
+        ],
         isSystem: false,
         // 根据类型设置能力标志
         supportsTools: formData.types.includes("function_calling"),

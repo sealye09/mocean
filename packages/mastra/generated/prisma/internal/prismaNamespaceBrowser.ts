@@ -182,7 +182,6 @@ export type FileTypeScalarFieldEnum = (typeof FileTypeScalarFieldEnum)[keyof typ
 export const ModelScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  group: 'group',
   owned_by: 'owned_by',
   description: 'description',
   isSystem: 'isSystem',
@@ -379,7 +378,8 @@ export type QuickPhraseScalarFieldEnum = (typeof QuickPhraseScalarFieldEnum)[key
 
 export const ModelProviderScalarFieldEnum = {
   modelId: 'modelId',
-  providerId: 'providerId'
+  providerId: 'providerId',
+  group: 'group'
 } as const
 
 export type ModelProviderScalarFieldEnum = (typeof ModelProviderScalarFieldEnum)[keyof typeof ModelProviderScalarFieldEnum]

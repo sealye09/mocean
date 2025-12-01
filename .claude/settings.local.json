@@ -4,7 +4,9 @@
       "Bash(curl:*)",
       "Bash(npx tsx:*)",
       "Bash(cat:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm run build:*)"
     ],
     "deny": [],
     "ask": []

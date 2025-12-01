@@ -8,7 +8,6 @@ import { prisma } from "./index";
 const createModelSchema = z.object({
   id: z.string().min(1, "模型ID不能为空"),
   name: z.string().min(1, "模型名称不能为空"),
-  group: z.string().min(1, "模型分组不能为空"),
   owned_by: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   isSystem: z.boolean().optional().default(false),
@@ -22,14 +21,16 @@ const createModelSchema = z.object({
   supportsEmbedding: z.boolean().optional().default(false),
   inputPricePerMillion: z.number().nonnegative().nullable().optional(),
   outputPricePerMillion: z.number().nonnegative().nullable().optional(),
-  providerIds: z
-    .array(z.string().min(1, "提供商ID不能为空"))
+  providers: z
+    .array(z.object({
+      providerId: z.string().min(1, "提供商ID不能为空"),
+      group: z.string().min(1, "分组不能为空"),
+    }))
     .min(1, "至少需要一个提供商"),
 });
 
 const updateModelSchema = z.object({
   name: z.string().min(1, "模型名称不能为空").optional(),
-  group: z.string().min(1, "模型分组不能为空").optional(),
   owned_by: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   isSystem: z.boolean().optional(),
@@ -43,7 +44,10 @@ const updateModelSchema = z.object({
   supportsEmbedding: z.boolean().optional(),
   inputPricePerMillion: z.number().nonnegative().nullable().optional(),
   outputPricePerMillion: z.number().nonnegative().nullable().optional(),
-  providerIds: z.array(z.string().min(1, "提供商ID不能为空")).optional(),
+  providers: z.array(z.object({
+    providerId: z.string().min(1, "提供商ID不能为空"),
+    group: z.string().min(1, "分组不能为空"),
+  })).optional(),
 });
 
 const idParamSchema = z.object({
@@ -61,6 +65,7 @@ const groupParamSchema = z.object({
 const modelProviderRelationSchema = z.object({
   modelId: z.string().min(1, "模型ID不能为空"),
   providerId: z.string().min(1, "提供商ID不能为空"),
+  group: z.string().min(1, "分组不能为空"),
 });
 
 // zod类型推导
@@ -160,6 +165,8 @@ const getModelsByProvider = async (providerId: string) => {
     },
   });
 
+  console.log(providerId);
+
   // 整理提供商信息
   return models.map((model) => ({
     ...model,
@@ -171,31 +178,35 @@ const getModelsByProvider = async (providerId: string) => {
 
 /**
  * 根据分组获取模型
- * @description 通过模型分组获取对应的模型列表
- * @param group - 模型分组
- * @returns 符合分组的模型数组
+ * @description 通过模型-供应商分组获取对应的模型-供应商关联列表
+ * @param group - 模型-供应商分组
+ * @returns 符合分组的模型-供应商关联数组
  */
 const getModelsByGroup = async (group: string) => {
-  const models = await prisma.model.findMany({
+  // 通过 ModelProvider.group 查询
+  const modelProviderRelations = await prisma.modelProvider.findMany({
     where: {
       group,
     },
     include: {
-      providers: {
-        include: {
-          provider: true,
-        },
-      },
-    },
-    orderBy: {
-      name: "asc",
+      model: true,
+      provider: true,
     },
   });
 
-  // 整理提供商信息
-  return models.map((model) => ({
-    ...model,
-    providerList: model.providers.map((p) => p.provider),
+  // 转换为模型列表格式
+  // 注意：同一模型可能出现多次（不同供应商）
+  return modelProviderRelations.map((relation) => ({
+    ...relation.model,
+    providers: [
+      {
+        modelId: relation.modelId,
+        providerId: relation.providerId,
+        group: relation.group,
+        provider: relation.provider,
+      },
+    ],
+    providerList: [relation.provider],
   }));
 };
 
@@ -207,25 +218,27 @@ const getModelsByGroup = async (group: string) => {
  */
 const createModel = async (model: CreateModelInput) => {
   // 验证提供商是否存在
+  const providerIds = model.providers.map((p) => p.providerId);
   const providers = await prisma.provider.findMany({
-    where: { id: { in: model.providerIds } },
+    where: { id: { in: providerIds } },
   });
 
-  if (providers.length !== model.providerIds.length) {
+  if (providers.length !== providerIds.length) {
     const existingIds = providers.map((p) => p.id);
-    const missingIds = model.providerIds.filter(
-      (id) => !existingIds.includes(id),
-    );
+    const missingIds = providerIds.filter((id) => !existingIds.includes(id));
     throw new Error(`以下提供商不存在: ${missingIds.join(", ")}`);
   }
 
-  const { providerIds, ...modelData } = model;
+  const { providers: providerRelations, ...modelData } = model;
 
   const newModel = await prisma.model.create({
     data: {
       ...modelData,
       providers: {
-        create: providerIds.map((providerId) => ({ providerId })),
+        create: providerRelations.map((p) => ({
+          providerId: p.providerId,
+          group: p.group,
+        })),
       },
     },
     include: {
@@ -251,22 +264,21 @@ const createModel = async (model: CreateModelInput) => {
  * @returns 更新后的模型对象
  */
 const updateModel = async (id: string, model: UpdateModelInput) => {
-  // 如果提供了providerIds，验证提供商是否存在
-  if (model.providerIds) {
+  // 如果提供了providers，验证提供商是否存在
+  if (model.providers) {
+    const providerIds = model.providers.map((p) => p.providerId);
     const providers = await prisma.provider.findMany({
-      where: { id: { in: model.providerIds } },
+      where: { id: { in: providerIds } },
     });
 
-    if (providers.length !== model.providerIds.length) {
+    if (providers.length !== providerIds.length) {
       const existingIds = providers.map((p) => p.id);
-      const missingIds = model.providerIds.filter(
-        (id) => !existingIds.includes(id),
-      );
+      const missingIds = providerIds.filter((id) => !existingIds.includes(id));
       throw new Error(`以下提供商不存在: ${missingIds.join(", ")}`);
     }
   }
 
-  const { providerIds, ...modelData } = model;
+  const { providers: providerRelations, ...modelData } = model;
 
   const updatedModel = await prisma.model.update({
     where: {
@@ -274,10 +286,13 @@ const updateModel = async (id: string, model: UpdateModelInput) => {
     },
     data: {
       ...modelData,
-      ...(providerIds && {
+      ...(providerRelations && {
         providers: {
           deleteMany: {},
-          create: providerIds.map((providerId) => ({ providerId })),
+          create: providerRelations.map((p) => ({
+            providerId: p.providerId,
+            group: p.group,
+          })),
         },
       }),
     },
@@ -350,7 +365,9 @@ const deleteModel = async (id: string) => {
  */
 const createManyModels = async (models: CreateModelInput[]) => {
   // 验证所有提供商是否存在
-  const allProviderIds = [...new Set(models.flatMap((m) => m.providerIds))];
+  const allProviderIds = [
+    ...new Set(models.flatMap((m) => m.providers.map((p) => p.providerId))),
+  ];
   const providers = await prisma.provider.findMany({
     where: {
       id: { in: allProviderIds },
@@ -372,7 +389,7 @@ const createManyModels = async (models: CreateModelInput[]) => {
     const createdModels = [];
 
     for (const model of models) {
-      const { providerIds, ...modelData } = model;
+      const { providers: providerRelations, ...modelData } = model;
 
       const createdModel = await tx.model.create({
         data: {
@@ -382,9 +399,10 @@ const createManyModels = async (models: CreateModelInput[]) => {
 
       // 创建关联关系
       await tx.modelProvider.createMany({
-        data: providerIds.map((providerId) => ({
+        data: providerRelations.map((p) => ({
           modelId: createdModel.id,
-          providerId,
+          providerId: p.providerId,
+          group: p.group,
         })),
       });
 
