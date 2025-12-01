@@ -1,5 +1,5 @@
-import { AgentInput, useAgentsApi } from "@mocean/mastra/apiClient";
-import { type AgentModel } from "@mocean/mastra/prismaType";
+import { CreateAgentInput, useAgentsApi } from "@mocean/mastra/apiClient";
+import { type Agent } from "@mocean/mastra/prismaType";
 import useSWR, { type KeyedMutator } from "swr";
 
 /**
@@ -14,15 +14,12 @@ import useSWR, { type KeyedMutator } from "swr";
  * @example
  * // 获取所有代理
  * const { agents, isLoading, error, refresh } = useAgentsSWR();
- * console.log(agents); // -> AgentModel[]
+ * console.log(agents); // -> Agent[]
  */
 export function useAgentsSWR() {
   const { getAgents } = useAgentsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    AgentModel[],
-    Error | undefined
-  >(
+  const { data, error, isLoading, mutate } = useSWR<Agent[], Error | undefined>(
     "agents",
     async () => {
       const result = await getAgents();
@@ -55,13 +52,13 @@ export function useAgentsSWR() {
  * @example
  * // 获取特定代理
  * const { agent, isLoading, error, refresh } = useAgentSWR("agent-id");
- * console.log(agent); // -> AgentModel | null
+ * console.log(agent); // -> Agent | null
  */
 export function useAgentSWR(id: string | null) {
   const { getAgentById } = useAgentsApi();
 
   const { data, error, isLoading, mutate } = useSWR<
-    AgentModel | null,
+    Agent | null,
     Error | undefined
   >(
     id ? `agent-${id}` : null,
@@ -94,15 +91,12 @@ export function useAgentSWR(id: string | null) {
  * @example
  * // 获取特定分组的代理
  * const { agents, isLoading, error, refresh } = useAgentsByGroupSWR("writing");
- * console.log(agents); // -> AgentModel[]
+ * console.log(agents); // -> Agent[]
  */
 export function useAgentsByGroupSWR(group: string | null) {
   const { getAgentByGroup } = useAgentsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    AgentModel[],
-    Error | undefined
-  >(
+  const { data, error, isLoading, mutate } = useSWR<Agent[], Error | undefined>(
     group ? `agents-group-${group}` : null,
     async () => {
       if (!group) return [];
@@ -145,13 +139,13 @@ export function useAgentsByGroupSWR(group: string | null) {
  * await remove("agent-id");
  */
 export function useAgentsWithActions(): {
-  agents: AgentModel[];
+  agents: Agent[];
   isLoading: boolean;
   error: Error | undefined;
-  create: (data: AgentInput) => Promise<unknown>;
-  update: (id: string, data: Partial<AgentInput>) => Promise<unknown>;
+  create: (data: CreateAgentInput) => Promise<unknown>;
+  update: (id: string, data: Partial<CreateAgentInput>) => Promise<unknown>;
   remove: (id: string) => Promise<unknown>;
-  refresh: KeyedMutator<AgentModel[]>;
+  refresh: KeyedMutator<Agent[]>;
 } {
   const { agents, isLoading, error, refresh } = useAgentsSWR();
   const { createAgent, updateAgent, deleteAgent } = useAgentsApi();
@@ -163,7 +157,7 @@ export function useAgentsWithActions(): {
     error,
 
     // CRUD 操作（带缓存更新）
-    async create(data: AgentInput) {
+    async create(data: CreateAgentInput) {
       try {
         const result = await createAgent(data);
         if (result) {
@@ -177,7 +171,7 @@ export function useAgentsWithActions(): {
       }
     },
 
-    async update(id: string, data: Partial<AgentInput>) {
+    async update(id: string, data: Partial<CreateAgentInput>) {
       try {
         const result = await updateAgent(id, data);
         if (result) {
