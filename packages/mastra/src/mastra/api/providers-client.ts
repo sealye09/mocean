@@ -208,14 +208,29 @@ export type UseProvidersApiReturn = Pick<
  */
 export const useProvidersApi = (): UseProvidersApiReturn => {
   return {
-    getProviders: providersApi.getProviders.bind(providersApi),
-    getEnabledProviders: providersApi.getEnabledProviders.bind(providersApi),
-    getProviderById: providersApi.getProviderById.bind(providersApi),
-    getProvidersByType: providersApi.getProvidersByType.bind(providersApi),
-    createProvider: providersApi.createProvider.bind(providersApi),
-    updateProvider: providersApi.updateProvider.bind(providersApi),
-    deleteProvider: providersApi.deleteProvider.bind(providersApi),
-    toggleProviderEnabled:
-      providersApi.toggleProviderEnabled.bind(providersApi),
+    getProviders: providersApi.getProviders.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["getProviders"],
+    getEnabledProviders: providersApi.getEnabledProviders.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["getEnabledProviders"],
+    getProviderById: providersApi.getProviderById.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["getProviderById"],
+    getProvidersByType: providersApi.getProvidersByType.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["getProvidersByType"],
+    createProvider: providersApi.createProvider.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["createProvider"],
+    updateProvider: providersApi.updateProvider.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["updateProvider"],
+    deleteProvider: providersApi.deleteProvider.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["deleteProvider"],
+    toggleProviderEnabled: providersApi.toggleProviderEnabled.bind(
+      providersApi,
+    ) as UseProvidersApiReturn["toggleProviderEnabled"],
   };
 };

@@ -1874,7 +1874,6 @@ export const ProviderScalarFieldEnum = {
   enabled: 'enabled',
   isSystem: 'isSystem',
   isAuthed: 'isAuthed',
-  isNotSupportArrayContent: 'isNotSupportArrayContent',
   notes: 'notes',
   isGateway: 'isGateway',
   modelCount: 'modelCount',

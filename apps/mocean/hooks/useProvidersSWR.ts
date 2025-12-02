@@ -1,4 +1,7 @@
-import { useProvidersApi } from "@mocean/mastra/apiClient";
+import {
+  EnabledProvidersResult,
+  useProvidersApi,
+} from "@mocean/mastra/apiClient";
 import { type Provider } from "@mocean/mastra/prismaType";
 import useSWR, { type KeyedMutator } from "swr";
 
@@ -48,7 +51,7 @@ export function useEnabledProvidersSWR() {
   const { getEnabledProviders } = useProvidersApi();
 
   const { data, error, isLoading, mutate } = useSWR<
-    Provider[],
+    EnabledProvidersResult,
     Error | undefined
   >(
     "providers-enabled",

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import Image from "next/image";
 
+import { EnabledProvidersResult } from "@mocean/mastra/apiClient";
 import { Model, Provider } from "@mocean/mastra/prismaType";
 
 import { renderProviderAvatar as RenderProviderAvatar } from "@/app/provider/components/CustomerIcon";
@@ -45,7 +46,7 @@ interface ModelSelection {
  */
 interface ModelSelectorProps {
   /** 供应商列表 */
-  providers: Array<Provider & { modelList: Model[] }>;
+  providers: EnabledProvidersResult;
   /** 当前选中的模型 */
   value?: ModelSelection;
   /** 选择变更回调 */
@@ -74,33 +75,31 @@ interface ModelSelectorProps {
  * 按组分组模型
  *
  * @description 将模型列表按模型-供应商分组分组并排序
- * @param models - 模型列表（需要包含 providers 关联）
- * @param providerId - 当前供应商ID
+ * @param models - 模型列表
+ * @param groupList - 分组关系列表（从 provider.models 获取）
  * @returns 分组后的模型数组
  */
-const transformModelGroups = (
-  models: Model[],
-  providerId?: string
-): ModelGroup[] => {
+const transformModelGroups = ({
+  models,
+  groupList,
+  providerId,
+}: {
+  models: EnabledProvidersResult[0]["modelList"];
+  groupList: {
+    providerId: string;
+    modelId: string;
+    group: string | null;
+  }[];
+  providerId: string;
+}): ModelGroup[] => {
   if (!models || models.length === 0) return [];
 
   const groups: Record<string, Model[]> = {};
 
   models.forEach((model) => {
-    // 根据当前供应商获取分组
-    let groupName = "未分组";
-
-    if (providerId && (model as any).providers) {
-      const providerRelation = (model as any).providers.find(
-        (p: any) => p.providerId === providerId
-      );
-      if (providerRelation && providerRelation.group) {
-        groupName = providerRelation.group;
-      }
-    } else if ((model as any).providers && (model as any).providers.length > 0) {
-      // 默认使用第一个供应商的分组
-      groupName = (model as any).providers[0].group || "未分组";
-    }
+    // 根据 groupList 获取分组
+    const groupRelation = groupList.find((g) => g.providerId === providerId);
+    const groupName = groupRelation?.group || "未分组";
 
     if (!groups[groupName]) {
       groups[groupName] = [];
@@ -137,7 +136,11 @@ export function ModelSelector({
   const providersWithGroups = useMemo(() => {
     return providers.map((provider) => ({
       ...provider,
-      modelGroups: transformModelGroups(provider.modelList || [], provider.id),
+      modelGroups: transformModelGroups({
+        models: provider.modelList,
+        groupList: provider.models,
+        providerId: provider.id,
+      }),
     }));
   }, [providers]);
 
@@ -182,11 +185,7 @@ export function ModelSelector({
           {value ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 shrink-0">
-                <RenderProviderAvatar
-                  provider={getProvider()}
-                  width={16}
-                  height={16}
-                />
+                <RenderProviderAvatar provider={getProvider()} />
               </div>
               <span className="truncate text-sm font-medium">
                 {value.modelName}

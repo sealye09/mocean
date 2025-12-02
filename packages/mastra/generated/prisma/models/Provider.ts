@@ -44,7 +44,6 @@ export type ProviderMinAggregateOutputType = {
   enabled: boolean | null
   isSystem: boolean | null
   isAuthed: boolean | null
-  isNotSupportArrayContent: boolean | null
   notes: string | null
   isGateway: boolean | null
   modelCount: number | null
@@ -63,7 +62,6 @@ export type ProviderMaxAggregateOutputType = {
   enabled: boolean | null
   isSystem: boolean | null
   isAuthed: boolean | null
-  isNotSupportArrayContent: boolean | null
   notes: string | null
   isGateway: boolean | null
   modelCount: number | null
@@ -82,7 +80,6 @@ export type ProviderCountAggregateOutputType = {
   enabled: number
   isSystem: number
   isAuthed: number
-  isNotSupportArrayContent: number
   notes: number
   isGateway: number
   modelCount: number
@@ -111,7 +108,6 @@ export type ProviderMinAggregateInputType = {
   enabled?: true
   isSystem?: true
   isAuthed?: true
-  isNotSupportArrayContent?: true
   notes?: true
   isGateway?: true
   modelCount?: true
@@ -130,7 +126,6 @@ export type ProviderMaxAggregateInputType = {
   enabled?: true
   isSystem?: true
   isAuthed?: true
-  isNotSupportArrayContent?: true
   notes?: true
   isGateway?: true
   modelCount?: true
@@ -149,7 +144,6 @@ export type ProviderCountAggregateInputType = {
   enabled?: true
   isSystem?: true
   isAuthed?: true
-  isNotSupportArrayContent?: true
   notes?: true
   isGateway?: true
   modelCount?: true
@@ -255,7 +249,6 @@ export type ProviderGroupByOutputType = {
   enabled: boolean
   isSystem: boolean
   isAuthed: boolean
-  isNotSupportArrayContent: boolean
   notes: string | null
   isGateway: boolean
   modelCount: number | null
@@ -297,7 +290,6 @@ export type ProviderWhereInput = {
   enabled?: Prisma.BoolFilter<"Provider"> | boolean
   isSystem?: Prisma.BoolFilter<"Provider"> | boolean
   isAuthed?: Prisma.BoolFilter<"Provider"> | boolean
-  isNotSupportArrayContent?: Prisma.BoolFilter<"Provider"> | boolean
   notes?: Prisma.StringNullableFilter<"Provider"> | string | null
   isGateway?: Prisma.BoolFilter<"Provider"> | boolean
   modelCount?: Prisma.IntNullableFilter<"Provider"> | number | null
@@ -318,7 +310,6 @@ export type ProviderOrderByWithRelationInput = {
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
   isAuthed?: Prisma.SortOrder
-  isNotSupportArrayContent?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   isGateway?: Prisma.SortOrder
   modelCount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,7 +333,6 @@ export type ProviderWhereUniqueInput = Prisma.AtLeast<{
   enabled?: Prisma.BoolFilter<"Provider"> | boolean
   isSystem?: Prisma.BoolFilter<"Provider"> | boolean
   isAuthed?: Prisma.BoolFilter<"Provider"> | boolean
-  isNotSupportArrayContent?: Prisma.BoolFilter<"Provider"> | boolean
   notes?: Prisma.StringNullableFilter<"Provider"> | string | null
   isGateway?: Prisma.BoolFilter<"Provider"> | boolean
   modelCount?: Prisma.IntNullableFilter<"Provider"> | number | null
@@ -363,7 +353,6 @@ export type ProviderOrderByWithAggregationInput = {
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
   isAuthed?: Prisma.SortOrder
-  isNotSupportArrayContent?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   isGateway?: Prisma.SortOrder
   modelCount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -390,7 +379,6 @@ export type ProviderScalarWhereWithAggregatesInput = {
   enabled?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   isSystem?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   isAuthed?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
-  isNotSupportArrayContent?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   notes?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
   isGateway?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   modelCount?: Prisma.IntNullableWithAggregatesFilter<"Provider"> | number | null
@@ -409,7 +397,6 @@ export type ProviderCreateInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -430,7 +417,6 @@ export type ProviderUncheckedCreateInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -451,7 +437,6 @@ export type ProviderUpdateInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -472,7 +457,6 @@ export type ProviderUncheckedUpdateInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -493,7 +477,6 @@ export type ProviderCreateManyInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -512,7 +495,6 @@ export type ProviderUpdateManyMutationInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -531,7 +513,6 @@ export type ProviderUncheckedUpdateManyInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -550,7 +531,6 @@ export type ProviderCountOrderByAggregateInput = {
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
   isAuthed?: Prisma.SortOrder
-  isNotSupportArrayContent?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isGateway?: Prisma.SortOrder
   modelCount?: Prisma.SortOrder
@@ -573,7 +553,6 @@ export type ProviderMaxOrderByAggregateInput = {
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
   isAuthed?: Prisma.SortOrder
-  isNotSupportArrayContent?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isGateway?: Prisma.SortOrder
   modelCount?: Prisma.SortOrder
@@ -592,7 +571,6 @@ export type ProviderMinOrderByAggregateInput = {
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
   isAuthed?: Prisma.SortOrder
-  isNotSupportArrayContent?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isGateway?: Prisma.SortOrder
   modelCount?: Prisma.SortOrder
@@ -683,7 +661,6 @@ export type ProviderCreateWithoutAssistantInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -703,7 +680,6 @@ export type ProviderUncheckedCreateWithoutAssistantInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -739,7 +715,6 @@ export type ProviderUpdateWithoutAssistantInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -759,7 +734,6 @@ export type ProviderUncheckedUpdateWithoutAssistantInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -779,7 +753,6 @@ export type ProviderCreateWithoutModelsInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -799,7 +772,6 @@ export type ProviderUncheckedCreateWithoutModelsInput = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: string | null
   isGateway?: boolean
   modelCount?: number | null
@@ -835,7 +807,6 @@ export type ProviderUpdateWithoutModelsInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -855,7 +826,6 @@ export type ProviderUncheckedUpdateWithoutModelsInput = {
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNotSupportArrayContent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
   modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -915,7 +885,6 @@ export type ProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: boolean
   isGateway?: boolean
   modelCount?: boolean
@@ -937,7 +906,6 @@ export type ProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: boolean
   isGateway?: boolean
   modelCount?: boolean
@@ -956,7 +924,6 @@ export type ProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: boolean
   isGateway?: boolean
   modelCount?: boolean
@@ -975,7 +942,6 @@ export type ProviderSelectScalar = {
   enabled?: boolean
   isSystem?: boolean
   isAuthed?: boolean
-  isNotSupportArrayContent?: boolean
   notes?: boolean
   isGateway?: boolean
   modelCount?: boolean
@@ -984,7 +950,7 @@ export type ProviderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "name" | "apiKey" | "apiHost" | "apiVersion" | "enabled" | "isSystem" | "isAuthed" | "isNotSupportArrayContent" | "notes" | "isGateway" | "modelCount" | "docsUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
+export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "name" | "apiKey" | "apiHost" | "apiVersion" | "enabled" | "isSystem" | "isAuthed" | "notes" | "isGateway" | "modelCount" | "docsUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
 export type ProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   models?: boolean | Prisma.Provider$modelsArgs<ExtArgs>
   Assistant?: boolean | Prisma.Provider$AssistantArgs<ExtArgs>
@@ -1009,7 +975,6 @@ export type $ProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     enabled: boolean
     isSystem: boolean
     isAuthed: boolean
-    isNotSupportArrayContent: boolean
     notes: string | null
     isGateway: boolean
     modelCount: number | null
@@ -1450,7 +1415,6 @@ export interface ProviderFieldRefs {
   readonly enabled: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly isSystem: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly isAuthed: Prisma.FieldRef<"Provider", 'Boolean'>
-  readonly isNotSupportArrayContent: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly notes: Prisma.FieldRef<"Provider", 'String'>
   readonly isGateway: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly modelCount: Prisma.FieldRef<"Provider", 'Int'>

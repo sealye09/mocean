@@ -63,7 +63,6 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
     apiHost: provider.apiHost,
     apiVersion: provider.apiVersion || "",
     enabled: provider.enabled,
-    isNotSupportArrayContent: provider.isNotSupportArrayContent,
     notes: provider.notes || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,7 +80,6 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
       apiHost: provider.apiHost,
       apiVersion: provider.apiVersion || "",
       enabled: provider.enabled,
-      isNotSupportArrayContent: provider.isNotSupportArrayContent,
       notes: provider.notes || "",
     });
   };
@@ -112,7 +110,6 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
         apiHost: formData.apiHost.trim(),
         apiVersion: formData.apiVersion.trim() || null,
         enabled: formData.enabled,
-        isNotSupportArrayContent: formData.isNotSupportArrayContent,
         notes: formData.notes.trim() || null,
       };
 
@@ -211,23 +208,6 @@ export const ProviderConfigDialog: React.FC<ProviderConfigDialogProps> = ({
                   checked={formData.enabled}
                   onCheckedChange={(checked) =>
                     onFormDataChange("enabled", checked)
-                  }
-                />
-              </div>
-
-              {/* 数组内容支持 */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="arraySupport">不支持数组内容</Label>
-                  <p className="text-xs text-muted-foreground">
-                    某些提供商不支持数组格式的消息内容
-                  </p>
-                </div>
-                <Switch
-                  id="arraySupport"
-                  checked={formData.isNotSupportArrayContent}
-                  onCheckedChange={(checked) =>
-                    onFormDataChange("isNotSupportArrayContent", checked)
                   }
                 />
               </div>
