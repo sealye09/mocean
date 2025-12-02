@@ -70,7 +70,8 @@ export const ModelName = {
   MCPConfigSample: 'MCPConfigSample',
   QuickPhrase: 'QuickPhrase',
   Group: 'Group',
-  ModelGroup: 'ModelGroup'
+  ModelGroup: 'ModelGroup',
+  ModelProvider: 'ModelProvider'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -397,6 +398,16 @@ export const ModelGroupScalarFieldEnum = {
 } as const
 
 export type ModelGroupScalarFieldEnum = (typeof ModelGroupScalarFieldEnum)[keyof typeof ModelGroupScalarFieldEnum]
+
+
+export const ModelProviderScalarFieldEnum = {
+  modelId: 'modelId',
+  providerId: 'providerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ModelProviderScalarFieldEnum = (typeof ModelProviderScalarFieldEnum)[keyof typeof ModelProviderScalarFieldEnum]
 
 
 export const SortOrder = {

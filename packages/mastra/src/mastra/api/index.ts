@@ -1,5 +1,6 @@
 import { agentsApiMethods, useAgentsApi } from "./agents-client";
 import { assistantsApiMethods, useAssistantsApi } from "./assistants-client";
+import { groupsApiMethods, useGroupsApi } from "./groups-client";
 import { modelsApiMethods, useModelsApi } from "./models-client";
 import { providersApiMethods, useProvidersApi } from "./providers-client";
 
@@ -60,6 +61,25 @@ export {
   type AssistantUIMessagesResult,
 } from "../server/assistant";
 
+// 分组相关API
+export {
+  GroupsApiClient,
+  groupsApi,
+  groupsApiMethods,
+  useGroupsApi,
+} from "./groups-client";
+
+// 分组类型
+export {
+  type CreateGroupInput,
+  type UpdateGroupInput,
+  type GroupsByProviderResult,
+  type GroupDetailResult,
+  type GroupCreateResult,
+  type GroupUpdateResult,
+  type GroupDeleteResult,
+} from "../server/group";
+
 // 提供商相关API
 export {
   ProvidersApiClient,
@@ -116,6 +136,7 @@ export {
 export const api = {
   agents: agentsApiMethods,
   assistants: assistantsApiMethods,
+  groups: groupsApiMethods,
   providers: providersApiMethods,
   models: modelsApiMethods,
 };
@@ -127,6 +148,7 @@ export const api = {
 export const useApi = () => ({
   agents: useAgentsApi(),
   assistants: useAssistantsApi(),
+  groups: useGroupsApi(),
   providers: useProvidersApi(),
   models: useModelsApi(),
 });

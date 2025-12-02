@@ -19,7 +19,7 @@ const isValidUrl = (url: string): boolean => {
 };
 
 const createProviderSchema = z.object({
-  type: z.enum(ProviderType, { message: "无效的提供商类型" }),
+  type: z.nativeEnum(ProviderType, { message: "无效的提供商类型" }),
   name: z.string().min(1, "提供商名称不能为空"),
   apiKey: z.string().min(1, "API密钥不能为空"),
   apiHost: z.string().refine((val) => isValidUrl(val), {
@@ -33,7 +33,7 @@ const createProviderSchema = z.object({
 });
 
 const updateProviderSchema = z.object({
-  type: z.nativeEnum(ProviderType, { message: "无效的提供商类型" }).optional(),
+  type: z.enum(ProviderType, { message: "无效的提供商类型" }).optional(),
   name: z.string().min(1, "提供商名称不能为空").optional(),
   apiKey: z
     .string()
@@ -237,7 +237,7 @@ const getProvidersByModel = async (modelId: string) => {
 
 /**
  * 创建新提供商
- * @description 在数据库中创建一个新的提供商记录
+ * @description 在数据库中创建一个新的提供商记录，并自动创建默认分组
  * @param provider - 包含提供商信息的对象
  * @returns 新创建的提供商对象，包含生成的ID和时间戳
  */
@@ -247,6 +247,12 @@ const createProvider = async (provider: CreateProviderInput) => {
       ...provider,
       createdAt: new Date(),
       updatedAt: new Date(),
+      groups: {
+        create: {
+          name: "默认",
+          isDefault: true,
+        },
+      },
     } as Prisma.ProviderCreateInput,
     include: {
       models: {
@@ -254,6 +260,7 @@ const createProvider = async (provider: CreateProviderInput) => {
           model: true,
         },
       },
+      groups: true,
       _count: {
         select: {
           models: true,

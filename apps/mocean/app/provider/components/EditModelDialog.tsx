@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useGroupsByProviderSWR } from "@/hooks/useGroupsSWR";
 import { useModelsWithActions } from "@/hooks/useModelsSWR";
 
 /**
@@ -44,8 +45,8 @@ const MODEL_TYPES = [
 export interface EditModelDialogProps {
   /** 要编辑的模型 */
   model: Model | null;
-  /** 可用分组列表 */
-  availableGroups?: string[];
+  /** 供应商ID */
+  providerId: string | null;
   /** 对话框打开状态 */
   open: boolean;
   /** 状态变更回调 */
@@ -59,11 +60,10 @@ export interface EditModelDialogProps {
  */
 interface FormData {
   name: string;
-  group: string;
+  groupId: string;
   types: string[];
   ownedBy: string;
   description: string;
-  newGroup: string;
 }
 
 /**
@@ -71,7 +71,7 @@ interface FormData {
  * @description 用于编辑现有模型的信息，模型ID不可修改
  *
  * @param model - 要编辑的模型对象
- * @param availableGroups - 可用的分组列表
+ * @param providerId - 供应商ID
  * @param open - 对话框打开状态
  * @param onOpenChange - 状态变更回调函数
  * @param onSuccess - 编辑成功回调函数
@@ -80,7 +80,7 @@ interface FormData {
  * // 编辑模型
  * <EditModelDialog
  *   model={selectedModel}
- *   availableGroups={groups}
+ *   providerId="provider-123"
  *   open={isOpen}
  *   onOpenChange={setIsOpen}
  *   onSuccess={() => refreshModels()}
@@ -88,22 +88,22 @@ interface FormData {
  */
 export const EditModelDialog: React.FC<EditModelDialogProps> = ({
   model,
-  availableGroups = [],
+  providerId,
   open,
   onOpenChange,
   onSuccess,
 }) => {
+  const { groups, isLoading: groupsLoading } = useGroupsByProviderSWR(providerId);
+  const { update } = useModelsWithActions();
+
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    group: "",
+    groupId: "",
     types: [],
     ownedBy: "",
     description: "",
-    newGroup: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { update } = useModelsWithActions();
 
   /**
    * 当模型数据变化时初始化表单
@@ -119,19 +119,18 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
       // 默认文本能力
       if (types.length === 0) types.push("text");
 
-      // 从 providers[0].group 获取分组（使用第一个供应商的分组）
-      let group = "未分组";
-      if ((model as any).providers && (model as any).providers.length > 0) {
-        group = (model as any).providers[0].group || "未分组";
+      // 从 modelGroups 获取分组ID（使用第一个供应商的分组）
+      let groupId = "";
+      if ((model as any).modelGroups && (model as any).modelGroups.length > 0) {
+        groupId = (model as any).modelGroups[0].groupId || "";
       }
 
       setFormData({
         name: model.name || "",
-        group: group,
+        groupId: groupId,
         types: types,
         ownedBy: model.owned_by || "",
         description: model.description || "",
-        newGroup: "",
       });
     }
   }, [model, open]);
@@ -142,11 +141,10 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
   const resetForm = () => {
     setFormData({
       name: "",
-      group: "",
+      groupId: "",
       types: [],
       ownedBy: "",
       description: "",
-      newGroup: "",
     });
   };
 
@@ -197,30 +195,22 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
    */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!model || isSubmitting) return;
+    if (!model || isSubmitting || !formData.groupId) return;
 
     // 表单验证
-    if (
-      !formData.name.trim() ||
-      formData.types.length === 0 ||
-      (formData.group === "新建分组" && !formData.newGroup.trim())
-    ) {
+    if (!formData.name.trim() || formData.types.length === 0) {
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // 处理分组名
-      const finalGroup =
-        formData.group === "新建分组" ? formData.newGroup : formData.group;
-
-      // 从 providers 获取供应商信息
+      // 从 modelGroups 获取供应商信息
       const providers =
-        ((model as any).providers && (model as any).providers.length > 0)
-          ? (model as any).providers.map((p: any) => ({
-              providerId: p.providerId,
-              group: finalGroup === "未分组" ? undefined : finalGroup,
+        ((model as any).modelGroups && (model as any).modelGroups.length > 0)
+          ? (model as any).modelGroups.map((mg: any) => ({
+              providerId: mg.providerId,
+              groupId: formData.groupId,
             }))
           : [];
 
@@ -257,9 +247,6 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
     }
     onOpenChange(newOpen);
   };
-
-  // 分组选项列表
-  const groupOptions = [...availableGroups, "未分组", "新建分组"];
 
   if (!model) return null;
 
@@ -301,38 +288,33 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
 
             {/* 模型分组 */}
             <div className="space-y-2">
-              <Label htmlFor="group">模型分组</Label>
-              <Select
-                value={formData.group}
-                onValueChange={(value) => onFormDataChange("group", value)}
-              >
-                <SelectTrigger className="focus:ring-brand-primary-500">
-                  <SelectValue placeholder="选择分组" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groupOptions.map((group) => (
-                    <SelectItem key={group} value={group}>
-                      {group}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="group">模型分组 *</Label>
+              {groupsLoading ? (
+                <div className="flex h-10 items-center justify-center rounded-md border">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <Select
+                  value={formData.groupId}
+                  onValueChange={(value) => onFormDataChange("groupId", value)}
+                >
+                  <SelectTrigger className="focus:ring-brand-primary-500">
+                    <SelectValue placeholder="选择分组" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groups.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        {group.name}
+                        {group.isDefault && " (默认)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-xs text-muted-foreground">
+                可在分组管理中创建新分组
+              </p>
             </div>
-
-            {/* 新建分组输入框 */}
-            {formData.group === "新建分组" && (
-              <div className="space-y-2">
-                <Label htmlFor="newGroup">新分组名称 *</Label>
-                <Input
-                  id="newGroup"
-                  value={formData.newGroup}
-                  onChange={(e) => onFormDataChange("newGroup", e.target.value)}
-                  placeholder="请输入新分组名称"
-                  required
-                  className="focus-visible:ring-brand-primary-500"
-                />
-              </div>
-            )}
 
             {/* 模型类型 */}
             <div className="space-y-2">
@@ -435,8 +417,8 @@ export const EditModelDialog: React.FC<EditModelDialogProps> = ({
               disabled={
                 isSubmitting ||
                 !formData.name.trim() ||
-                formData.types.length === 0 ||
-                (formData.group === "新建分组" && !formData.newGroup.trim())
+                !formData.groupId ||
+                formData.types.length === 0
               }
               className="bg-brand-primary-500 hover:bg-brand-primary-600"
             >

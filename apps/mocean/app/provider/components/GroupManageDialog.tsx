@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGroupsWithActions } from "@/hooks/useGroupsSWR";
 
 /**
  * 分组管理对话框属性
@@ -32,8 +33,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export interface GroupManageDialogProps {
   /** 供应商ID */
   providerId: string | null;
-  /** 现有分组列表 */
-  groups: string[];
   /** 对话框开启状态 */
   open: boolean;
   /** 对话框状态变更回调 */
@@ -52,7 +51,6 @@ type ManageMode = "list" | "add" | "edit";
  * @description 用于管理供应商的模型分组，支持增删改操作
  *
  * @param providerId - 供应商ID
- * @param groups - 现有分组列表
  * @param open - 对话框开启状态
  * @param onOpenChange - 对话框状态变更回调
  * @param [onSuccess] - 成功回调函数
@@ -61,7 +59,6 @@ type ManageMode = "list" | "add" | "edit";
  * // 管理模型分组
  * <GroupManageDialog
  *   providerId="provider-123"
- *   groups={["GPT系列", "Claude系列"]}
  *   open={groupManageOpen}
  *   onOpenChange={setGroupManageOpen}
  *   onSuccess={refreshModels}
@@ -69,17 +66,23 @@ type ManageMode = "list" | "add" | "edit";
  */
 export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
   providerId,
-  groups,
   open,
   onOpenChange,
   onSuccess,
 }) => {
+  // API hooks
+  const { groups, isLoading, create, update, remove } =
+    useGroupsWithActions(providerId);
+
   // 状态管理
   const [mode, setMode] = useState<ManageMode>("list");
-  const [editingGroup, setEditingGroup] = useState<string>("");
+  const [editingGroupId, setEditingGroupId] = useState<string>("");
   const [groupName, setGroupName] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [groupToDelete, setGroupToDelete] = useState<string>("");
+  const [groupToDelete, setGroupToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   /**
@@ -87,9 +90,9 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
    */
   const resetState = () => {
     setMode("list");
-    setEditingGroup("");
+    setEditingGroupId("");
     setGroupName("");
-    setGroupToDelete("");
+    setGroupToDelete(null);
     setIsSubmitting(false);
   };
 
@@ -104,10 +107,10 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
   /**
    * 开始编辑分组
    */
-  const onStartEdit = (group: string) => {
+  const onStartEdit = (groupId: string, groupName: string) => {
     setMode("edit");
-    setEditingGroup(group);
-    setGroupName(group);
+    setEditingGroupId(groupId);
+    setGroupName(groupName);
   };
 
   /**
@@ -115,22 +118,22 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
    */
   const onCancel = () => {
     setMode("list");
-    setEditingGroup("");
+    setEditingGroupId("");
     setGroupName("");
   };
 
   /**
    * 确认添加分组
    */
-  const onConfirmAdd = () => {
+  const onConfirmAdd = async () => {
     if (!groupName.trim() || !providerId) return;
 
     setIsSubmitting(true);
     try {
-      // 这里应该调用添加分组的API
-      // 由于没有专门的分组API，我们通过创建一个示例模型来创建分组
-      // 实际应用中可能需要后端支持分组管理API
-      console.log("添加分组:", groupName.trim());
+      await create({
+        name: groupName.trim(),
+        providerId,
+      });
 
       onCancel();
       onSuccess?.();
@@ -145,20 +148,23 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
    * 确认编辑分组
    */
   const onConfirmEdit = async () => {
-    if (
-      !groupName.trim() ||
-      !editingGroup ||
-      groupName.trim() === editingGroup
-    ) {
+    if (!groupName.trim() || !editingGroupId) {
+      onCancel();
+      return;
+    }
+
+    // 如果名称没有改变，直接取消
+    const originalGroup = groups.find((g) => g.id === editingGroupId);
+    if (originalGroup && groupName.trim() === originalGroup.name) {
       onCancel();
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // 这里应该调用批量更新模型分组的API
-      // 将所有属于 editingGroup 的模型的 group 字段更新为 groupName
-      console.log(`重命名分组: ${editingGroup} -> ${groupName.trim()}`);
+      await update(editingGroupId, {
+        name: groupName.trim(),
+      });
 
       onCancel();
       onSuccess?.();
@@ -177,12 +183,10 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
 
     setIsSubmitting(true);
     try {
-      // 这里应该调用批量更新模型分组的API
-      // 将所有属于 groupToDelete 的模型的 group 字段更新为 "未分组"
-      console.log("删除分组:", groupToDelete);
+      await remove(groupToDelete.id);
 
       setDeleteConfirmOpen(false);
-      setGroupToDelete("");
+      setGroupToDelete(null);
       onSuccess?.();
     } catch (error) {
       console.error("删除分组失败:", error);
@@ -194,8 +198,8 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
   /**
    * 开始删除分组确认
    */
-  const onStartDelete = (group: string) => {
-    setGroupToDelete(group);
+  const onStartDelete = (groupId: string, groupName: string) => {
+    setGroupToDelete({ id: groupId, name: groupName });
     setDeleteConfirmOpen(true);
   };
 
@@ -231,11 +235,15 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
       case "add":
         return "创建一个新的模型分组";
       case "edit":
-        return `重命名分组 "${editingGroup}"`;
+        const editingGroup = groups.find((g) => g.id === editingGroupId);
+        return `重命名分组 "${editingGroup?.name}"`;
       default:
         return "管理当前供应商的模型分组";
     }
   };
+
+  // 过滤掉默认分组
+  const editableGroups = groups.filter((g) => !g.isDefault);
 
   return (
     <>
@@ -252,51 +260,73 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
                 {/* 分组列表 */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>现有分组 ({groups.length})</Label>
+                    <Label>
+                      可编辑分组 ({editableGroups.length})
+                      {groups.some((g) => g.isDefault) && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          (默认分组不可编辑)
+                        </span>
+                      )}
+                    </Label>
                     <Button variant="outline" size="sm" onClick={onStartAdd}>
                       <Plus className="mr-2 h-4 w-4" />
                       新建分组
                     </Button>
                   </div>
 
-                  <ScrollArea className="max-h-60">
-                    <div className="space-y-2">
-                      {groups.length === 0 ? (
-                        <div className="py-6 text-center text-sm text-muted-foreground">
-                          暂无分组，点击上方按钮创建第一个分组
-                        </div>
-                      ) : (
-                        groups.map((group) => (
-                          <div
-                            key={group}
-                            className="flex items-center justify-between rounded-lg border bg-card p-3"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="secondary">{group}</Badge>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onStartEdit(group)}
-                                className="h-8 px-2"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onStartDelete(group)}
-                                className="h-8 px-2 text-destructive hover:text-destructive/90"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))
-                      )}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-6">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
-                  </ScrollArea>
+                  ) : (
+                    <ScrollArea className="max-h-60">
+                      <div className="space-y-2">
+                        {editableGroups.length === 0 ? (
+                          <div className="py-6 text-center text-sm text-muted-foreground">
+                            暂无分组，点击上方按钮创建第一个分组
+                          </div>
+                        ) : (
+                          editableGroups.map((group) => (
+                            <div
+                              key={group.id}
+                              className="flex items-center justify-between rounded-lg border bg-card p-3"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="secondary">{group.name}</Badge>
+                                {group._count && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {group._count.models} 个模型
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    onStartEdit(group.id, group.name)
+                                  }
+                                  className="h-8 px-2"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    onStartDelete(group.id, group.name)
+                                  }
+                                  className="h-8 px-2 text-destructive hover:text-destructive/90"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </ScrollArea>
+                  )}
                 </div>
               </div>
             )}
@@ -369,13 +399,11 @@ export const GroupManageDialog: React.FC<GroupManageDialogProps> = ({
             </AlertDialogTitle>
             <AlertDialogDescription>
               <>
-                您确定要删除分组 <strong>{groupToDelete}</strong> 吗？
+                您确定要删除分组 <strong>{groupToDelete?.name}</strong> 吗？
                 <br />
                 <br />
                 <span>
-                  {
-                    '该操作将把该分组下的所有模型移动到"未分组"中，此操作不可撤销。'
-                  }
+                  该操作将把该分组下的所有模型移动到"默认"分组中，此操作不可撤销。
                 </span>
               </>
             </AlertDialogDescription>

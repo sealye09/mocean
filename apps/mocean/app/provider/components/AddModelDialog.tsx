@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useGroupsByProviderSWR } from "@/hooks/useGroupsSWR";
 import { useModelsWithActions } from "@/hooks/useModelsSWR";
 
 /**
@@ -43,10 +44,6 @@ const MODEL_TYPES = [
 export interface AddModelDialogProps {
   /** 供应商ID */
   providerId: string | null;
-  /** 初始分组 */
-  initialGroup?: string;
-  /** 可用分组列表 */
-  availableGroups?: string[];
   /** 对话框开启状态 */
   open: boolean;
   /** 对话框状态变更回调 */
@@ -60,18 +57,14 @@ export interface AddModelDialogProps {
  * @description 用于向指定供应商添加新模型
  *
  * @param providerId - 供应商ID
- * @param [initialGroup] - 初始分组名称
- * @param [availableGroups] - 可用分组列表
  * @param open - 对话框开启状态
  * @param onOpenChange - 对话框状态变更回调
  * @param [onSuccess] - 成功回调函数
  *
  * @example
- * // 添加模型到指定分组
+ * // 添加模型
  * <AddModelDialog
  *   providerId="provider-123"
- *   initialGroup="GPT系列"
- *   availableGroups={["GPT系列", "Claude系列"]}
  *   open={addDialogOpen}
  *   onOpenChange={setAddDialogOpen}
  *   onSuccess={refreshModels}
@@ -79,26 +72,35 @@ export interface AddModelDialogProps {
  */
 export const AddModelDialog: React.FC<AddModelDialogProps> = ({
   providerId,
-  initialGroup = "",
-  availableGroups = [],
   open,
   onOpenChange,
   onSuccess,
 }) => {
+  // API hooks
+  const { groups, isLoading: groupsLoading } =
+    useGroupsByProviderSWR(providerId);
+  const { create } = useModelsWithActions();
+
+  // 获取默认分组
+  const defaultGroup = groups.find((g) => g.isDefault);
+
   // 状态管理
   const [formData, setFormData] = useState({
     name: "",
     id: "",
-    group: initialGroup,
-    newGroup: "",
+    groupId: defaultGroup?.id || "",
     description: "",
     ownedBy: "",
     types: [] as string[],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // API hooks
-  const { create } = useModelsWithActions();
+  // 当默认分组加载完成时更新表单
+  React.useEffect(() => {
+    if (defaultGroup && !formData.groupId) {
+      setFormData((prev) => ({ ...prev, groupId: defaultGroup.id }));
+    }
+  }, [defaultGroup, formData.groupId]);
 
   /**
    * 重置表单数据
@@ -107,8 +109,7 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
     setFormData({
       name: "",
       id: "",
-      group: initialGroup,
-      newGroup: "",
+      groupId: defaultGroup?.id || "",
       description: "",
       ownedBy: "",
       types: [],
@@ -167,16 +168,10 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isSubmitting || !providerId) return;
+    if (isSubmitting || !providerId || !formData.groupId) return;
     setIsSubmitting(true);
 
     try {
-      // 确定最终的分组名称
-      const finalGroup =
-        formData.group === "新建分组"
-          ? formData.newGroup.trim()
-          : formData.group;
-
       const modelData = {
         name: formData.name.trim(),
         id: formData.id.trim(),
@@ -185,7 +180,7 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
         providers: [
           {
             providerId,
-            group: finalGroup || "未分组",
+            groupId: formData.groupId,
           },
         ],
         isSystem: false,
@@ -217,16 +212,6 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
     }
     onOpenChange(newOpen);
   };
-
-  // 分组选项列表
-  const groupOptions = [
-    ...availableGroups,
-    ...(initialGroup && !availableGroups.includes(initialGroup)
-      ? [initialGroup]
-      : []),
-    "未分组",
-    "新建分组",
-  ];
 
   return (
     <Dialog open={open} onOpenChange={onDialogOpenChange}>
@@ -279,38 +264,33 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
 
             {/* 模型分组 */}
             <div className="space-y-2">
-              <Label htmlFor="group">模型分组</Label>
-              <Select
-                value={formData.group}
-                onValueChange={(value) => onFormDataChange("group", value)}
-              >
-                <SelectTrigger className="focus:ring-brand-primary-500">
-                  <SelectValue placeholder="选择分组" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groupOptions.map((group) => (
-                    <SelectItem key={group} value={group}>
-                      {group}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="group">模型分组 *</Label>
+              {groupsLoading ? (
+                <div className="flex h-10 items-center justify-center rounded-md border">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <Select
+                  value={formData.groupId}
+                  onValueChange={(value) => onFormDataChange("groupId", value)}
+                >
+                  <SelectTrigger className="focus:ring-brand-primary-500">
+                    <SelectValue placeholder="选择分组" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groups.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        {group.name}
+                        {group.isDefault && " (默认)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-xs text-muted-foreground">
+                可在分组管理中创建新分组
+              </p>
             </div>
-
-            {/* 新建分组输入框 */}
-            {formData.group === "新建分组" && (
-              <div className="space-y-2">
-                <Label htmlFor="newGroup">新分组名称 *</Label>
-                <Input
-                  id="newGroup"
-                  value={formData.newGroup}
-                  onChange={(e) => onFormDataChange("newGroup", e.target.value)}
-                  placeholder="请输入新分组名称"
-                  required
-                  className="focus-visible:ring-brand-primary-500"
-                />
-              </div>
-            )}
 
             {/* 模型类型 */}
             <div className="space-y-2">
@@ -414,8 +394,8 @@ export const AddModelDialog: React.FC<AddModelDialogProps> = ({
                 isSubmitting ||
                 !formData.name.trim() ||
                 !formData.id.trim() ||
-                formData.types.length === 0 ||
-                (formData.group === "新建分组" && !formData.newGroup.trim())
+                !formData.groupId ||
+                formData.types.length === 0
               }
               className="bg-brand-primary-500 hover:bg-brand-primary-600"
             >

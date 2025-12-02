@@ -4,8 +4,8 @@ import {
   GroupCreateResult,
   GroupDeleteResult,
   GroupDetailResult,
-  GroupsByProviderResult,
   GroupUpdateResult,
+  GroupsByProviderResult,
   UpdateGroupInput,
 } from "../server/group";
 import { ApiClientConfig, ApiResponse, BaseApiClient } from "./base-client";
