@@ -1,11 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { memo } from "react";
 
 import Image from "next/image";
-
-import { EnabledProvidersResult } from "@mocean/mastra/apiClient";
-import { Model, Provider } from "@mocean/mastra/prismaType";
 
 import { renderProviderAvatar as RenderProviderAvatar } from "@/app/provider/components/CustomerIcon";
 import { getModelLogo } from "@/app/provider/constant";
@@ -22,38 +19,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-/**
- * 模型分组接口
- */
-interface ModelGroup {
-  groupName: string;
-  models: Model[];
-  count: number;
-}
-
-/**
- * 选择项接口
- */
-interface ModelSelection {
-  providerId: string;
-  providerName: string;
-  modelId: string;
-  modelName: string;
-}
-
-/**
- * 组件属性接口
- */
-interface ModelSelectorProps {
-  /** 供应商列表 */
-  providers: EnabledProvidersResult;
-  /** 当前选中的模型 */
-  value?: ModelSelection;
-  /** 选择变更回调 */
-  onChange: (selection: ModelSelection) => void;
-  /** 自定义类名 */
-  className?: string;
-}
+import { ModelSelectorProps, useModelSelector } from "./useModelSelector";
 
 /**
  * 模型选择器组件
@@ -71,103 +37,24 @@ interface ModelSelectorProps {
  * />
  * ```
  */
-/**
- * 按组分组模型
- *
- * @description 将模型列表按模型-供应商分组分组并排序
- * @param models - 模型列表
- * @param groupList - 分组关系列表（从 provider.models 获取）
- * @returns 分组后的模型数组
- */
-const transformModelGroups = ({
-  models,
-  groupList,
-  providerId,
-}: {
-  models: EnabledProvidersResult[0]["modelList"];
-  groupList: {
-    providerId: string;
-    modelId: string;
-    group: string | null;
-  }[];
-  providerId: string;
-}): ModelGroup[] => {
-  if (!models || models.length === 0) return [];
 
-  const groups: Record<string, Model[]> = {};
-
-  models.forEach((model) => {
-    // 根据 groupList 获取分组
-    const groupRelation = groupList.find((g) => g.providerId === providerId);
-    const groupName = groupRelation?.group || "未分组";
-
-    if (!groups[groupName]) {
-      groups[groupName] = [];
-    }
-    groups[groupName].push(model);
-  });
-
-  return Object.entries(groups)
-    .map(([groupName, models]) => ({
-      groupName,
-      models: models.sort((a, b) => a.name.localeCompare(b.name)),
-      count: models.length,
-    }))
-    .sort((a, b) => {
-      if (a.groupName === "未分组") return 1;
-      if (b.groupName === "未分组") return -1;
-      return a.groupName.localeCompare(b.groupName);
-    });
-};
-
-export function ModelSelector({
+const ModelSelectorComponent = ({
   providers,
   value,
   onChange,
   className,
-}: ModelSelectorProps) {
-  const [open, setOpen] = useState(false);
-
-  /**
-   * 缓存所有供应商的分组模型
-   *
-   * @description 使用 useMemo 避免每次渲染都重新计算分组
-   */
-  const providersWithGroups = useMemo(() => {
-    return providers.map((provider) => ({
-      ...provider,
-      modelGroups: transformModelGroups({
-        models: provider.modelList,
-        groupList: provider.models,
-        providerId: provider.id,
-      }),
-    }));
-  }, [providers]);
-
-  /**
-   * 处理模型选择
-   *
-   * @param provider - 供应商信息
-   * @param model - 模型信息
-   */
-  const onSelectModel = (provider: Provider, model: Model) => {
-    onChange({
-      providerId: provider.id,
-      providerName: provider.name,
-      modelId: model.id,
-      modelName: model.name,
-    });
-    setOpen(false);
-  };
-
-  const getProvider = useCallback(() => {
-    if (!value) {
-      return undefined;
-    }
-
-    const provider = providers.find((p) => p.id === value.providerId);
-    return provider;
-  }, [providers, value]);
+}: ModelSelectorProps) => {
+  const {
+    providersWithGroups,
+    open,
+    setOpen,
+    selectedProvider,
+    onSelectModel,
+  } = useModelSelector({
+    providers,
+    value,
+    onChange,
+  });
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -185,7 +72,7 @@ export function ModelSelector({
           {value ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 shrink-0">
-                <RenderProviderAvatar provider={getProvider()} />
+                <RenderProviderAvatar provider={selectedProvider} />
               </div>
               <span className="truncate text-sm font-medium">
                 {value.modelName}
@@ -207,11 +94,7 @@ export function ModelSelector({
           <DropdownMenuSub key={provider.id}>
             <DropdownMenuSubTrigger className="gap-2">
               <div className="h-5 w-5 shrink-0">
-                <RenderProviderAvatar
-                  providerName={provider.name}
-                  width={20}
-                  height={20}
-                />
+                <RenderProviderAvatar provider={provider} />
               </div>
               <span className="font-medium">{provider.name}</span>
             </DropdownMenuSubTrigger>
@@ -282,4 +165,11 @@ export function ModelSelector({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
+
+/**
+ * 导出用 React.memo 包裹的组件，避免不必要的重渲染
+ *
+ * @description 当 props 没有变化时，组件不会重新渲染
+ */
+export const ModelSelector = memo(ModelSelectorComponent);
