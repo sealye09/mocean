@@ -29,7 +29,6 @@ const createProviderSchema = z.object({
   enabled: z.boolean().optional().default(true),
   isSystem: z.boolean().optional().default(false),
   isAuthed: z.boolean().optional().default(false),
-  isNotSupportArrayContent: z.boolean().optional().default(false),
   notes: z.string().nullable().optional(),
 });
 
@@ -55,7 +54,6 @@ const updateProviderSchema = z.object({
   enabled: z.boolean().optional(),
   isSystem: z.boolean().optional(),
   isAuthed: z.boolean().optional(),
-  isNotSupportArrayContent: z.boolean().optional(),
   notes: z.string().nullable().optional(),
 });
 
@@ -133,7 +131,7 @@ const getProviderById = async (id: string) => {
   return {
     ...provider,
     modelList: provider.models.map((m) => ({
-      ...m.model
+      ...m.model,
     })),
   };
 };
@@ -303,7 +301,7 @@ const updateProvider = async (id: string, provider: UpdateProviderInput) => {
   return {
     ...updatedProvider,
     modelList: updatedProvider.models.map((m) => ({
-      ...m.model
+      ...m.model,
     })),
   };
 };
