@@ -311,6 +311,7 @@ export type ModelWhereInput = {
   assistantSettings?: Prisma.AssistantSettingsListRelationFilter
   rerankFor?: Prisma.KnowledgeBaseListRelationFilter
   Topic?: Prisma.TopicListRelationFilter
+  providers?: Prisma.ModelProviderListRelationFilter
 }
 
 export type ModelOrderByWithRelationInput = {
@@ -336,6 +337,7 @@ export type ModelOrderByWithRelationInput = {
   assistantSettings?: Prisma.AssistantSettingsOrderByRelationAggregateInput
   rerankFor?: Prisma.KnowledgeBaseOrderByRelationAggregateInput
   Topic?: Prisma.TopicOrderByRelationAggregateInput
+  providers?: Prisma.ModelProviderOrderByRelationAggregateInput
 }
 
 export type ModelWhereUniqueInput = Prisma.AtLeast<{
@@ -364,6 +366,7 @@ export type ModelWhereUniqueInput = Prisma.AtLeast<{
   assistantSettings?: Prisma.AssistantSettingsListRelationFilter
   rerankFor?: Prisma.KnowledgeBaseListRelationFilter
   Topic?: Prisma.TopicListRelationFilter
+  providers?: Prisma.ModelProviderListRelationFilter
 }, "id">
 
 export type ModelOrderByWithAggregationInput = {
@@ -433,6 +436,7 @@ export type ModelCreateInput = {
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateInput = {
@@ -458,6 +462,7 @@ export type ModelUncheckedCreateInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelUpdateInput = {
@@ -483,6 +488,7 @@ export type ModelUpdateInput = {
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateInput = {
@@ -508,6 +514,7 @@ export type ModelUncheckedUpdateInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelCreateManyInput = {
@@ -756,6 +763,20 @@ export type ModelUpdateOneRequiredWithoutModelGroupsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ModelUpdateToOneWithWhereWithoutModelGroupsInput, Prisma.ModelUpdateWithoutModelGroupsInput>, Prisma.ModelUncheckedUpdateWithoutModelGroupsInput>
 }
 
+export type ModelCreateNestedOneWithoutProvidersInput = {
+  create?: Prisma.XOR<Prisma.ModelCreateWithoutProvidersInput, Prisma.ModelUncheckedCreateWithoutProvidersInput>
+  connectOrCreate?: Prisma.ModelCreateOrConnectWithoutProvidersInput
+  connect?: Prisma.ModelWhereUniqueInput
+}
+
+export type ModelUpdateOneRequiredWithoutProvidersNestedInput = {
+  create?: Prisma.XOR<Prisma.ModelCreateWithoutProvidersInput, Prisma.ModelUncheckedCreateWithoutProvidersInput>
+  connectOrCreate?: Prisma.ModelCreateOrConnectWithoutProvidersInput
+  upsert?: Prisma.ModelUpsertWithoutProvidersInput
+  connect?: Prisma.ModelWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ModelUpdateToOneWithWhereWithoutProvidersInput, Prisma.ModelUpdateWithoutProvidersInput>, Prisma.ModelUncheckedUpdateWithoutProvidersInput>
+}
+
 export type ModelCreateWithoutAssistantsInput = {
   id: string
   name: string
@@ -778,6 +799,7 @@ export type ModelCreateWithoutAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutAssistantsInput = {
@@ -802,6 +824,7 @@ export type ModelUncheckedCreateWithoutAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutAssistantsInput = {
@@ -831,6 +854,7 @@ export type ModelCreateWithoutDefaultForAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutDefaultForAssistantsInput = {
@@ -855,6 +879,7 @@ export type ModelUncheckedCreateWithoutDefaultForAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutDefaultForAssistantsInput = {
@@ -895,6 +920,7 @@ export type ModelUpdateWithoutAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutAssistantsInput = {
@@ -919,6 +945,7 @@ export type ModelUncheckedUpdateWithoutAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUpsertWithoutDefaultForAssistantsInput = {
@@ -954,6 +981,7 @@ export type ModelUpdateWithoutDefaultForAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutDefaultForAssistantsInput = {
@@ -978,6 +1006,7 @@ export type ModelUncheckedUpdateWithoutDefaultForAssistantsInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelCreateWithoutTopicInput = {
@@ -1002,6 +1031,7 @@ export type ModelCreateWithoutTopicInput = {
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutTopicInput = {
@@ -1026,6 +1056,7 @@ export type ModelUncheckedCreateWithoutTopicInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutTopicInput = {
@@ -1066,6 +1097,7 @@ export type ModelUpdateWithoutTopicInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutTopicInput = {
@@ -1090,6 +1122,7 @@ export type ModelUncheckedUpdateWithoutTopicInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelCreateWithoutAssistantSettingsInput = {
@@ -1114,6 +1147,7 @@ export type ModelCreateWithoutAssistantSettingsInput = {
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutAssistantSettingsInput = {
@@ -1138,6 +1172,7 @@ export type ModelUncheckedCreateWithoutAssistantSettingsInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutAssistantSettingsInput = {
@@ -1178,6 +1213,7 @@ export type ModelUpdateWithoutAssistantSettingsInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutAssistantSettingsInput = {
@@ -1202,6 +1238,7 @@ export type ModelUncheckedUpdateWithoutAssistantSettingsInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelCreateWithoutKnowledgeBasesInput = {
@@ -1226,6 +1263,7 @@ export type ModelCreateWithoutKnowledgeBasesInput = {
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutKnowledgeBasesInput = {
@@ -1250,6 +1288,7 @@ export type ModelUncheckedCreateWithoutKnowledgeBasesInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutKnowledgeBasesInput = {
@@ -1279,6 +1318,7 @@ export type ModelCreateWithoutRerankForInput = {
   knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutRerankForInput = {
@@ -1303,6 +1343,7 @@ export type ModelUncheckedCreateWithoutRerankForInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutRerankForInput = {
@@ -1343,6 +1384,7 @@ export type ModelUpdateWithoutKnowledgeBasesInput = {
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutKnowledgeBasesInput = {
@@ -1367,6 +1409,7 @@ export type ModelUncheckedUpdateWithoutKnowledgeBasesInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUpsertWithoutRerankForInput = {
@@ -1402,6 +1445,7 @@ export type ModelUpdateWithoutRerankForInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutRerankForInput = {
@@ -1426,6 +1470,7 @@ export type ModelUncheckedUpdateWithoutRerankForInput = {
   knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
 }
 
 export type ModelCreateWithoutModelGroupsInput = {
@@ -1450,6 +1495,7 @@ export type ModelCreateWithoutModelGroupsInput = {
   assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderCreateNestedManyWithoutModelInput
 }
 
 export type ModelUncheckedCreateWithoutModelGroupsInput = {
@@ -1474,6 +1520,7 @@ export type ModelUncheckedCreateWithoutModelGroupsInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
   Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+  providers?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutModelInput
 }
 
 export type ModelCreateOrConnectWithoutModelGroupsInput = {
@@ -1514,6 +1561,7 @@ export type ModelUpdateWithoutModelGroupsInput = {
   assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUpdateManyWithoutModelNestedInput
 }
 
 export type ModelUncheckedUpdateWithoutModelGroupsInput = {
@@ -1538,6 +1586,123 @@ export type ModelUncheckedUpdateWithoutModelGroupsInput = {
   assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
   rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
   Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
+  providers?: Prisma.ModelProviderUncheckedUpdateManyWithoutModelNestedInput
+}
+
+export type ModelCreateWithoutProvidersInput = {
+  id: string
+  name: string
+  owned_by?: string | null
+  description?: string | null
+  isSystem?: boolean
+  contextLength?: number | null
+  supportsAttachments?: boolean
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  supportsEmbedding?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
+  modelGroups?: Prisma.ModelGroupCreateNestedManyWithoutModelInput
+  assistants?: Prisma.AssistantCreateNestedManyWithoutModelInput
+  defaultForAssistants?: Prisma.AssistantCreateNestedManyWithoutDefaultModelInput
+  knowledgeBases?: Prisma.KnowledgeBaseCreateNestedManyWithoutModelInput
+  assistantSettings?: Prisma.AssistantSettingsCreateNestedManyWithoutDefaultModelInput
+  rerankFor?: Prisma.KnowledgeBaseCreateNestedManyWithoutRerankModelInput
+  Topic?: Prisma.TopicCreateNestedManyWithoutModelInput
+}
+
+export type ModelUncheckedCreateWithoutProvidersInput = {
+  id: string
+  name: string
+  owned_by?: string | null
+  description?: string | null
+  isSystem?: boolean
+  contextLength?: number | null
+  supportsAttachments?: boolean
+  supportsTools?: boolean
+  supportsReasoning?: boolean
+  supportsImage?: boolean
+  supportsAudio?: boolean
+  supportsVideo?: boolean
+  supportsEmbedding?: boolean
+  inputPricePerMillion?: number | null
+  outputPricePerMillion?: number | null
+  modelGroups?: Prisma.ModelGroupUncheckedCreateNestedManyWithoutModelInput
+  assistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutModelInput
+  defaultForAssistants?: Prisma.AssistantUncheckedCreateNestedManyWithoutDefaultModelInput
+  knowledgeBases?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutModelInput
+  assistantSettings?: Prisma.AssistantSettingsUncheckedCreateNestedManyWithoutDefaultModelInput
+  rerankFor?: Prisma.KnowledgeBaseUncheckedCreateNestedManyWithoutRerankModelInput
+  Topic?: Prisma.TopicUncheckedCreateNestedManyWithoutModelInput
+}
+
+export type ModelCreateOrConnectWithoutProvidersInput = {
+  where: Prisma.ModelWhereUniqueInput
+  create: Prisma.XOR<Prisma.ModelCreateWithoutProvidersInput, Prisma.ModelUncheckedCreateWithoutProvidersInput>
+}
+
+export type ModelUpsertWithoutProvidersInput = {
+  update: Prisma.XOR<Prisma.ModelUpdateWithoutProvidersInput, Prisma.ModelUncheckedUpdateWithoutProvidersInput>
+  create: Prisma.XOR<Prisma.ModelCreateWithoutProvidersInput, Prisma.ModelUncheckedCreateWithoutProvidersInput>
+  where?: Prisma.ModelWhereInput
+}
+
+export type ModelUpdateToOneWithWhereWithoutProvidersInput = {
+  where?: Prisma.ModelWhereInput
+  data: Prisma.XOR<Prisma.ModelUpdateWithoutProvidersInput, Prisma.ModelUncheckedUpdateWithoutProvidersInput>
+}
+
+export type ModelUpdateWithoutProvidersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsAttachments?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsEmbedding?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  modelGroups?: Prisma.ModelGroupUpdateManyWithoutModelNestedInput
+  assistants?: Prisma.AssistantUpdateManyWithoutModelNestedInput
+  defaultForAssistants?: Prisma.AssistantUpdateManyWithoutDefaultModelNestedInput
+  knowledgeBases?: Prisma.KnowledgeBaseUpdateManyWithoutModelNestedInput
+  assistantSettings?: Prisma.AssistantSettingsUpdateManyWithoutDefaultModelNestedInput
+  rerankFor?: Prisma.KnowledgeBaseUpdateManyWithoutRerankModelNestedInput
+  Topic?: Prisma.TopicUpdateManyWithoutModelNestedInput
+}
+
+export type ModelUncheckedUpdateWithoutProvidersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  owned_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contextLength?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supportsAttachments?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsTools?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsReasoning?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsAudio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsEmbedding?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  inputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outputPricePerMillion?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  modelGroups?: Prisma.ModelGroupUncheckedUpdateManyWithoutModelNestedInput
+  assistants?: Prisma.AssistantUncheckedUpdateManyWithoutModelNestedInput
+  defaultForAssistants?: Prisma.AssistantUncheckedUpdateManyWithoutDefaultModelNestedInput
+  knowledgeBases?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutModelNestedInput
+  assistantSettings?: Prisma.AssistantSettingsUncheckedUpdateManyWithoutDefaultModelNestedInput
+  rerankFor?: Prisma.KnowledgeBaseUncheckedUpdateManyWithoutRerankModelNestedInput
+  Topic?: Prisma.TopicUncheckedUpdateManyWithoutModelNestedInput
 }
 
 
@@ -1553,6 +1718,7 @@ export type ModelCountOutputType = {
   assistantSettings: number
   rerankFor: number
   Topic: number
+  providers: number
 }
 
 export type ModelCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1563,6 +1729,7 @@ export type ModelCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   assistantSettings?: boolean | ModelCountOutputTypeCountAssistantSettingsArgs
   rerankFor?: boolean | ModelCountOutputTypeCountRerankForArgs
   Topic?: boolean | ModelCountOutputTypeCountTopicArgs
+  providers?: boolean | ModelCountOutputTypeCountProvidersArgs
 }
 
 /**
@@ -1624,6 +1791,13 @@ export type ModelCountOutputTypeCountTopicArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.TopicWhereInput
 }
 
+/**
+ * ModelCountOutputType without action
+ */
+export type ModelCountOutputTypeCountProvidersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ModelProviderWhereInput
+}
+
 
 export type ModelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1648,6 +1822,7 @@ export type ModelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   assistantSettings?: boolean | Prisma.Model$assistantSettingsArgs<ExtArgs>
   rerankFor?: boolean | Prisma.Model$rerankForArgs<ExtArgs>
   Topic?: boolean | Prisma.Model$TopicArgs<ExtArgs>
+  providers?: boolean | Prisma.Model$providersArgs<ExtArgs>
   _count?: boolean | Prisma.ModelCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["model"]>
 
@@ -1714,6 +1889,7 @@ export type ModelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   assistantSettings?: boolean | Prisma.Model$assistantSettingsArgs<ExtArgs>
   rerankFor?: boolean | Prisma.Model$rerankForArgs<ExtArgs>
   Topic?: boolean | Prisma.Model$TopicArgs<ExtArgs>
+  providers?: boolean | Prisma.Model$providersArgs<ExtArgs>
   _count?: boolean | Prisma.ModelCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ModelIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1729,6 +1905,7 @@ export type $ModelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     assistantSettings: Prisma.$AssistantSettingsPayload<ExtArgs>[]
     rerankFor: Prisma.$KnowledgeBasePayload<ExtArgs>[]
     Topic: Prisma.$TopicPayload<ExtArgs>[]
+    providers: Prisma.$ModelProviderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2147,6 +2324,7 @@ export interface Prisma__ModelClient<T, Null = never, ExtArgs extends runtime.Ty
   assistantSettings<T extends Prisma.Model$assistantSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$assistantSettingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssistantSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rerankFor<T extends Prisma.Model$rerankForArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$rerankForArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KnowledgeBasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Topic<T extends Prisma.Model$TopicArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$TopicArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  providers<T extends Prisma.Model$providersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Model$providersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2742,6 +2920,30 @@ export type Model$TopicArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.TopicScalarFieldEnum | Prisma.TopicScalarFieldEnum[]
+}
+
+/**
+ * Model.providers
+ */
+export type Model$providersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ModelProvider
+   */
+  select?: Prisma.ModelProviderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ModelProvider
+   */
+  omit?: Prisma.ModelProviderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ModelProviderInclude<ExtArgs> | null
+  where?: Prisma.ModelProviderWhereInput
+  orderBy?: Prisma.ModelProviderOrderByWithRelationInput | Prisma.ModelProviderOrderByWithRelationInput[]
+  cursor?: Prisma.ModelProviderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ModelProviderScalarFieldEnum | Prisma.ModelProviderScalarFieldEnum[]
 }
 
 /**

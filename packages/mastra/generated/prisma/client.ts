@@ -139,3 +139,8 @@ export type Group = Prisma.GroupModel
  * 
  */
 export type ModelGroup = Prisma.ModelGroupModel
+/**
+ * Model ModelProvider
+ * 
+ */
+export type ModelProvider = Prisma.ModelProviderModel

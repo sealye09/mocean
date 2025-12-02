@@ -121,9 +121,10 @@ model Provider {
   groups      Group[]
   modelGroups ModelGroup[]
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
   Assistant Assistant[]
+  models    ModelProvider[]
 }
 
 // 助手模型
@@ -246,6 +247,7 @@ model Model {
   assistantSettings    AssistantSettings[] @relation("SettingsDefaultModel")
   rerankFor            KnowledgeBase[]     @relation("RerankModel")
   Topic                Topic[]
+  providers            ModelProvider[]
 }
 
 // 助手设置
@@ -457,13 +459,13 @@ model QuickPhrase {
 
 // 分组模型
 model Group {
-  id         String   @id @default(uuid())
+  id         String  @id @default(uuid())
   name       String
   providerId String
-  isDefault  Boolean  @default(false)
+  isDefault  Boolean @default(false)
 
-  provider   Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  models     ModelGroup[]
+  provider Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  models   ModelGroup[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -486,5 +488,18 @@ model ModelGroup {
 
   @@id([modelId, providerId])
   @@index([groupId])
+  @@index([providerId])
+}
+
+model ModelProvider {
+  model      Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  modelId    String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([modelId, providerId])
   @@index([providerId])
 }
