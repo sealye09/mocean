@@ -402,7 +402,8 @@ export const ModelName = {
   MCPResource: 'MCPResource',
   MCPConfigSample: 'MCPConfigSample',
   QuickPhrase: 'QuickPhrase',
-  ModelProvider: 'ModelProvider'
+  Group: 'Group',
+  ModelGroup: 'ModelGroup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "provider" | "assistant" | "agent" | "topic" | "fileType" | "model" | "assistantSettings" | "knowledgeBase" | "knowledgeItem" | "topicKnowledgeBase" | "mCPServer" | "mCPAssistantServer" | "mCPAgentServer" | "mCPTool" | "mCPPrompt" | "mCPResource" | "mCPConfigSample" | "quickPhrase" | "modelProvider"
+    modelProps: "provider" | "assistant" | "agent" | "topic" | "fileType" | "model" | "assistantSettings" | "knowledgeBase" | "knowledgeItem" | "topicKnowledgeBase" | "mCPServer" | "mCPAssistantServer" | "mCPAgentServer" | "mCPTool" | "mCPPrompt" | "mCPResource" | "mCPConfigSample" | "quickPhrase" | "group" | "modelGroup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1754,77 +1755,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ModelProvider: {
-      payload: Prisma.$ModelProviderPayload<ExtArgs>
-      fields: Prisma.ModelProviderFieldRefs
+    Group: {
+      payload: Prisma.$GroupPayload<ExtArgs>
+      fields: Prisma.GroupFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ModelProviderFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload> | null
+          args: Prisma.GroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ModelProviderFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+          args: Prisma.GroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>
         }
         findFirst: {
-          args: Prisma.ModelProviderFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload> | null
+          args: Prisma.GroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ModelProviderFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+          args: Prisma.GroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>
         }
         findMany: {
-          args: Prisma.ModelProviderFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>[]
+          args: Prisma.GroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>[]
         }
         create: {
-          args: Prisma.ModelProviderCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+          args: Prisma.GroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>
         }
         createMany: {
-          args: Prisma.ModelProviderCreateManyArgs<ExtArgs>
+          args: Prisma.GroupCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ModelProviderCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>[]
+          args: Prisma.GroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>[]
         }
         delete: {
-          args: Prisma.ModelProviderDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+          args: Prisma.GroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>
         }
         update: {
-          args: Prisma.ModelProviderUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+          args: Prisma.GroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>
         }
         deleteMany: {
-          args: Prisma.ModelProviderDeleteManyArgs<ExtArgs>
+          args: Prisma.GroupDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ModelProviderUpdateManyArgs<ExtArgs>
+          args: Prisma.GroupUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ModelProviderUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>[]
+          args: Prisma.GroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>[]
         }
         upsert: {
-          args: Prisma.ModelProviderUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelProviderPayload>
+          args: Prisma.GroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupPayload>
         }
         aggregate: {
-          args: Prisma.ModelProviderAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateModelProvider>
+          args: Prisma.GroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGroup>
         }
         groupBy: {
-          args: Prisma.ModelProviderGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ModelProviderGroupByOutputType>[]
+          args: Prisma.GroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GroupGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ModelProviderCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ModelProviderCountAggregateOutputType> | number
+          args: Prisma.GroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GroupCountAggregateOutputType> | number
+        }
+      }
+    }
+    ModelGroup: {
+      payload: Prisma.$ModelGroupPayload<ExtArgs>
+      fields: Prisma.ModelGroupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelGroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelGroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelGroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelGroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>
+        }
+        findMany: {
+          args: Prisma.ModelGroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>[]
+        }
+        create: {
+          args: Prisma.ModelGroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>
+        }
+        createMany: {
+          args: Prisma.ModelGroupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ModelGroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>[]
+        }
+        delete: {
+          args: Prisma.ModelGroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>
+        }
+        update: {
+          args: Prisma.ModelGroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelGroupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelGroupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ModelGroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>[]
+        }
+        upsert: {
+          args: Prisma.ModelGroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelGroupPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelGroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelGroup>
+        }
+        groupBy: {
+          args: Prisma.ModelGroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelGroupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelGroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelGroupCountAggregateOutputType> | number
         }
       }
     }
@@ -2154,13 +2229,27 @@ export const QuickPhraseScalarFieldEnum = {
 export type QuickPhraseScalarFieldEnum = (typeof QuickPhraseScalarFieldEnum)[keyof typeof QuickPhraseScalarFieldEnum]
 
 
-export const ModelProviderScalarFieldEnum = {
-  modelId: 'modelId',
+export const GroupScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
   providerId: 'providerId',
-  group: 'group'
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type ModelProviderScalarFieldEnum = (typeof ModelProviderScalarFieldEnum)[keyof typeof ModelProviderScalarFieldEnum]
+export type GroupScalarFieldEnum = (typeof GroupScalarFieldEnum)[keyof typeof GroupScalarFieldEnum]
+
+
+export const ModelGroupScalarFieldEnum = {
+  modelId: 'modelId',
+  groupId: 'groupId',
+  providerId: 'providerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ModelGroupScalarFieldEnum = (typeof ModelGroupScalarFieldEnum)[keyof typeof ModelGroupScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2376,7 +2465,8 @@ export type GlobalOmitConfig = {
   mCPResource?: Prisma.MCPResourceOmit
   mCPConfigSample?: Prisma.MCPConfigSampleOmit
   quickPhrase?: Prisma.QuickPhraseOmit
-  modelProvider?: Prisma.ModelProviderOmit
+  group?: Prisma.GroupOmit
+  modelGroup?: Prisma.ModelGroupOmit
 }
 
 /* Types for Logging */

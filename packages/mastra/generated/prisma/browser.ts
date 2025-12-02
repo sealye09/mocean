@@ -108,7 +108,12 @@ export type MCPConfigSample = Prisma.MCPConfigSampleModel
  */
 export type QuickPhrase = Prisma.QuickPhraseModel
 /**
- * Model ModelProvider
+ * Model Group
  * 
  */
-export type ModelProvider = Prisma.ModelProviderModel
+export type Group = Prisma.GroupModel
+/**
+ * Model ModelGroup
+ * 
+ */
+export type ModelGroup = Prisma.ModelGroupModel

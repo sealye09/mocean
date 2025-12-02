@@ -106,8 +106,8 @@ model Provider {
   id         String       @id @default(uuid())
   type       ProviderType
   name       String
-  apiKey     String? // 改为可选，默认为空
-  apiHost    String? // 改为可选，从provider.json中获取
+  apiKey     String       @default("")
+  apiHost    String       @default("")
   apiVersion String?
   enabled    Boolean      @default(true)
   isSystem   Boolean      @default(false)
@@ -117,8 +117,9 @@ model Provider {
   modelCount Int?         @default(0) // 模型数量统计
   docsUrl    String? // 文档URL
 
-  // 多对多关系
-  models ModelProvider[]
+  // 一对多关系
+  groups      Group[]
+  modelGroups ModelGroup[]
 
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
@@ -237,7 +238,7 @@ model Model {
   outputPricePerMillion Float? // 输出价格（每百万token）
 
   // 多对多关系
-  providers ModelProvider[]
+  modelGroups ModelGroup[]
 
   assistants           Assistant[]         @relation("AssistantModel")
   defaultForAssistants Assistant[]         @relation("AssistantDefaultModel")
@@ -454,12 +455,36 @@ model QuickPhrase {
   updatedAt DateTime @updatedAt
 }
 
-model ModelProvider {
-  model      Model    @relation(fields: [modelId], references: [id])
-  modelId    String
-  provider   Provider @relation(fields: [providerId], references: [id])
+// 分组模型
+model Group {
+  id         String   @id @default(uuid())
+  name       String
   providerId String
-  group      String?
+  isDefault  Boolean  @default(false)
+
+  provider   Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  models     ModelGroup[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([providerId, name])
+  @@index([providerId])
+}
+
+// 模型-分组关系表
+model ModelGroup {
+  model      Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  modelId    String
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId    String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([modelId, providerId])
+  @@index([groupId])
+  @@index([providerId])
 }

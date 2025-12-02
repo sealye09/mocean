@@ -243,8 +243,8 @@ export type ProviderGroupByOutputType = {
   id: string
   type: $Enums.ProviderType
   name: string
-  apiKey: string | null
-  apiHost: string | null
+  apiKey: string
+  apiHost: string
   apiVersion: string | null
   enabled: boolean
   isSystem: boolean
@@ -284,8 +284,8 @@ export type ProviderWhereInput = {
   id?: Prisma.StringFilter<"Provider"> | string
   type?: Prisma.EnumProviderTypeFilter<"Provider"> | $Enums.ProviderType
   name?: Prisma.StringFilter<"Provider"> | string
-  apiKey?: Prisma.StringNullableFilter<"Provider"> | string | null
-  apiHost?: Prisma.StringNullableFilter<"Provider"> | string | null
+  apiKey?: Prisma.StringFilter<"Provider"> | string
+  apiHost?: Prisma.StringFilter<"Provider"> | string
   apiVersion?: Prisma.StringNullableFilter<"Provider"> | string | null
   enabled?: Prisma.BoolFilter<"Provider"> | boolean
   isSystem?: Prisma.BoolFilter<"Provider"> | boolean
@@ -296,7 +296,8 @@ export type ProviderWhereInput = {
   docsUrl?: Prisma.StringNullableFilter<"Provider"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
-  models?: Prisma.ModelProviderListRelationFilter
+  groups?: Prisma.GroupListRelationFilter
+  modelGroups?: Prisma.ModelGroupListRelationFilter
   Assistant?: Prisma.AssistantListRelationFilter
 }
 
@@ -304,8 +305,8 @@ export type ProviderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiHost?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  apiHost?: Prisma.SortOrder
   apiVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -316,7 +317,8 @@ export type ProviderOrderByWithRelationInput = {
   docsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  models?: Prisma.ModelProviderOrderByRelationAggregateInput
+  groups?: Prisma.GroupOrderByRelationAggregateInput
+  modelGroups?: Prisma.ModelGroupOrderByRelationAggregateInput
   Assistant?: Prisma.AssistantOrderByRelationAggregateInput
 }
 
@@ -327,8 +329,8 @@ export type ProviderWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProviderWhereInput | Prisma.ProviderWhereInput[]
   type?: Prisma.EnumProviderTypeFilter<"Provider"> | $Enums.ProviderType
   name?: Prisma.StringFilter<"Provider"> | string
-  apiKey?: Prisma.StringNullableFilter<"Provider"> | string | null
-  apiHost?: Prisma.StringNullableFilter<"Provider"> | string | null
+  apiKey?: Prisma.StringFilter<"Provider"> | string
+  apiHost?: Prisma.StringFilter<"Provider"> | string
   apiVersion?: Prisma.StringNullableFilter<"Provider"> | string | null
   enabled?: Prisma.BoolFilter<"Provider"> | boolean
   isSystem?: Prisma.BoolFilter<"Provider"> | boolean
@@ -339,7 +341,8 @@ export type ProviderWhereUniqueInput = Prisma.AtLeast<{
   docsUrl?: Prisma.StringNullableFilter<"Provider"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
-  models?: Prisma.ModelProviderListRelationFilter
+  groups?: Prisma.GroupListRelationFilter
+  modelGroups?: Prisma.ModelGroupListRelationFilter
   Assistant?: Prisma.AssistantListRelationFilter
 }, "id">
 
@@ -347,8 +350,8 @@ export type ProviderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiHost?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  apiHost?: Prisma.SortOrder
   apiVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   isSystem?: Prisma.SortOrder
@@ -373,8 +376,8 @@ export type ProviderScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Provider"> | string
   type?: Prisma.EnumProviderTypeWithAggregatesFilter<"Provider"> | $Enums.ProviderType
   name?: Prisma.StringWithAggregatesFilter<"Provider"> | string
-  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
-  apiHost?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
+  apiKey?: Prisma.StringWithAggregatesFilter<"Provider"> | string
+  apiHost?: Prisma.StringWithAggregatesFilter<"Provider"> | string
   apiVersion?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
   enabled?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   isSystem?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
@@ -391,8 +394,8 @@ export type ProviderCreateInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -403,7 +406,8 @@ export type ProviderCreateInput = {
   docsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  models?: Prisma.ModelProviderCreateNestedManyWithoutProviderInput
+  groups?: Prisma.GroupCreateNestedManyWithoutProviderInput
+  modelGroups?: Prisma.ModelGroupCreateNestedManyWithoutProviderInput
   Assistant?: Prisma.AssistantCreateNestedManyWithoutProviderInput
 }
 
@@ -411,8 +415,8 @@ export type ProviderUncheckedCreateInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -423,7 +427,8 @@ export type ProviderUncheckedCreateInput = {
   docsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  models?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutProviderInput
+  groups?: Prisma.GroupUncheckedCreateNestedManyWithoutProviderInput
+  modelGroups?: Prisma.ModelGroupUncheckedCreateNestedManyWithoutProviderInput
   Assistant?: Prisma.AssistantUncheckedCreateNestedManyWithoutProviderInput
 }
 
@@ -431,8 +436,8 @@ export type ProviderUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -443,7 +448,8 @@ export type ProviderUpdateInput = {
   docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  models?: Prisma.ModelProviderUpdateManyWithoutProviderNestedInput
+  groups?: Prisma.GroupUpdateManyWithoutProviderNestedInput
+  modelGroups?: Prisma.ModelGroupUpdateManyWithoutProviderNestedInput
   Assistant?: Prisma.AssistantUpdateManyWithoutProviderNestedInput
 }
 
@@ -451,8 +457,8 @@ export type ProviderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -463,7 +469,8 @@ export type ProviderUncheckedUpdateInput = {
   docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  models?: Prisma.ModelProviderUncheckedUpdateManyWithoutProviderNestedInput
+  groups?: Prisma.GroupUncheckedUpdateManyWithoutProviderNestedInput
+  modelGroups?: Prisma.ModelGroupUncheckedUpdateManyWithoutProviderNestedInput
   Assistant?: Prisma.AssistantUncheckedUpdateManyWithoutProviderNestedInput
 }
 
@@ -471,8 +478,8 @@ export type ProviderCreateManyInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -489,8 +496,8 @@ export type ProviderUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -507,8 +514,8 @@ export type ProviderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -637,26 +644,40 @@ export type ProviderUpdateOneWithoutAssistantNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProviderUpdateToOneWithWhereWithoutAssistantInput, Prisma.ProviderUpdateWithoutAssistantInput>, Prisma.ProviderUncheckedUpdateWithoutAssistantInput>
 }
 
-export type ProviderCreateNestedOneWithoutModelsInput = {
-  create?: Prisma.XOR<Prisma.ProviderCreateWithoutModelsInput, Prisma.ProviderUncheckedCreateWithoutModelsInput>
-  connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutModelsInput
+export type ProviderCreateNestedOneWithoutGroupsInput = {
+  create?: Prisma.XOR<Prisma.ProviderCreateWithoutGroupsInput, Prisma.ProviderUncheckedCreateWithoutGroupsInput>
+  connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutGroupsInput
   connect?: Prisma.ProviderWhereUniqueInput
 }
 
-export type ProviderUpdateOneRequiredWithoutModelsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProviderCreateWithoutModelsInput, Prisma.ProviderUncheckedCreateWithoutModelsInput>
-  connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutModelsInput
-  upsert?: Prisma.ProviderUpsertWithoutModelsInput
+export type ProviderUpdateOneRequiredWithoutGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProviderCreateWithoutGroupsInput, Prisma.ProviderUncheckedCreateWithoutGroupsInput>
+  connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutGroupsInput
+  upsert?: Prisma.ProviderUpsertWithoutGroupsInput
   connect?: Prisma.ProviderWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProviderUpdateToOneWithWhereWithoutModelsInput, Prisma.ProviderUpdateWithoutModelsInput>, Prisma.ProviderUncheckedUpdateWithoutModelsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProviderUpdateToOneWithWhereWithoutGroupsInput, Prisma.ProviderUpdateWithoutGroupsInput>, Prisma.ProviderUncheckedUpdateWithoutGroupsInput>
+}
+
+export type ProviderCreateNestedOneWithoutModelGroupsInput = {
+  create?: Prisma.XOR<Prisma.ProviderCreateWithoutModelGroupsInput, Prisma.ProviderUncheckedCreateWithoutModelGroupsInput>
+  connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutModelGroupsInput
+  connect?: Prisma.ProviderWhereUniqueInput
+}
+
+export type ProviderUpdateOneRequiredWithoutModelGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProviderCreateWithoutModelGroupsInput, Prisma.ProviderUncheckedCreateWithoutModelGroupsInput>
+  connectOrCreate?: Prisma.ProviderCreateOrConnectWithoutModelGroupsInput
+  upsert?: Prisma.ProviderUpsertWithoutModelGroupsInput
+  connect?: Prisma.ProviderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProviderUpdateToOneWithWhereWithoutModelGroupsInput, Prisma.ProviderUpdateWithoutModelGroupsInput>, Prisma.ProviderUncheckedUpdateWithoutModelGroupsInput>
 }
 
 export type ProviderCreateWithoutAssistantInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -667,15 +688,16 @@ export type ProviderCreateWithoutAssistantInput = {
   docsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  models?: Prisma.ModelProviderCreateNestedManyWithoutProviderInput
+  groups?: Prisma.GroupCreateNestedManyWithoutProviderInput
+  modelGroups?: Prisma.ModelGroupCreateNestedManyWithoutProviderInput
 }
 
 export type ProviderUncheckedCreateWithoutAssistantInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -686,7 +708,8 @@ export type ProviderUncheckedCreateWithoutAssistantInput = {
   docsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  models?: Prisma.ModelProviderUncheckedCreateNestedManyWithoutProviderInput
+  groups?: Prisma.GroupUncheckedCreateNestedManyWithoutProviderInput
+  modelGroups?: Prisma.ModelGroupUncheckedCreateNestedManyWithoutProviderInput
 }
 
 export type ProviderCreateOrConnectWithoutAssistantInput = {
@@ -709,8 +732,8 @@ export type ProviderUpdateWithoutAssistantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -721,15 +744,16 @@ export type ProviderUpdateWithoutAssistantInput = {
   docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  models?: Prisma.ModelProviderUpdateManyWithoutProviderNestedInput
+  groups?: Prisma.GroupUpdateManyWithoutProviderNestedInput
+  modelGroups?: Prisma.ModelGroupUpdateManyWithoutProviderNestedInput
 }
 
 export type ProviderUncheckedUpdateWithoutAssistantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -740,15 +764,16 @@ export type ProviderUncheckedUpdateWithoutAssistantInput = {
   docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  models?: Prisma.ModelProviderUncheckedUpdateManyWithoutProviderNestedInput
+  groups?: Prisma.GroupUncheckedUpdateManyWithoutProviderNestedInput
+  modelGroups?: Prisma.ModelGroupUncheckedUpdateManyWithoutProviderNestedInput
 }
 
-export type ProviderCreateWithoutModelsInput = {
+export type ProviderCreateWithoutGroupsInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -759,15 +784,16 @@ export type ProviderCreateWithoutModelsInput = {
   docsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  modelGroups?: Prisma.ModelGroupCreateNestedManyWithoutProviderInput
   Assistant?: Prisma.AssistantCreateNestedManyWithoutProviderInput
 }
 
-export type ProviderUncheckedCreateWithoutModelsInput = {
+export type ProviderUncheckedCreateWithoutGroupsInput = {
   id?: string
   type: $Enums.ProviderType
   name: string
-  apiKey?: string | null
-  apiHost?: string | null
+  apiKey?: string
+  apiHost?: string
   apiVersion?: string | null
   enabled?: boolean
   isSystem?: boolean
@@ -778,31 +804,32 @@ export type ProviderUncheckedCreateWithoutModelsInput = {
   docsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  modelGroups?: Prisma.ModelGroupUncheckedCreateNestedManyWithoutProviderInput
   Assistant?: Prisma.AssistantUncheckedCreateNestedManyWithoutProviderInput
 }
 
-export type ProviderCreateOrConnectWithoutModelsInput = {
+export type ProviderCreateOrConnectWithoutGroupsInput = {
   where: Prisma.ProviderWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProviderCreateWithoutModelsInput, Prisma.ProviderUncheckedCreateWithoutModelsInput>
+  create: Prisma.XOR<Prisma.ProviderCreateWithoutGroupsInput, Prisma.ProviderUncheckedCreateWithoutGroupsInput>
 }
 
-export type ProviderUpsertWithoutModelsInput = {
-  update: Prisma.XOR<Prisma.ProviderUpdateWithoutModelsInput, Prisma.ProviderUncheckedUpdateWithoutModelsInput>
-  create: Prisma.XOR<Prisma.ProviderCreateWithoutModelsInput, Prisma.ProviderUncheckedCreateWithoutModelsInput>
+export type ProviderUpsertWithoutGroupsInput = {
+  update: Prisma.XOR<Prisma.ProviderUpdateWithoutGroupsInput, Prisma.ProviderUncheckedUpdateWithoutGroupsInput>
+  create: Prisma.XOR<Prisma.ProviderCreateWithoutGroupsInput, Prisma.ProviderUncheckedCreateWithoutGroupsInput>
   where?: Prisma.ProviderWhereInput
 }
 
-export type ProviderUpdateToOneWithWhereWithoutModelsInput = {
+export type ProviderUpdateToOneWithWhereWithoutGroupsInput = {
   where?: Prisma.ProviderWhereInput
-  data: Prisma.XOR<Prisma.ProviderUpdateWithoutModelsInput, Prisma.ProviderUncheckedUpdateWithoutModelsInput>
+  data: Prisma.XOR<Prisma.ProviderUpdateWithoutGroupsInput, Prisma.ProviderUncheckedUpdateWithoutGroupsInput>
 }
 
-export type ProviderUpdateWithoutModelsInput = {
+export type ProviderUpdateWithoutGroupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -813,15 +840,16 @@ export type ProviderUpdateWithoutModelsInput = {
   docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  modelGroups?: Prisma.ModelGroupUpdateManyWithoutProviderNestedInput
   Assistant?: Prisma.AssistantUpdateManyWithoutProviderNestedInput
 }
 
-export type ProviderUncheckedUpdateWithoutModelsInput = {
+export type ProviderUncheckedUpdateWithoutGroupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
   apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -832,6 +860,103 @@ export type ProviderUncheckedUpdateWithoutModelsInput = {
   docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  modelGroups?: Prisma.ModelGroupUncheckedUpdateManyWithoutProviderNestedInput
+  Assistant?: Prisma.AssistantUncheckedUpdateManyWithoutProviderNestedInput
+}
+
+export type ProviderCreateWithoutModelGroupsInput = {
+  id?: string
+  type: $Enums.ProviderType
+  name: string
+  apiKey?: string
+  apiHost?: string
+  apiVersion?: string | null
+  enabled?: boolean
+  isSystem?: boolean
+  isAuthed?: boolean
+  notes?: string | null
+  isGateway?: boolean
+  modelCount?: number | null
+  docsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  groups?: Prisma.GroupCreateNestedManyWithoutProviderInput
+  Assistant?: Prisma.AssistantCreateNestedManyWithoutProviderInput
+}
+
+export type ProviderUncheckedCreateWithoutModelGroupsInput = {
+  id?: string
+  type: $Enums.ProviderType
+  name: string
+  apiKey?: string
+  apiHost?: string
+  apiVersion?: string | null
+  enabled?: boolean
+  isSystem?: boolean
+  isAuthed?: boolean
+  notes?: string | null
+  isGateway?: boolean
+  modelCount?: number | null
+  docsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  groups?: Prisma.GroupUncheckedCreateNestedManyWithoutProviderInput
+  Assistant?: Prisma.AssistantUncheckedCreateNestedManyWithoutProviderInput
+}
+
+export type ProviderCreateOrConnectWithoutModelGroupsInput = {
+  where: Prisma.ProviderWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProviderCreateWithoutModelGroupsInput, Prisma.ProviderUncheckedCreateWithoutModelGroupsInput>
+}
+
+export type ProviderUpsertWithoutModelGroupsInput = {
+  update: Prisma.XOR<Prisma.ProviderUpdateWithoutModelGroupsInput, Prisma.ProviderUncheckedUpdateWithoutModelGroupsInput>
+  create: Prisma.XOR<Prisma.ProviderCreateWithoutModelGroupsInput, Prisma.ProviderUncheckedCreateWithoutModelGroupsInput>
+  where?: Prisma.ProviderWhereInput
+}
+
+export type ProviderUpdateToOneWithWhereWithoutModelGroupsInput = {
+  where?: Prisma.ProviderWhereInput
+  data: Prisma.XOR<Prisma.ProviderUpdateWithoutModelGroupsInput, Prisma.ProviderUncheckedUpdateWithoutModelGroupsInput>
+}
+
+export type ProviderUpdateWithoutModelGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
+  apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  groups?: Prisma.GroupUpdateManyWithoutProviderNestedInput
+  Assistant?: Prisma.AssistantUpdateManyWithoutProviderNestedInput
+}
+
+export type ProviderUncheckedUpdateWithoutModelGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  apiKey?: Prisma.StringFieldUpdateOperationsInput | string
+  apiHost?: Prisma.StringFieldUpdateOperationsInput | string
+  apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSystem?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAuthed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGateway?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  modelCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  docsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  groups?: Prisma.GroupUncheckedUpdateManyWithoutProviderNestedInput
   Assistant?: Prisma.AssistantUncheckedUpdateManyWithoutProviderNestedInput
 }
 
@@ -841,12 +966,14 @@ export type ProviderUncheckedUpdateWithoutModelsInput = {
  */
 
 export type ProviderCountOutputType = {
-  models: number
+  groups: number
+  modelGroups: number
   Assistant: number
 }
 
 export type ProviderCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  models?: boolean | ProviderCountOutputTypeCountModelsArgs
+  groups?: boolean | ProviderCountOutputTypeCountGroupsArgs
+  modelGroups?: boolean | ProviderCountOutputTypeCountModelGroupsArgs
   Assistant?: boolean | ProviderCountOutputTypeCountAssistantArgs
 }
 
@@ -863,8 +990,15 @@ export type ProviderCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * ProviderCountOutputType without action
  */
-export type ProviderCountOutputTypeCountModelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ModelProviderWhereInput
+export type ProviderCountOutputTypeCountGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GroupWhereInput
+}
+
+/**
+ * ProviderCountOutputType without action
+ */
+export type ProviderCountOutputTypeCountModelGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ModelGroupWhereInput
 }
 
 /**
@@ -891,7 +1025,8 @@ export type ProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   docsUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  models?: boolean | Prisma.Provider$modelsArgs<ExtArgs>
+  groups?: boolean | Prisma.Provider$groupsArgs<ExtArgs>
+  modelGroups?: boolean | Prisma.Provider$modelGroupsArgs<ExtArgs>
   Assistant?: boolean | Prisma.Provider$AssistantArgs<ExtArgs>
   _count?: boolean | Prisma.ProviderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider"]>
@@ -952,7 +1087,8 @@ export type ProviderSelectScalar = {
 
 export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "name" | "apiKey" | "apiHost" | "apiVersion" | "enabled" | "isSystem" | "isAuthed" | "notes" | "isGateway" | "modelCount" | "docsUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
 export type ProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  models?: boolean | Prisma.Provider$modelsArgs<ExtArgs>
+  groups?: boolean | Prisma.Provider$groupsArgs<ExtArgs>
+  modelGroups?: boolean | Prisma.Provider$modelGroupsArgs<ExtArgs>
   Assistant?: boolean | Prisma.Provider$AssistantArgs<ExtArgs>
   _count?: boolean | Prisma.ProviderCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -962,15 +1098,16 @@ export type ProviderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $ProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Provider"
   objects: {
-    models: Prisma.$ModelProviderPayload<ExtArgs>[]
+    groups: Prisma.$GroupPayload<ExtArgs>[]
+    modelGroups: Prisma.$ModelGroupPayload<ExtArgs>[]
     Assistant: Prisma.$AssistantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     type: $Enums.ProviderType
     name: string
-    apiKey: string | null
-    apiHost: string | null
+    apiKey: string
+    apiHost: string
     apiVersion: string | null
     enabled: boolean
     isSystem: boolean
@@ -1375,7 +1512,8 @@ readonly fields: ProviderFieldRefs;
  */
 export interface Prisma__ProviderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  models<T extends Prisma.Provider$modelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Provider$modelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  groups<T extends Prisma.Provider$groupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Provider$groupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  modelGroups<T extends Prisma.Provider$modelGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Provider$modelGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Assistant<T extends Prisma.Provider$AssistantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Provider$AssistantArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssistantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1807,27 +1945,51 @@ export type ProviderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * Provider.models
+ * Provider.groups
  */
-export type Provider$modelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Provider$groupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ModelProvider
+   * Select specific fields to fetch from the Group
    */
-  select?: Prisma.ModelProviderSelect<ExtArgs> | null
+  select?: Prisma.GroupSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ModelProvider
+   * Omit specific fields from the Group
    */
-  omit?: Prisma.ModelProviderOmit<ExtArgs> | null
+  omit?: Prisma.GroupOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ModelProviderInclude<ExtArgs> | null
-  where?: Prisma.ModelProviderWhereInput
-  orderBy?: Prisma.ModelProviderOrderByWithRelationInput | Prisma.ModelProviderOrderByWithRelationInput[]
-  cursor?: Prisma.ModelProviderWhereUniqueInput
+  include?: Prisma.GroupInclude<ExtArgs> | null
+  where?: Prisma.GroupWhereInput
+  orderBy?: Prisma.GroupOrderByWithRelationInput | Prisma.GroupOrderByWithRelationInput[]
+  cursor?: Prisma.GroupWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ModelProviderScalarFieldEnum | Prisma.ModelProviderScalarFieldEnum[]
+  distinct?: Prisma.GroupScalarFieldEnum | Prisma.GroupScalarFieldEnum[]
+}
+
+/**
+ * Provider.modelGroups
+ */
+export type Provider$modelGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ModelGroup
+   */
+  select?: Prisma.ModelGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ModelGroup
+   */
+  omit?: Prisma.ModelGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ModelGroupInclude<ExtArgs> | null
+  where?: Prisma.ModelGroupWhereInput
+  orderBy?: Prisma.ModelGroupOrderByWithRelationInput | Prisma.ModelGroupOrderByWithRelationInput[]
+  cursor?: Prisma.ModelGroupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ModelGroupScalarFieldEnum | Prisma.ModelGroupScalarFieldEnum[]
 }
 
 /**
