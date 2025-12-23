@@ -38,24 +38,6 @@ export const config = [
     plugins: {
       prettier: prettierPlugin,
     },
-    rules: {
-      'prettier/prettier': [
-        'error',
-        {
-          printWidth: 80,
-          tabWidth: 2,
-          useTabs: false,
-          semi: true,
-          singleQuote: false,
-          trailingComma: 'es5',
-          bracketSpacing: true,
-          arrowParens: 'always',
-          endOfLine: 'auto',
-          quoteProps: 'as-needed',
-          proseWrap: 'always',
-        },
-      ],
-    },
   },
   {
     rules: {
