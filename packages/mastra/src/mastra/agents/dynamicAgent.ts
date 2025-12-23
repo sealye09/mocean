@@ -11,7 +11,7 @@ export const DynamicAgent = new Agent({
 
   instructions: ({ runtimeContext }) => {
     const assistant = (runtimeContext as RuntimeContext<CommonRunTimeType>).get(
-      "assistant",
+      "assistant"
     );
 
     return assistant.prompt;
@@ -19,7 +19,7 @@ export const DynamicAgent = new Agent({
 
   model: ({ runtimeContext }) => {
     const assistant = (runtimeContext as RuntimeContext<CommonRunTimeType>).get(
-      "assistant",
+      "assistant"
     );
 
     const provider = assistant.provider;
@@ -28,20 +28,20 @@ export const DynamicAgent = new Agent({
 
     if (!provider || !provider.apiHost || !provider.apiKey) {
       throw new Error(
-        "Provider API host and key are required to create the model.",
+        "Provider API host and key are required to create the model."
       );
     }
 
     return {
       url: provider.apiHost,
       apiKey: provider.apiKey,
-      id: `${provider.id}/${model.id}`,
+      id: `${provider.id}/${model.id}`
     };
   },
 
   memory: new Memory({
     storage: new LibSQLStore({
-      url: `file:${process.env.MASTRA_DATABASE_URL}`,
+      url: `file:${process.env.MASTRA_DATABASE_URL}`
     }),
     options: {
       lastMessages: 10,
@@ -51,11 +51,11 @@ export const DynamicAgent = new Agent({
           model() {
             const openaiProvider = createOpenAI({
               baseURL: process.env.OPENAI_API_BASE_URL,
-              apiKey: process.env.OPENAI_API_KEY,
+              apiKey: process.env.OPENAI_API_KEY
             });
 
             const model = openaiProvider(
-              process.env.OPENAI_API_MODEL ?? "gpt-4o",
+              process.env.OPENAI_API_MODEL ?? "gpt-4o"
             );
 
             return model;
@@ -73,9 +73,9 @@ export const DynamicAgent = new Agent({
                    7. 只返回标题内容，不要添加任何解释或额外文字
 
                   请根据用户的聊天内容生成合适的标题。`;
-          },
-        },
-      },
-    },
-  }),
+          }
+        }
+      }
+    }
+  })
 });
