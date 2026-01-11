@@ -8,7 +8,11 @@
       "Bash(npx tsc:*)",
       "Bash(pnpm run build:*)",
       "Bash(sqlite3:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(npm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm test:run)"
     ],
     "deny": [],
     "ask": []
