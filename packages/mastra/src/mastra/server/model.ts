@@ -582,27 +582,11 @@ const deleteModel = async (id: string) => {
 };
 
 /**
-
-
-
  * 批量创建模型
-
-
-
  * @description 批量创建多个模型记录
-
-
-
  * @param models - 模型信息数组
-
-
-
  * @returns 创建结果统计
-
-
-
  */
-
 const createManyModels = async (models: CreateModelInput[]) => {
   // 验证所有提供商是否存在
 
@@ -664,27 +648,11 @@ const createManyModels = async (models: CreateModelInput[]) => {
 };
 
 /**
-
-
-
  * 添加模型与提供商的关联
-
-
-
  * @description 为模型添加新的提供商关联（分配到指定分组）
-
-
-
  * @param relation - 模型ID、提供商ID和分组ID
-
-
-
  * @returns 关联关系对象
-
-
-
  */
-
 const addModelProviderRelation = async (relation: ModelProviderRelation) => {
   // 验证模型、提供商和分组是否存在
 
