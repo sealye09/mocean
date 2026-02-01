@@ -12,7 +12,9 @@
       "Bash(npm install:*)",
       "Bash(pnpm add:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm test:run)"
+      "Bash(pnpm test:run)",
+      "mcp__mastra__mastraMigration",
+      "Bash(npx @mastra/codemod@latest v1:*)"
     ],
     "deny": [],
     "ask": []
