@@ -42,6 +42,7 @@ enum ProviderType {
   xai
   xai_cn
   // 其他供应商
+  abacus
   agentrouter
   aihubmix
   amazon_bedrock
@@ -58,8 +59,11 @@ enum ProviderType {
   deepinfra
   fastrouter
   fireworks_ai
+  firmware
+  friendli
   github_copilot
   github_models
+  gitlab
   google_vertex
   google_vertex_anthropic
   helicone
@@ -74,26 +78,37 @@ enum ProviderType {
   lucidquery
   minimax
   minimax_cn
+  minimax_cn_coding_plan
+  minimax_coding_plan
+  moark
   morph
+  nano_gpt
   nebius
+  nova
+  novita_ai
   nvidia
   ollama_cloud
   opencode
   ovhcloud
   perplexity
   poe
+  privatemode_ai
+  provider_302ai
   requesty
   sap_ai_core
   scaleway
   siliconflow
+  siliconflow_cn
   submodel
   synthetic
   togetherai
   upstage
   v0
   venice
+  vivgrid
   vultr
   wandb
+  xiaomi
   zai
   zai_coding_plan
   zenmux
