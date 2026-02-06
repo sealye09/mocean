@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
 import { Loader2 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useProvidersSWR } from "@/hooks/useProvidersSWR";
+import { useProviders } from "@/hooks/useProvidersSWR";
 
 import { ProviderSelect } from "./components/ProviderSelect";
 
@@ -18,21 +18,10 @@ interface ProviderLayoutProps {
  * @description 左侧提供商列表，右侧详细内容的分栏布局
  */
 export default function ProviderLayout({ children }: ProviderLayoutProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const selectedProviderId = searchParams.get("provider");
+  const params = useParams();
+  const selectedProviderId = typeof params.id === "string" ? params.id : null;
 
-  const { providers, isLoading, error } = useProvidersSWR();
-
-  /**
-   * 处理提供商选择变化
-   * @param providerId - 选中的提供商ID
-   */
-  const onProviderChange = (providerId: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("provider", providerId);
-    router.push(`/provider?${params.toString()}`);
-  };
+  const { providers, isLoading, error } = useProviders();
 
   if (isLoading) {
     return (
@@ -71,7 +60,6 @@ export default function ProviderLayout({ children }: ProviderLayoutProps) {
         <ProviderSelect
           providers={providers}
           selectedProviderId={selectedProviderId}
-          onProviderChange={onProviderChange}
         />
       </div>
 

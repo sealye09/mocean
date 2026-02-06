@@ -9,10 +9,14 @@ import type {
   ModelProviderRelationRemoveResult,
   ModelProviderRelationsResult,
   ModelUpdateResult,
+  ModelWithProvidersResult,
   ModelsBatchCreateResult,
   ModelsByGroupResult,
+  ModelsByGroupWithProvidersResult,
   ModelsByProviderResult,
+  ModelsByProviderWithProvidersResult,
   ModelsListResult,
+  ModelsWithProvidersResult,
   UpdateModelInput
 } from "../server/model";
 import type { ApiClientConfig, ApiResponse } from "./base-client";
@@ -27,44 +31,97 @@ export class ModelsApiClient extends BaseApiClient {
     super(config);
   }
 
+  // ==================== 基础版本（不包含关联信息） ====================
+
   /**
-   * 获取所有模型
-   * @description 获取系统中所有可用的模型列表，包含关联的提供商信息
+   * 获取所有模型（基础版本）
+   * @description 获取系统中所有可用的模型列表，不包含关联信息
    */
   async getModels(): Promise<ApiResponse<ModelsListResult>> {
-    return this.get<ModelsListResult>("/models");
+    return this.get<ModelsListResult>("/models/base");
   }
 
   /**
-   * 根据ID获取单个模型
-   * @description 通过模型ID获取特定模型的详细信息
+   * 根据ID获取单个模型（基础版本）
+   * @description 通过模型ID获取特定模型的详细信息，不包含关联信息
    * @param id - 模型的唯一标识符
    */
   async getModelById(id: string): Promise<ApiResponse<ModelDetailResult>> {
-    return this.get<ModelDetailResult>(`/models/${id}`);
+    return this.get<ModelDetailResult>(`/models/base/${id}`);
   }
 
   /**
-   * 根据提供商ID获取模型列表
-   * @description 获取指定提供商下的所有模型
+   * 根据提供商ID获取模型列表（基础版本）
+   * @description 获取指定提供商下的所有模型，不包含关联信息
    * @param providerId - 提供商的唯一标识符
    */
   async getModelsByProvider(
     providerId: string
   ): Promise<ApiResponse<ModelsByProviderResult>> {
-    return this.get<ModelsByProviderResult>(`/models/provider/${providerId}`);
+    return this.get<ModelsByProviderResult>(
+      `/models/base/provider/${providerId}`
+    );
   }
 
   /**
-   * 根据分组获取模型列表
-   * @description 获取指定分组的所有模型
+   * 根据分组获取模型列表（基础版本）
+   * @description 获取指定分组的所有模型，不包含关联信息
    * @param group - 模型分组
    */
   async getModelsByGroup(
     group: string
   ): Promise<ApiResponse<ModelsByGroupResult>> {
-    return this.get<ModelsByGroupResult>(`/models/group/${group}`);
+    return this.get<ModelsByGroupResult>(`/models/base/group/${group}`);
   }
+
+  // ==================== WithProviders 版本（包含提供商信息） ====================
+
+  /**
+   * 获取所有模型（包含提供商信息）
+   * @description 获取系统中所有可用的模型列表，包含关联的提供商信息
+   */
+  async getModelsWithProviders(): Promise<
+    ApiResponse<ModelsWithProvidersResult>
+  > {
+    return this.get<ModelsWithProvidersResult>("/models");
+  }
+
+  /**
+   * 根据ID获取单个模型（包含提供商信息）
+   * @description 通过模型ID获取特定模型的详细信息，包含关联的提供商
+   * @param id - 模型的唯一标识符
+   */
+  async getModelWithProvidersById(
+    id: string
+  ): Promise<ApiResponse<ModelWithProvidersResult>> {
+    return this.get<ModelWithProvidersResult>(`/models/${id}`);
+  }
+
+  /**
+   * 根据提供商ID获取模型列表（包含提供商信息）
+   * @description 获取指定提供商下的所有模型，包含关联的提供商信息
+   * @param providerId - 提供商的唯一标识符
+   */
+  async getModelsByProviderWithProviders(
+    providerId: string
+  ): Promise<ApiResponse<ModelsByProviderWithProvidersResult>> {
+    return this.get<ModelsByProviderWithProvidersResult>(
+      `/models/provider/${providerId}`
+    );
+  }
+
+  /**
+   * 根据分组获取模型列表（包含提供商信息）
+   * @description 获取指定分组的所有模型，包含关联的提供商信息
+   * @param group - 模型分组
+   */
+  async getModelsByGroupWithProviders(
+    group: string
+  ): Promise<ApiResponse<ModelsByGroupWithProvidersResult>> {
+    return this.get<ModelsByGroupWithProvidersResult>(`/models/group/${group}`);
+  }
+
+  // ==================== 修改操作（保持不变） ====================
 
   /**
    * 创建新模型
@@ -165,56 +222,29 @@ export const modelsApi = new ModelsApiClient();
  * @description 提供更简洁的函数调用方式
  */
 export const modelsApiMethods = {
-  /**
-   * 获取所有模型
-   */
+  // 基础版本
   getModels: () => modelsApi.getModels(),
-
-  /**
-   * 根据ID获取模型
-   * @param id - 模型ID
-   */
   getModelById: (id: string) => modelsApi.getModelById(id),
-
-  /**
-   * 根据提供商ID获取模型
-   * @param providerId - 提供商ID
-   */
   getModelsByProvider: (providerId: string) =>
     modelsApi.getModelsByProvider(providerId),
-
-  /**
-   * 根据分组获取模型
-   * @param group - 模型分组
-   */
   getModelsByGroup: (group: string) => modelsApi.getModelsByGroup(group),
 
-  /**
-   * 创建模型
-   * @param modelData - 模型数据
-   */
+  // WithProviders 版本
+  getModelsWithProviders: () => modelsApi.getModelsWithProviders(),
+  getModelWithProvidersById: (id: string) =>
+    modelsApi.getModelWithProvidersById(id),
+  getModelsByProviderWithProviders: (providerId: string) =>
+    modelsApi.getModelsByProviderWithProviders(providerId),
+  getModelsByGroupWithProviders: (group: string) =>
+    modelsApi.getModelsByGroupWithProviders(group),
+
+  // 修改操作
   createModel: (modelData: CreateModelInput) =>
     modelsApi.createModel(modelData),
-
-  /**
-   * 批量创建模型
-   * @param modelsData - 模型数据数组
-   */
   createManyModels: (modelsData: CreateModelInput[]) =>
     modelsApi.createManyModels(modelsData),
-
-  /**
-   * 更新模型
-   * @param id - 模型ID
-   * @param modelData - 更新数据
-   */
   updateModel: (id: string, modelData: UpdateModelInput) =>
     modelsApi.updateModel(id, modelData),
-
-  /**
-   * 删除模型
-   * @param id - 模型ID
-   */
   deleteModel: (id: string) => modelsApi.deleteModel(id)
 };
 
@@ -223,10 +253,19 @@ export const modelsApiMethods = {
  * @description 从 ModelsApiClient 类中提取方法类型，自动保持类型同步
  */
 export type UseModelsApiReturn = {
+  // 基础版本
   getModels: ModelsApiClient["getModels"];
   getModelById: ModelsApiClient["getModelById"];
   getModelsByProvider: ModelsApiClient["getModelsByProvider"];
   getModelsByGroup: ModelsApiClient["getModelsByGroup"];
+
+  // WithProviders 版本
+  getModelsWithProviders: ModelsApiClient["getModelsWithProviders"];
+  getModelWithProvidersById: ModelsApiClient["getModelWithProvidersById"];
+  getModelsByProviderWithProviders: ModelsApiClient["getModelsByProviderWithProviders"];
+  getModelsByGroupWithProviders: ModelsApiClient["getModelsByGroupWithProviders"];
+
+  // 修改操作
   createModel: ModelsApiClient["createModel"];
   createManyModels: ModelsApiClient["createManyModels"];
   updateModel: ModelsApiClient["updateModel"];
@@ -241,9 +280,10 @@ export type UseModelsApiReturn = {
  *
  * @example
  * const api = useModelsApi();
- * const response = await api.getModels();
+ * const response = await api.getModelsWithProviders();
  */
 export const useModelsApi = (): UseModelsApiReturn => ({
+  // 基础版本
   getModels: modelsApi.getModels.bind(
     modelsApi
   ) as ModelsApiClient["getModels"],
@@ -256,6 +296,23 @@ export const useModelsApi = (): UseModelsApiReturn => ({
   getModelsByGroup: modelsApi.getModelsByGroup.bind(
     modelsApi
   ) as ModelsApiClient["getModelsByGroup"],
+
+  // WithProviders 版本
+  getModelsWithProviders: modelsApi.getModelsWithProviders.bind(
+    modelsApi
+  ) as ModelsApiClient["getModelsWithProviders"],
+  getModelWithProvidersById: modelsApi.getModelWithProvidersById.bind(
+    modelsApi
+  ) as ModelsApiClient["getModelWithProvidersById"],
+  getModelsByProviderWithProviders:
+    modelsApi.getModelsByProviderWithProviders.bind(
+      modelsApi
+    ) as ModelsApiClient["getModelsByProviderWithProviders"],
+  getModelsByGroupWithProviders: modelsApi.getModelsByGroupWithProviders.bind(
+    modelsApi
+  ) as ModelsApiClient["getModelsByGroupWithProviders"],
+
+  // 修改操作
   createModel: modelsApi.createModel.bind(
     modelsApi
   ) as ModelsApiClient["createModel"],
