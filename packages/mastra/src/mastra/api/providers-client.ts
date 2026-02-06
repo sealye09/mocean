@@ -2,16 +2,21 @@
 import type { ProviderType } from "generated/prisma/enums";
 
 import type {
-  CreateProviderInput,
-  EnabledProvidersResult,
+  CreateProviderInput, // 基础类型
+  EnabledProvidersResult, // WithModels 类型
+  EnabledProvidersWithModelsResult,
   ProviderCreateResult,
   ProviderDeleteResult,
-  ProviderDetailResult,
+  ProviderResult,
   ProviderToggleResult,
   ProviderUpdateResult,
+  ProviderWithModelsResult,
   ProvidersByModelResult,
+  ProvidersByModelWithModelsResult,
   ProvidersByTypeResult,
-  ProvidersListResult,
+  ProvidersByTypeWithModelsResult,
+  ProvidersResult,
+  ProvidersWithModelsResult,
   UpdateProviderInput
 } from "../server/provider";
 import type { ApiClientConfig, ApiResponse } from "./base-client";
@@ -26,36 +31,36 @@ export class ProvidersApiClient extends BaseApiClient {
     super(config);
   }
 
+  // ==================== 基础版本（不包含关联模型）====================
+
   /**
-   * 获取所有提供商
-   * @description 获取系统中所有可用的提供商列表，包含关联的模型信息
+   * 获取所有提供商（基础版本）
+   * @description 获取系统中所有可用的提供商列表，不包含关联模型
    */
-  async getProviders(): Promise<ApiResponse<ProvidersListResult>> {
-    return this.get<ProvidersListResult>("/providers");
+  async getProviders(): Promise<ApiResponse<ProvidersResult>> {
+    return this.get<ProvidersResult>("/providers");
   }
 
   /**
-   * 获取启用的提供商
-   * @description 获取系统中所有启用状态的提供商列表
+   * 获取启用的提供商（基础版本）
+   * @description 获取系统中所有启用状态的提供商列表，不包含关联模型
    */
   async getEnabledProviders(): Promise<ApiResponse<EnabledProvidersResult>> {
     return this.get<EnabledProvidersResult>("/providers/enabled");
   }
 
   /**
-   * 根据ID获取单个提供商
-   * @description 通过提供商ID获取特定提供商的详细信息，包含关联的模型
+   * 根据ID获取单个提供商（基础版本）
+   * @description 通过提供商ID获取特定提供商的详细信息，不包含关联模型
    * @param id - 提供商的唯一标识符
    */
-  async getProviderById(
-    id: string
-  ): Promise<ApiResponse<ProviderDetailResult>> {
-    return this.get<ProviderDetailResult>(`/providers/${id}`);
+  async getProviderById(id: string): Promise<ApiResponse<ProviderResult>> {
+    return this.get<ProviderResult>(`/providers/${id}`);
   }
 
   /**
-   * 根据类型获取提供商
-   * @description 获取指定类型的所有提供商，包含关联的模型
+   * 根据类型获取提供商（基础版本）
+   * @description 获取指定类型的所有提供商，不包含关联模型
    * @param type - 提供商类型
    */
   async getProvidersByType(
@@ -65,14 +70,71 @@ export class ProvidersApiClient extends BaseApiClient {
   }
 
   /**
-   * 根据模型ID获取提供商列表
-   * @description 获取与指定模型关联的所有提供商
+   * 根据模型ID获取提供商列表（基础版本）
+   * @description 获取与指定模型关联的所有提供商，不包含关联模型
    * @param modelId - 模型的唯一标识符
    */
   async getProvidersByModel(
     modelId: string
   ): Promise<ApiResponse<ProvidersByModelResult>> {
     return this.get<ProvidersByModelResult>(`/providers/by-model/${modelId}`);
+  }
+
+  // ==================== WithModels 版本（包含模型列表）====================
+
+  /**
+   * 获取所有提供商（包含模型列表）
+   * @description 获取系统中所有可用的提供商列表，包含关联的模型信息
+   */
+  async getProvidersWithModels(): Promise<
+    ApiResponse<ProvidersWithModelsResult>
+  > {
+    return this.get<ProvidersWithModelsResult>("/providers");
+  }
+
+  /**
+   * 获取启用的提供商（包含模型列表）
+   * @description 获取系统中所有启用状态的提供商列表，包含关联的模型
+   */
+  async getEnabledProvidersWithModels(): Promise<
+    ApiResponse<EnabledProvidersWithModelsResult>
+  > {
+    return this.get<EnabledProvidersWithModelsResult>("/providers/enabled");
+  }
+
+  /**
+   * 根据ID获取单个提供商（包含模型列表）
+   * @description 通过提供商ID获取特定提供商的详细信息，包含关联的模型
+   * @param id - 提供商的唯一标识符
+   */
+  async getProviderWithModelsById(
+    id: string
+  ): Promise<ApiResponse<ProviderWithModelsResult>> {
+    return this.get<ProviderWithModelsResult>(`/providers/${id}`);
+  }
+
+  /**
+   * 根据类型获取提供商（包含模型列表）
+   * @description 获取指定类型的所有提供商，包含关联的模型
+   * @param type - 提供商类型
+   */
+  async getProvidersByTypeWithModels(
+    type: ProviderType
+  ): Promise<ApiResponse<ProvidersByTypeWithModelsResult>> {
+    return this.get<ProvidersByTypeWithModelsResult>(`/providers/type/${type}`);
+  }
+
+  /**
+   * 根据模型ID获取提供商列表（包含模型列表）
+   * @description 获取与指定模型关联的所有提供商，包含关联的模型
+   * @param modelId - 模型的唯一标识符
+   */
+  async getProvidersByModelWithModels(
+    modelId: string
+  ): Promise<ApiResponse<ProvidersByModelWithModelsResult>> {
+    return this.get<ProvidersByModelWithModelsResult>(
+      `/providers/by-model/${modelId}`
+    );
   }
 
   /**
@@ -130,54 +192,32 @@ export const providersApi = new ProvidersApiClient();
  * @description 提供更简洁的函数调用方式
  */
 export const providersApiMethods = {
-  /**
-   * 获取所有提供商
-   */
+  // 基础版本
   getProviders: () => providersApi.getProviders(),
-
-  /**
-   * 获取启用的提供商
-   */
   getEnabledProviders: () => providersApi.getEnabledProviders(),
-
-  /**
-   * 根据ID获取提供商
-   * @param id - 提供商ID
-   */
   getProviderById: (id: string) => providersApi.getProviderById(id),
-
-  /**
-   * 根据类型获取提供商
-   * @param type - 提供商类型
-   */
   getProvidersByType: (type: ProviderType) =>
     providersApi.getProvidersByType(type),
+  getProvidersByModel: (modelId: string) =>
+    providersApi.getProvidersByModel(modelId),
 
-  /**
-   * 创建提供商
-   * @param providerData - 提供商数据
-   */
+  // WithModels 版本
+  getProvidersWithModels: () => providersApi.getProvidersWithModels(),
+  getEnabledProvidersWithModels: () =>
+    providersApi.getEnabledProvidersWithModels(),
+  getProviderWithModelsById: (id: string) =>
+    providersApi.getProviderWithModelsById(id),
+  getProvidersByTypeWithModels: (type: ProviderType) =>
+    providersApi.getProvidersByTypeWithModels(type),
+  getProvidersByModelWithModels: (modelId: string) =>
+    providersApi.getProvidersByModelWithModels(modelId),
+
+  // 写操作
   createProvider: (providerData: CreateProviderInput) =>
     providersApi.createProvider(providerData),
-
-  /**
-   * 更新提供商
-   * @param id - 提供商ID
-   * @param providerData - 更新数据
-   */
   updateProvider: (id: string, providerData: UpdateProviderInput) =>
     providersApi.updateProvider(id, providerData),
-
-  /**
-   * 删除提供商
-   * @param id - 提供商ID
-   */
   deleteProvider: (id: string) => providersApi.deleteProvider(id),
-
-  /**
-   * 切换提供商启用状态
-   * @param id - 提供商ID
-   */
   toggleProviderEnabled: (id: string) => providersApi.toggleProviderEnabled(id)
 };
 
@@ -187,10 +227,19 @@ export const providersApiMethods = {
  */
 export type UseProvidersApiReturn = Pick<
   ProvidersApiClient,
+  // 基础版本
   | "getProviders"
   | "getEnabledProviders"
   | "getProviderById"
   | "getProvidersByType"
+  | "getProvidersByModel"
+  // WithModels 版本
+  | "getProvidersWithModels"
+  | "getEnabledProvidersWithModels"
+  | "getProviderWithModelsById"
+  | "getProvidersByTypeWithModels"
+  | "getProvidersByModelWithModels"
+  // 写操作
   | "createProvider"
   | "updateProvider"
   | "deleteProvider"
@@ -209,6 +258,7 @@ export type UseProvidersApiReturn = Pick<
  */
 export const useProvidersApi = (): UseProvidersApiReturn => {
   return {
+    // 基础版本
     getProviders: providersApi.getProviders.bind(
       providersApi
     ) as UseProvidersApiReturn["getProviders"],
@@ -221,6 +271,31 @@ export const useProvidersApi = (): UseProvidersApiReturn => {
     getProvidersByType: providersApi.getProvidersByType.bind(
       providersApi
     ) as UseProvidersApiReturn["getProvidersByType"],
+    getProvidersByModel: providersApi.getProvidersByModel.bind(
+      providersApi
+    ) as UseProvidersApiReturn["getProvidersByModel"],
+
+    // WithModels 版本
+    getProvidersWithModels: providersApi.getProvidersWithModels.bind(
+      providersApi
+    ) as UseProvidersApiReturn["getProvidersWithModels"],
+    getEnabledProvidersWithModels:
+      providersApi.getEnabledProvidersWithModels.bind(
+        providersApi
+      ) as UseProvidersApiReturn["getEnabledProvidersWithModels"],
+    getProviderWithModelsById: providersApi.getProviderWithModelsById.bind(
+      providersApi
+    ) as UseProvidersApiReturn["getProviderWithModelsById"],
+    getProvidersByTypeWithModels:
+      providersApi.getProvidersByTypeWithModels.bind(
+        providersApi
+      ) as UseProvidersApiReturn["getProvidersByTypeWithModels"],
+    getProvidersByModelWithModels:
+      providersApi.getProvidersByModelWithModels.bind(
+        providersApi
+      ) as UseProvidersApiReturn["getProvidersByModelWithModels"],
+
+    // 写操作
     createProvider: providersApi.createProvider.bind(
       providersApi
     ) as UseProvidersApiReturn["createProvider"],

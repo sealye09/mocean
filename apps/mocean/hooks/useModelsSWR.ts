@@ -1,4 +1,9 @@
-import type { ModelsByProviderResult } from "@mocean/mastra/apiClient";
+import type {
+  ModelWithProvidersResult,
+  ModelsByGroupWithProvidersResult,
+  ModelsByProviderWithProvidersResult,
+  ModelsWithProvidersResult
+} from "@mocean/mastra/apiClient";
 import { useModelsApi } from "@mocean/mastra/apiClient";
 import { type Model } from "@mocean/mastra/prismaType";
 import useSWR, { type KeyedMutator } from "swr";
@@ -8,26 +13,27 @@ import useSWR, { type KeyedMutator } from "swr";
  * @description 在前端应用层提供带缓存的数据获取功能
  */
 
+// ==================== 基础版本（不包含关联信息） ====================
+
 /**
- * 获取所有模型列表 - 使用 SWR
+ * 获取所有模型列表（基础版本）- 使用 SWR
  */
-export function useModelsSWR() {
+export function useModels() {
   const { getModels } = useModelsApi();
 
   const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
-    "models",
+    "models-base",
     async () => {
       const result = await getModels();
       return result?.data || [];
     },
     {
-      // 配置选项
-      refreshInterval: 0, // 不自动刷新
-      revalidateOnFocus: false, // 焦点时不重新验证
-      revalidateOnReconnect: true, // 重连时重新验证
-      dedupingInterval: 60000, // 60秒内的重复请求会被去重
-      errorRetryCount: 3, // 错误重试次数
-      errorRetryInterval: 5000 // 重试间隔
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000
     }
   );
 
@@ -40,16 +46,13 @@ export function useModelsSWR() {
 }
 
 /**
- * 获取单个模型 - 使用 SWR
+ * 获取单个模型（基础版本）- 使用 SWR
  */
-export function useModelSWR(id: string | null) {
+export function useModel(id: string | null) {
   const { getModelById } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    Model | null,
-    Error | undefined
-  >(
-    id ? `model-${id}` : null,
+  const { data, error, isLoading, mutate } = useSWR<Model | null, Error | undefined>(
+    id ? `model-base-${id}` : null,
     async () => {
       if (!id) return null;
       const result = await getModelById(id);
@@ -72,18 +75,13 @@ export function useModelSWR(id: string | null) {
 }
 
 /**
- * 根据提供商ID获取模型列表 - 使用 SWR
- * @param providerId - 提供商的唯一标识符（为空时不发起请求）
- * @returns 包含模型数据、加载状态、错误信息和刷新方法的对象
+ * 根据提供商ID获取模型列表（基础版本）- 使用 SWR
  */
-export function useModelsByProviderSWR(providerId: string | null) {
+export function useModelsByProvider(providerId: string | null) {
   const { getModelsByProvider } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    ModelsByProviderResult,
-    Error | undefined
-  >(
-    providerId ? `models-provider-${providerId}` : null,
+  const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
+    providerId ? `models-base-provider-${providerId}` : null,
     async () => {
       if (!providerId) return [];
       const result = await getModelsByProvider(providerId);
@@ -93,7 +91,7 @@ export function useModelsByProviderSWR(providerId: string | null) {
       refreshInterval: 0,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 30000, // 30秒内的重复请求会被去重
+      dedupingInterval: 30000,
       errorRetryCount: 3,
       errorRetryInterval: 3000
     }
@@ -108,15 +106,13 @@ export function useModelsByProviderSWR(providerId: string | null) {
 }
 
 /**
- * 根据分组获取模型列表 - 使用 SWR
- * @param group - 模型分组（为空时不发起请求）
- * @returns 包含模型数据、加载状态、错误信息和刷新方法的对象
+ * 根据分组获取模型列表（基础版本）- 使用 SWR
  */
-export function useModelsByGroupSWR(group: string | null) {
+export function useModelsByGroup(group: string | null) {
   const { getModelsByGroup } = useModelsApi();
 
   const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
-    group ? `models-group-${group}` : null,
+    group ? `models-base-group-${group}` : null,
     async () => {
       if (!group) return [];
       const result = await getModelsByGroup(group);
@@ -140,24 +136,145 @@ export function useModelsByGroupSWR(group: string | null) {
   };
 }
 
+// ==================== WithProviders 版本（包含提供商信息） ====================
+
+/**
+ * 获取所有模型列表（包含提供商信息）- 使用 SWR
+ */
+export function useModelsWithProviders() {
+  const { getModelsWithProviders } = useModelsApi();
+
+  const { data, error, isLoading, mutate } = useSWR<ModelsWithProvidersResult, Error | undefined>(
+    "models-with-providers",
+    async () => {
+      const result = await getModelsWithProviders();
+      return result?.data || [];
+    },
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000
+    }
+  );
+
+  return {
+    models: data || [],
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+/**
+ * 获取单个模型（包含提供商信息）- 使用 SWR
+ */
+export function useModelWithProviders(id: string | null) {
+  const { getModelWithProvidersById } = useModelsApi();
+
+  const { data, error, isLoading, mutate } = useSWR<ModelWithProvidersResult | null, Error | undefined>(
+    id ? `model-with-providers-${id}` : null,
+    async () => {
+      if (!id) return null;
+      const result = await getModelWithProvidersById(id);
+      return result?.data || null;
+    },
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000
+    }
+  );
+
+  return {
+    model: data,
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+/**
+ * 根据提供商ID获取模型列表（包含提供商信息）- 使用 SWR
+ */
+export function useModelsByProviderWithProviders(providerId: string | null) {
+  const { getModelsByProviderWithProviders } = useModelsApi();
+
+  const { data, error, isLoading, mutate } = useSWR<ModelsByProviderWithProvidersResult, Error | undefined>(
+    providerId ? `models-provider-with-providers-${providerId}` : null,
+    async () => {
+      if (!providerId) return [];
+      const result = await getModelsByProviderWithProviders(providerId);
+      return result?.data || [];
+    },
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000,
+      errorRetryCount: 3,
+      errorRetryInterval: 3000
+    }
+  );
+
+  return {
+    models: data || [],
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+/**
+ * 根据分组获取模型列表（包含提供商信息）- 使用 SWR
+ */
+export function useModelsByGroupWithProviders(group: string | null) {
+  const { getModelsByGroupWithProviders } = useModelsApi();
+
+  const { data, error, isLoading, mutate } = useSWR<ModelsByGroupWithProvidersResult, Error | undefined>(
+    group ? `models-group-with-providers-${group}` : null,
+    async () => {
+      if (!group) return [];
+      const result = await getModelsByGroupWithProviders(group);
+      return result?.data || [];
+    },
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000,
+      errorRetryCount: 3,
+      errorRetryInterval: 3000
+    }
+  );
+
+  return {
+    models: data || [],
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+// ==================== 增强的 hooks（结合 CRUD 操作和 SWR 缓存） ====================
+
 /**
  * 增强的模型 API hooks - 结合 CRUD 操作和 SWR 缓存
+ * 默认使用 WithProviders 版本
  */
 export function useModelsWithActions(): {
-  models: Model[];
+  models: ModelsWithProvidersResult;
   isLoading: boolean;
   error: Error | undefined;
-  create: (
-    data: Parameters<ReturnType<typeof useModelsApi>["createModel"]>[0]
-  ) => Promise<unknown>;
-  update: (
-    id: string,
-    data: Parameters<ReturnType<typeof useModelsApi>["updateModel"]>[1]
-  ) => Promise<unknown>;
+  create: (data: Parameters<ReturnType<typeof useModelsApi>["createModel"]>[0]) => Promise<unknown>;
+  update: (id: string, data: Parameters<ReturnType<typeof useModelsApi>["updateModel"]>[1]) => Promise<unknown>;
   remove: (id: string) => Promise<unknown>;
-  refresh: KeyedMutator<Model[]>;
+  refresh: KeyedMutator<ModelsWithProvidersResult>;
 } {
-  const { models, isLoading, error, refresh } = useModelsSWR();
+  const { models, isLoading, error, refresh } = useModelsWithProviders();
   const { createModel, updateModel, deleteModel } = useModelsApi();
 
   return {
@@ -171,7 +288,6 @@ export function useModelsWithActions(): {
       try {
         const result = await createModel(data);
         if (result) {
-          // 创建成功后，刷新缓存
           await refresh();
         }
         return result;
@@ -185,7 +301,6 @@ export function useModelsWithActions(): {
       try {
         const result = await updateModel(id, data);
         if (result) {
-          // 更新成功后，刷新缓存
           await refresh();
         }
         return result;
@@ -199,7 +314,6 @@ export function useModelsWithActions(): {
       try {
         const result = await deleteModel(id);
         if (result) {
-          // 删除成功后，刷新缓存
           await refresh();
         }
         return result;

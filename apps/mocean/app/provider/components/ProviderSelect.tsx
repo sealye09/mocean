@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { type Provider } from "@mocean/mastra/prismaType";
 
 import { ItemList } from "@/components/custom/item-list";
@@ -8,37 +10,33 @@ import { renderProviderAvatar } from "./CustomerIcon";
 
 export interface ProviderSelectProps {
   providers: Provider[];
-
   selectedProviderId: string | null;
-
-  onProviderChange: (providerId: string) => void;
-
   className?: string;
 }
 
 /**
-
  * 提供商选择组件
-
  * @description 展示可选的提供商列表，支持搜索和选择
-
+ * @rule client-swr-dedup - 使用客户端导航而非全页刷新
  */
-
 export const ProviderSelect: React.FC<ProviderSelectProps> = ({
   providers,
-
-  selectedProviderId,
-
-  onProviderChange
+  selectedProviderId
 }) => {
+  const router = useRouter();
+
   /**
-
-   * 渲染单个提供商项
-
-   * @param provider - 提供商数据
-
+   * 处理提供商选择
+   * @param providerId - 选中的提供商ID
    */
+  const handleProviderChange = (providerId: string) => {
+    router.push(`/provider/${providerId}`);
+  };
 
+  /**
+   * 渲染单个提供商项
+   * @param provider - 提供商数据
+   */
   const renderProviderItem = (provider: Provider) => {
     const isSelected = selectedProviderId === provider.id;
 
@@ -50,7 +48,7 @@ export const ProviderSelect: React.FC<ProviderSelectProps> = ({
             ? "border border-transparent bg-gradient-brand text-white shadow-lg"
             : "border border-border bg-card hover:border-primary/50 hover:bg-muted/80"
         } group rounded-lg p-3`}
-        onClick={() => onProviderChange(provider.id)}
+        onClick={() => handleProviderChange(provider.id)}
       >
         <div className="flex items-center space-x-3">
           <div
@@ -62,13 +60,16 @@ export const ProviderSelect: React.FC<ProviderSelectProps> = ({
           >
             {renderProviderAvatar({
               provider,
-
               className: "h-6 w-6"
             })}
           </div>
 
           <span
-            className={`text-sm font-medium transition-colors ${isSelected ? "text-white" : "text-foreground group-hover:text-primary"} `}
+            className={`text-sm font-medium transition-colors ${
+              isSelected
+                ? "text-white"
+                : "text-foreground group-hover:text-primary"
+            } `}
           >
             {provider.name}
           </span>
@@ -78,15 +79,10 @@ export const ProviderSelect: React.FC<ProviderSelectProps> = ({
   };
 
   /**
-
    * 提供商搜索过滤函数
-
    * @param provider - 提供商数据
-
    * @param searchTerm - 搜索词
-
    */
-
   const searchFilter = (provider: Provider, searchTerm: string): boolean => {
     const term = searchTerm.toLowerCase();
 
@@ -110,7 +106,6 @@ export const ProviderSelect: React.FC<ProviderSelectProps> = ({
           }}
           emptyState={{
             title: "未找到提供商",
-
             description: "没有找到匹配的提供商"
           }}
           className="h-full"

@@ -10,9 +10,10 @@ import {
   deleteModel,
   getModelById,
   getModelProviderRelations,
-  getModels,
-  getModelsByGroup,
-  getModelsByProvider,
+  getModelWithProvidersById,
+  getModelsByGroupWithProviders,
+  getModelsByProviderWithProviders,
+  getModelsWithProviders,
   groupParamSchema,
   idParamSchema,
   modelProviderRelationSchema,
@@ -24,13 +25,13 @@ import {
 
 /**
  * 获取所有模型的路由处理器
- * @description 返回系统中所有可用的模型列表
+ * @description 返回系统中所有可用的模型列表（包含提供商信息）
  */
 const getModelsRouter = registerApiRoute(`${PREFIX}/models`, {
   method: "GET",
   handler: async () => {
     try {
-      const models = await getModels();
+      const models = await getModelsWithProviders();
       return new Response(JSON.stringify(models), {
         status: 200,
         headers: { "Content-Type": "application/json" }
@@ -49,7 +50,7 @@ const getModelsRouter = registerApiRoute(`${PREFIX}/models`, {
 
 /**
  * 根据ID获取单个模型的路由处理器
- * @description 通过模型ID获取特定模型的详细信息
+ * @description 通过模型ID获取特定模型的详细信息（包含提供商信息）
  * @param c - Mastra上下文对象，包含请求信息
  */
 const getModelByIdRouter = registerApiRoute(`${PREFIX}/models/:id`, {
@@ -61,7 +62,7 @@ const getModelByIdRouter = registerApiRoute(`${PREFIX}/models/:id`, {
         id: c.req.param("id")
       });
 
-      const model = await getModelById(id);
+      const model = await getModelWithProvidersById(id);
 
       if (!model) {
         return new Response(JSON.stringify({ error: "模型不存在" }), {
@@ -97,7 +98,7 @@ const getModelByIdRouter = registerApiRoute(`${PREFIX}/models/:id`, {
 
 /**
  * 根据提供商ID获取模型的路由处理器
- * @description 通过提供商ID获取对应的模型列表
+ * @description 通过提供商ID获取对应的模型列表（包含提供商信息）
  * @param c - Mastra上下文对象，包含请求信息
  */
 const getModelsByProviderRouter = registerApiRoute(
@@ -111,7 +112,7 @@ const getModelsByProviderRouter = registerApiRoute(
           providerId: c.req.param("providerId")
         });
 
-        const models = await getModelsByProvider(providerId);
+        const models = await getModelsByProviderWithProviders(providerId);
         return new Response(JSON.stringify(models), {
           status: 200,
           headers: { "Content-Type": "application/json" }
@@ -143,7 +144,7 @@ const getModelsByProviderRouter = registerApiRoute(
 
 /**
  * 根据分组获取模型的路由处理器
- * @description 通过模型分组获取对应的模型列表
+ * @description 通过模型分组获取对应的模型列表（包含提供商信息）
  * @param c - Mastra上下文对象，包含请求信息
  */
 const getModelsByGroupRouter = registerApiRoute(
@@ -157,7 +158,7 @@ const getModelsByGroupRouter = registerApiRoute(
           group: c.req.param("group")
         });
 
-        const models = await getModelsByGroup(group);
+        const models = await getModelsByGroupWithProviders(group);
         return new Response(JSON.stringify(models), {
           status: 200,
           headers: { "Content-Type": "application/json" }

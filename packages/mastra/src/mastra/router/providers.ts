@@ -6,11 +6,11 @@ import {
   createProvider,
   createProviderSchema,
   deleteProvider,
-  getEnabledProviders,
-  getProviderById,
-  getProviders,
-  getProvidersByModel,
-  getProvidersByType,
+  getEnabledProvidersWithModels,
+  getProviderWithModelsById,
+  getProvidersByModelWithModels,
+  getProvidersByTypeWithModels,
+  getProvidersWithModels,
   idParamSchema,
   toggleProviderEnabled,
   typeParamSchema,
@@ -26,7 +26,7 @@ const getProvidersRouter = registerApiRoute(`${PREFIX}/providers`, {
   method: "GET",
   handler: async () => {
     try {
-      const providers = await getProviders();
+      const providers = await getProvidersWithModels();
       return new Response(JSON.stringify(providers), {
         status: 200,
         headers: { "Content-Type": "application/json" }
@@ -53,7 +53,7 @@ const getEnabledProvidersRouter = registerApiRoute(
     method: "GET",
     handler: async () => {
       try {
-        const providers = await getEnabledProviders();
+        const providers = await getEnabledProvidersWithModels();
         return new Response(JSON.stringify(providers), {
           status: 200,
           headers: { "Content-Type": "application/json" }
@@ -85,7 +85,7 @@ const getProviderByIdRouter = registerApiRoute(`${PREFIX}/providers/:id`, {
         id: c.req.param("id")
       });
 
-      const provider = await getProviderById(id);
+      const provider = await getProviderWithModelsById(id);
 
       if (!provider) {
         return new Response(JSON.stringify({ error: "提供商不存在" }), {
@@ -138,7 +138,7 @@ const getProvidersByTypeRouter = registerApiRoute(
           type: c.req.param("type")
         });
 
-        const providers = await getProvidersByType(type);
+        const providers = await getProvidersByTypeWithModels(type);
         return new Response(JSON.stringify(providers), {
           status: 200,
           headers: { "Content-Type": "application/json" }
@@ -428,7 +428,7 @@ const getProvidersByModelRouter = registerApiRoute(
           });
         }
 
-        const providers = await getProvidersByModel(modelId);
+        const providers = await getProvidersByModelWithModels(modelId);
         return new Response(JSON.stringify(providers), {
           status: 200,
           headers: { "Content-Type": "application/json" }

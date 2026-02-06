@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { EnabledProvidersResult } from "@mocean/mastra/apiClient";
+import { EnabledProvidersWithModelsResult } from "@mocean/mastra/apiClient";
 import { Model, Provider } from "@mocean/mastra/prismaType";
 
 /**
@@ -27,7 +27,7 @@ interface ModelSelection {
  */
 export interface ModelSelectorProps {
   /** 供应商列表 */
-  providers: EnabledProvidersResult;
+  providers: EnabledProvidersWithModelsResult;
   /** 当前选中的模型 */
   value?: ModelSelection;
   /** 选择变更回调 */
@@ -56,7 +56,7 @@ export const useModelSelector = ({
       models,
       groupList,
     }: {
-      models: EnabledProvidersResult[0]["modelList"];
+      models: EnabledProvidersWithModelsResult[0]["_modelRelations"];
       groupList: {
         providerId: string;
         modelId: string;
@@ -102,8 +102,8 @@ export const useModelSelector = ({
     return providers.map((provider) => ({
       ...provider,
       modelGroups: transformModelGroups({
-        models: provider.modelList,
-        groupList: provider.models,
+        models: provider.models,
+        groupList: provider._modelRelations,
       }),
     }));
   }, [providers, transformModelGroups]);

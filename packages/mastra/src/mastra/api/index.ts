@@ -92,11 +92,19 @@ export {
 export {
   type CreateProviderInput,
   type UpdateProviderInput,
-  type ProvidersListResult,
+  // 基础类型（不包含关联模型）
+  type ProviderResult,
+  type ProvidersResult,
   type EnabledProvidersResult,
-  type ProviderDetailResult,
   type ProvidersByTypeResult,
   type ProvidersByModelResult,
+  // 带模型列表的类型（models 字段为展开的 Model 数组）
+  type ProviderWithModelsResult,
+  type ProvidersWithModelsResult,
+  type EnabledProvidersWithModelsResult,
+  type ProvidersByTypeWithModelsResult,
+  type ProvidersByModelWithModelsResult,
+  // 写操作返回类型
   type ProviderCreateResult,
   type ProviderUpdateResult,
   type ProviderDeleteResult,
@@ -115,10 +123,17 @@ export {
 export {
   type CreateModelInput,
   type UpdateModelInput,
+  // 基础类型（不包含关联信息）
   type ModelsListResult,
   type ModelDetailResult,
   type ModelsByProviderResult,
   type ModelsByGroupResult,
+  // 带提供商信息的类型
+  type ModelsWithProvidersResult,
+  type ModelWithProvidersResult,
+  type ModelsByProviderWithProvidersResult,
+  type ModelsByGroupWithProvidersResult,
+  // 写操作返回类型
   type ModelCreateResult,
   type ModelUpdateResult,
   type ModelDeleteResult,
