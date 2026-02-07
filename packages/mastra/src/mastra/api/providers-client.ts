@@ -89,7 +89,7 @@ export class ProvidersApiClient extends BaseApiClient {
   async getProvidersWithModels(): Promise<
     ApiResponse<ProvidersWithModelsResult>
   > {
-    return this.get<ProvidersWithModelsResult>("/providers");
+    return this.get<ProvidersWithModelsResult>("/providers/with-models");
   }
 
   /**
@@ -99,7 +99,9 @@ export class ProvidersApiClient extends BaseApiClient {
   async getEnabledProvidersWithModels(): Promise<
     ApiResponse<EnabledProvidersWithModelsResult>
   > {
-    return this.get<EnabledProvidersWithModelsResult>("/providers/enabled");
+    return this.get<EnabledProvidersWithModelsResult>(
+      "/providers/enabled/with-models"
+    );
   }
 
   /**
@@ -110,7 +112,7 @@ export class ProvidersApiClient extends BaseApiClient {
   async getProviderWithModelsById(
     id: string
   ): Promise<ApiResponse<ProviderWithModelsResult>> {
-    return this.get<ProviderWithModelsResult>(`/providers/${id}`);
+    return this.get<ProviderWithModelsResult>(`/providers/${id}/with-models`);
   }
 
   /**
@@ -121,7 +123,9 @@ export class ProvidersApiClient extends BaseApiClient {
   async getProvidersByTypeWithModels(
     type: ProviderType
   ): Promise<ApiResponse<ProvidersByTypeWithModelsResult>> {
-    return this.get<ProvidersByTypeWithModelsResult>(`/providers/type/${type}`);
+    return this.get<ProvidersByTypeWithModelsResult>(
+      `/providers/type/${type}/with-models`
+    );
   }
 
   /**
@@ -133,7 +137,7 @@ export class ProvidersApiClient extends BaseApiClient {
     modelId: string
   ): Promise<ApiResponse<ProvidersByModelWithModelsResult>> {
     return this.get<ProvidersByModelWithModelsResult>(
-      `/providers/by-model/${modelId}`
+      `/providers/by-model/${modelId}/with-models`
     );
   }
 
