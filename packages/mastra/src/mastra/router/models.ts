@@ -11,7 +11,10 @@ import {
   getModelById,
   getModelProviderRelations,
   getModelWithProvidersById,
+  getModels,
+  getModelsByGroup,
   getModelsByGroupWithProviders,
+  getModelsByProvider,
   getModelsByProviderWithProviders,
   getModelsWithProviders,
   groupParamSchema,
@@ -24,14 +27,14 @@ import {
 } from "../server/model";
 
 /**
- * 获取所有模型的路由处理器
- * @description 返回系统中所有可用的模型列表（包含提供商信息）
+ * 获取所有模型的路由处理器（基础版本）
+ * @description 返回系统中所有可用的模型列表，不包含关联信息
  */
 const getModelsRouter = registerApiRoute(`${PREFIX}/models`, {
   method: "GET",
   handler: async () => {
     try {
-      const models = await getModelsWithProviders();
+      const models = await getModels();
       return new Response(JSON.stringify(models), {
         status: 200,
         headers: { "Content-Type": "application/json" }
@@ -49,20 +52,46 @@ const getModelsRouter = registerApiRoute(`${PREFIX}/models`, {
 });
 
 /**
- * 根据ID获取单个模型的路由处理器
- * @description 通过模型ID获取特定模型的详细信息（包含提供商信息）
- * @param c - Mastra上下文对象，包含请求信息
+ * 获取所有模型的路由处理器（包含提供商信息）
+ * @description 返回系统中所有可用的模型列表，包含关联的提供商信息
+ */
+const getModelsWithProvidersRouter = registerApiRoute(
+  `${PREFIX}/models/with-providers`,
+  {
+    method: "GET",
+    handler: async () => {
+      try {
+        const models = await getModelsWithProviders();
+        return new Response(JSON.stringify(models), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ error, message: "获取模型列表失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      }
+    }
+  }
+);
+
+/**
+ * 根据ID获取单个模型的路由处理器（基础版本）
+ * @description 通过模型ID获取特定模型的详细信息，不包含关联信息
  */
 const getModelByIdRouter = registerApiRoute(`${PREFIX}/models/:id`, {
   method: "GET",
   handler: async (c) => {
     try {
-      // 参数校验
       const { id } = idParamSchema.parse({
         id: c.req.param("id")
       });
 
-      const model = await getModelWithProvidersById(id);
+      const model = await getModelById(id);
 
       if (!model) {
         return new Response(JSON.stringify({ error: "模型不存在" }), {
@@ -97,17 +126,111 @@ const getModelByIdRouter = registerApiRoute(`${PREFIX}/models/:id`, {
 });
 
 /**
- * 根据提供商ID获取模型的路由处理器
- * @description 通过提供商ID获取对应的模型列表（包含提供商信息）
- * @param c - Mastra上下文对象，包含请求信息
+ * 根据ID获取单个模型的路由处理器（包含提供商信息）
+ * @description 通过模型ID获取特定模型的详细信息，包含关联的提供商
  */
-const getModelsByProviderRouter = registerApiRoute(
-  `${PREFIX}/models/provider/:providerId`,
+const getModelWithProvidersByIdRouter = registerApiRoute(
+  `${PREFIX}/models/:id/with-providers`,
   {
     method: "GET",
     handler: async (c) => {
       try {
-        // 参数校验
+        const { id } = idParamSchema.parse({
+          id: c.req.param("id")
+        });
+
+        const model = await getModelWithProvidersById(id);
+
+        if (!model) {
+          return new Response(JSON.stringify({ error: "模型不存在" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+
+        return new Response(JSON.stringify(model), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.issues
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        }
+        return new Response(
+          JSON.stringify({ error, message: "获取模型失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      }
+    }
+  }
+);
+
+/**
+ * 根据提供商ID获取模型的路由处理器（基础版本）
+ * @description 通过提供商ID获取对应的模型列表，不包含关联信息
+ */
+const getModelsByProviderRouter = registerApiRoute(
+  `${PREFIX}/models/by-provider/:providerId`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
+        const { providerId } = providerParamSchema.parse({
+          providerId: c.req.param("providerId")
+        });
+
+        const models = await getModelsByProvider(providerId);
+        return new Response(JSON.stringify(models), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.issues
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        }
+        return new Response(
+          JSON.stringify({ error, message: "获取模型失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      }
+    }
+  }
+);
+
+/**
+ * 根据提供商ID获取模型的路由处理器（包含提供商信息）
+ * @description 通过提供商ID获取对应的模型列表，包含关联的提供商
+ */
+const getModelsByProviderWithProvidersRouter = registerApiRoute(
+  `${PREFIX}/models/by-provider/:providerId/with-providers`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
         const { providerId } = providerParamSchema.parse({
           providerId: c.req.param("providerId")
         });
@@ -143,9 +266,8 @@ const getModelsByProviderRouter = registerApiRoute(
 );
 
 /**
- * 根据分组获取模型的路由处理器
- * @description 通过模型分组获取对应的模型列表（包含提供商信息）
- * @param c - Mastra上下文对象，包含请求信息
+ * 根据分组获取模型的路由处理器（基础版本）
+ * @description 通过模型分组获取对应的模型列表，不包含关联信息
  */
 const getModelsByGroupRouter = registerApiRoute(
   `${PREFIX}/models/group/:group`,
@@ -153,7 +275,50 @@ const getModelsByGroupRouter = registerApiRoute(
     method: "GET",
     handler: async (c) => {
       try {
-        // 参数校验
+        const { group } = groupParamSchema.parse({
+          group: c.req.param("group")
+        });
+
+        const models = await getModelsByGroup(group);
+        return new Response(JSON.stringify(models), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return new Response(
+            JSON.stringify({
+              error: "参数校验失败",
+              details: error.issues
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        }
+        return new Response(
+          JSON.stringify({ error, message: "获取模型失败" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      }
+    }
+  }
+);
+
+/**
+ * 根据分组获取模型的路由处理器（包含提供商信息）
+ * @description 通过模型分组获取对应的模型列表，包含关联的提供商
+ */
+const getModelsByGroupWithProvidersRouter = registerApiRoute(
+  `${PREFIX}/models/group/:group/with-providers`,
+  {
+    method: "GET",
+    handler: async (c) => {
+      try {
         const { group } = groupParamSchema.parse({
           group: c.req.param("group")
         });
@@ -543,14 +708,22 @@ const getModelProviderRelationsRouter = registerApiRoute(
 
 // 导出所有路由
 const modelsRouter = [
+  // 基础版本（不包含关联信息）
   getModelsRouter,
   getModelByIdRouter,
   getModelsByProviderRouter,
   getModelsByGroupRouter,
+  // WithProviders 版本（包含提供商信息）
+  getModelsWithProvidersRouter,
+  getModelWithProvidersByIdRouter,
+  getModelsByProviderWithProvidersRouter,
+  getModelsByGroupWithProvidersRouter,
+  // 写操作
   createModelRouter,
   createManyModelsRouter,
   updateModelRouter,
   deleteModelRouter,
+  // 关联操作
   addModelProviderRelationRouter,
   removeModelProviderRelationRouter,
   getModelProviderRelationsRouter

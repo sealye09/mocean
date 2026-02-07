@@ -38,7 +38,7 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 获取系统中所有可用的模型列表，不包含关联信息
    */
   async getModels(): Promise<ApiResponse<ModelsListResult>> {
-    return this.get<ModelsListResult>("/models/base");
+    return this.get<ModelsListResult>("/models");
   }
 
   /**
@@ -47,7 +47,7 @@ export class ModelsApiClient extends BaseApiClient {
    * @param id - 模型的唯一标识符
    */
   async getModelById(id: string): Promise<ApiResponse<ModelDetailResult>> {
-    return this.get<ModelDetailResult>(`/models/base/${id}`);
+    return this.get<ModelDetailResult>(`/models/${id}`);
   }
 
   /**
@@ -59,7 +59,7 @@ export class ModelsApiClient extends BaseApiClient {
     providerId: string
   ): Promise<ApiResponse<ModelsByProviderResult>> {
     return this.get<ModelsByProviderResult>(
-      `/models/base/provider/${providerId}`
+      `/models/by-provider/${providerId}`
     );
   }
 
@@ -71,7 +71,7 @@ export class ModelsApiClient extends BaseApiClient {
   async getModelsByGroup(
     group: string
   ): Promise<ApiResponse<ModelsByGroupResult>> {
-    return this.get<ModelsByGroupResult>(`/models/base/group/${group}`);
+    return this.get<ModelsByGroupResult>(`/models/group/${group}`);
   }
 
   // ==================== WithProviders 版本（包含提供商信息） ====================
@@ -83,7 +83,7 @@ export class ModelsApiClient extends BaseApiClient {
   async getModelsWithProviders(): Promise<
     ApiResponse<ModelsWithProvidersResult>
   > {
-    return this.get<ModelsWithProvidersResult>("/models");
+    return this.get<ModelsWithProvidersResult>("/models/with-providers");
   }
 
   /**
@@ -94,7 +94,7 @@ export class ModelsApiClient extends BaseApiClient {
   async getModelWithProvidersById(
     id: string
   ): Promise<ApiResponse<ModelWithProvidersResult>> {
-    return this.get<ModelWithProvidersResult>(`/models/${id}`);
+    return this.get<ModelWithProvidersResult>(`/models/${id}/with-providers`);
   }
 
   /**
@@ -106,7 +106,7 @@ export class ModelsApiClient extends BaseApiClient {
     providerId: string
   ): Promise<ApiResponse<ModelsByProviderWithProvidersResult>> {
     return this.get<ModelsByProviderWithProvidersResult>(
-      `/models/provider/${providerId}`
+      `/models/by-provider/${providerId}/with-providers`
     );
   }
 
@@ -118,7 +118,7 @@ export class ModelsApiClient extends BaseApiClient {
   async getModelsByGroupWithProviders(
     group: string
   ): Promise<ApiResponse<ModelsByGroupWithProvidersResult>> {
-    return this.get<ModelsByGroupWithProvidersResult>(`/models/group/${group}`);
+    return this.get<ModelsByGroupWithProvidersResult>(`/models/group/${group}/with-providers`);
   }
 
   // ==================== 修改操作（保持不变） ====================

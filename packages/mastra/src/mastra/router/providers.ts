@@ -1,4 +1,5 @@
-import { registerApiRoute } from "@mastra/core/server";
+import { createRoute } from "@mastra/server/server-adapter";
+import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
 import { PREFIX } from "../api/base-client";
@@ -6,9 +7,14 @@ import {
   createProvider,
   createProviderSchema,
   deleteProvider,
+  getEnabledProviders,
   getEnabledProvidersWithModels,
+  getProviderById,
   getProviderWithModelsById,
+  getProviders,
+  getProvidersByModel,
   getProvidersByModelWithModels,
+  getProvidersByType,
   getProvidersByTypeWithModels,
   getProvidersWithModels,
   idParamSchema,
@@ -18,334 +24,282 @@ import {
   updateProviderSchema
 } from "../server/provider";
 
+// 定义 modelId 路径参数 schema
+const modelIdParamSchema = z.object({
+  modelId: z.string().min(1, "模型ID不能为空")
+});
+
 /**
- * 获取所有提供商的路由处理器
- * @description 返回系统中所有可用的提供商列表
+ * 获取所有提供商的路由处理器（基础版本）
+ * @description 返回系统中所有可用的提供商列表，不包含关联模型
  */
-const getProvidersRouter = registerApiRoute(`${PREFIX}/providers`, {
+const getProvidersRouter = createRoute({
   method: "GET",
+  path: `${PREFIX}/providers`,
+  responseType: "json",
+  summary: "获取所有提供商",
+  description: "返回系统中所有可用的提供商列表，不包含关联模型",
+  tags: ["Providers"],
   handler: async () => {
-    try {
-      const providers = await getProvidersWithModels();
-      return new Response(JSON.stringify(providers), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error) {
-      return new Response(
-        JSON.stringify({ error, message: "获取提供商列表失败" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
+    return await getProviders();
   }
 });
 
 /**
- * 获取启用的提供商的路由处理器
- * @description 返回系统中所有启用状态的提供商列表
+ * 获取所有提供商的路由处理器（包含模型列表）
+ * @description 返回系统中所有可用的提供商列表，包含关联的模型信息
  */
-const getEnabledProvidersRouter = registerApiRoute(
-  `${PREFIX}/providers/enabled`,
-  {
-    method: "GET",
-    handler: async () => {
-      try {
-        const providers = await getEnabledProvidersWithModels();
-        return new Response(JSON.stringify(providers), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
-      } catch (error) {
-        return new Response(
-          JSON.stringify({ error, message: "获取启用提供商列表失败" }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
-    }
-  }
-);
-
-/**
- * 根据ID获取单个提供商的路由处理器
- * @description 通过提供商ID获取特定提供商的详细信息
- * @param c - Mastra上下文对象，包含请求信息
- */
-const getProviderByIdRouter = registerApiRoute(`${PREFIX}/providers/:id`, {
+const getProvidersWithModelsRouter = createRoute({
   method: "GET",
-  handler: async (c) => {
-    try {
-      // 参数校验
-      const { id } = idParamSchema.parse({
-        id: c.req.param("id")
-      });
-
-      const provider = await getProviderWithModelsById(id);
-
-      if (!provider) {
-        return new Response(JSON.stringify({ error: "提供商不存在" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
-
-      return new Response(JSON.stringify(provider), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            details: error.issues
-          }),
-          {
-            status: 400,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
-      return new Response(
-        JSON.stringify({ error, message: "获取提供商失败" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
+  path: `${PREFIX}/providers/with-models`,
+  responseType: "json",
+  summary: "获取所有提供商（包含模型列表）",
+  description: "返回系统中所有可用的提供商列表，包含关联的模型信息",
+  tags: ["Providers"],
+  handler: async () => {
+    return await getProvidersWithModels();
   }
 });
 
 /**
- * 根据类型获取提供商的路由处理器
- * @description 通过提供商类型获取对应的提供商列表
- * @param c - Mastra上下文对象，包含请求信息
+ * 获取启用的提供商的路由处理器（基础版本）
+ * @description 返回系统中所有启用状态的提供商列表，不包含关联模型
  */
-const getProvidersByTypeRouter = registerApiRoute(
-  `${PREFIX}/providers/type/:type`,
-  {
-    method: "GET",
-    handler: async (c) => {
-      try {
-        // 参数校验
-        const { type } = typeParamSchema.parse({
-          type: c.req.param("type")
-        });
-
-        const providers = await getProvidersByTypeWithModels(type);
-        return new Response(JSON.stringify(providers), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          return new Response(
-            JSON.stringify({
-              error: "参数校验失败",
-              details: error.issues
-            }),
-            {
-              status: 400,
-              headers: { "Content-Type": "application/json" }
-            }
-          );
-        }
-        return new Response(
-          JSON.stringify({ error, message: "获取提供商失败" }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
-    }
+const getEnabledProvidersRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/enabled`,
+  responseType: "json",
+  summary: "获取启用的提供商",
+  description: "返回系统中所有启用状态的提供商列表，不包含关联模型",
+  tags: ["Providers"],
+  handler: async () => {
+    return await getEnabledProviders();
   }
-);
+});
+
+/**
+ * 获取启用的提供商的路由处理器（包含模型列表）
+ * @description 返回系统中所有启用状态的提供商列表，包含关联的模型
+ */
+const getEnabledProvidersWithModelsRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/enabled/with-models`,
+  responseType: "json",
+  summary: "获取启用的提供商（包含模型列表）",
+  description: "返回系统中所有启用状态的提供商列表，包含关联的模型",
+  tags: ["Providers"],
+  handler: async () => {
+    return await getEnabledProvidersWithModels();
+  }
+});
+
+/**
+ * 根据ID获取单个提供商的路由处理器（基础版本）
+ * @description 通过提供商ID获取特定提供商的详细信息，不包含关联模型
+ */
+const getProviderByIdRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/:id`,
+  responseType: "json",
+  pathParamSchema: idParamSchema,
+  summary: "根据ID获取单个提供商",
+  description: "通过提供商ID获取特定提供商的详细信息，不包含关联模型",
+  tags: ["Providers"],
+  handler: async ({ id }) => {
+    const provider = await getProviderById(id);
+
+    if (!provider) {
+      throw new HTTPException(404, { message: "提供商不存在" });
+    }
+
+    return provider;
+  }
+});
+
+/**
+ * 根据ID获取单个提供商的路由处理器（包含模型列表）
+ * @description 通过提供商ID获取特定提供商的详细信息，包含关联的模型
+ */
+const getProviderWithModelsByIdRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/:id/with-models`,
+  responseType: "json",
+  pathParamSchema: idParamSchema,
+  summary: "根据ID获取单个提供商（包含模型列表）",
+  description: "通过提供商ID获取特定提供商的详细信息，包含关联的模型",
+  tags: ["Providers"],
+  handler: async ({ id }) => {
+    const provider = await getProviderWithModelsById(id);
+
+    if (!provider) {
+      throw new HTTPException(404, { message: "提供商不存在" });
+    }
+
+    return provider;
+  }
+});
+
+/**
+ * 根据类型获取提供商的路由处理器（基础版本）
+ * @description 通过提供商类型获取对应的提供商列表，不包含关联模型
+ */
+const getProvidersByTypeRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/type/:type`,
+  responseType: "json",
+  pathParamSchema: typeParamSchema,
+  summary: "根据类型获取提供商",
+  description: "通过提供商类型获取对应的提供商列表，不包含关联模型",
+  tags: ["Providers"],
+  handler: async ({ type }) => {
+    return await getProvidersByType(type);
+  }
+});
+
+/**
+ * 根据类型获取提供商的路由处理器（包含模型列表）
+ * @description 通过提供商类型获取对应的提供商列表，包含关联的模型
+ */
+const getProvidersByTypeWithModelsRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/type/:type/with-models`,
+  responseType: "json",
+  pathParamSchema: typeParamSchema,
+  summary: "根据类型获取提供商（包含模型列表）",
+  description: "通过提供商类型获取对应的提供商列表，包含关联的模型",
+  tags: ["Providers"],
+  handler: async ({ type }) => {
+    return await getProvidersByTypeWithModels(type);
+  }
+});
 
 /**
  * 创建新提供商的路由处理器
  * @description 接收提供商数据并在系统中创建新的提供商
- * @param c - Mastra上下文对象，包含请求信息
  */
-const createProviderRouter = registerApiRoute(`${PREFIX}/providers`, {
+const createProviderRouter = createRoute({
   method: "POST",
-  handler: async (c) => {
-    try {
-      const rawData = await c.req.json();
-
-      // 参数校验
-      const providerData = createProviderSchema.parse(rawData);
-
-      const newProvider = await createProvider(providerData);
-      return new Response(JSON.stringify(newProvider), {
-        status: 201,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            details: error.issues
-          }),
-          {
-            status: 400,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
-      return new Response(JSON.stringify({ error: "创建提供商失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
+  path: `${PREFIX}/providers`,
+  responseType: "json",
+  bodySchema: createProviderSchema,
+  summary: "创建新提供商",
+  description: "接收提供商数据并在系统中创建新的提供商",
+  tags: ["Providers"],
+  handler: async ({
+    type,
+    name,
+    apiKey,
+    apiHost,
+    apiVersion,
+    enabled,
+    isSystem,
+    isAuthed,
+    notes
+  }) => {
+    const newProvider = await createProvider({
+      type,
+      name,
+      apiKey,
+      apiHost,
+      apiVersion,
+      enabled,
+      isSystem,
+      isAuthed,
+      notes
+    });
+    return newProvider;
   }
 });
 
 /**
  * 更新提供商的路由处理器
  * @description 接收提供商ID和更新数据，修改指定提供商的信息
- * @param c - Mastra上下文对象，包含请求信息
  */
-const updateProviderRouter = registerApiRoute(`${PREFIX}/providers/:id`, {
+const updateProviderRouter = createRoute({
   method: "PUT",
-  handler: async (c) => {
-    try {
-      // 参数校验
-      const { id } = idParamSchema.parse({
-        id: c.req.param("id")
-      });
-
-      const rawData: unknown = await c.req.json();
-      // eslint-disable-next-line no-console
-      console.log("📥 收到更新请求:", { id, data: rawData as object });
-
-      const providerData = updateProviderSchema.parse(rawData);
-      // eslint-disable-next-line no-console
-      console.log("✅ 数据验证通过:", providerData);
-
-      const updatedProvider = await updateProvider(id, providerData);
-      // eslint-disable-next-line no-console
-      console.log("✅ 提供商更新成功");
-
-      return new Response(JSON.stringify(updatedProvider), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // eslint-disable-next-line no-console
-        console.error("❌ 参数校验失败:", error.issues);
-        return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            message: "提交的数据格式不正确",
-            details: error.issues.map((err) => ({
-              field: err.path.join("."),
-              message: err.message,
-              code: err.code
-            }))
-          }),
-          {
-            status: 400,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
+  path: `${PREFIX}/providers/:id`,
+  responseType: "json",
+  pathParamSchema: idParamSchema,
+  bodySchema: updateProviderSchema,
+  summary: "更新提供商信息",
+  description: "接收提供商ID和更新数据，修改指定提供商的信息",
+  tags: ["Providers"],
+  handler: async ({
+    id,
+    type,
+    name,
+    apiKey,
+    apiHost,
+    apiVersion,
+    enabled,
+    isSystem,
+    isAuthed,
+    notes
+  }) => {
+    // eslint-disable-next-line no-console
+    console.log("📥 收到更新请求:", {
+      id,
+      data: {
+        type,
+        name,
+        apiKey,
+        apiHost,
+        apiVersion,
+        enabled,
+        isSystem,
+        isAuthed,
+        notes
       }
+    });
 
-      // 数据库错误
-      if (error && typeof error === "object" && "code" in error) {
-        // eslint-disable-next-line no-console
-        console.error("❌ 数据库错误:", error);
-        const dbError = error as { message?: string; code?: string };
-        return new Response(
-          JSON.stringify({
-            error: "数据库操作失败",
-            message: dbError.message || "未知的数据库错误",
-            code: dbError.code
-          }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
+    const providerData = {
+      type,
+      name,
+      apiKey,
+      apiHost,
+      apiVersion,
+      enabled,
+      isSystem,
+      isAuthed,
+      notes
+    };
 
-      // 通用错误
-      // eslint-disable-next-line no-console
-      console.error("❌ 更新提供商失败:", error);
-      return new Response(
-        JSON.stringify({
-          error: "更新提供商失败",
-          message: error instanceof Error ? error.message : "未知错误",
-          stack: error instanceof Error ? error.stack : undefined
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
+    // eslint-disable-next-line no-console
+    console.log("✅ 数据验证通过:", providerData);
+
+    const updatedProvider = await updateProvider(id, providerData);
+
+    // eslint-disable-next-line no-console
+    console.log("✅ 提供商更新成功");
+
+    return updatedProvider;
   }
 });
 
 /**
  * 删除提供商的路由处理器
  * @description 根据提供商ID删除指定的提供商
- * @param c - Mastra上下文对象，包含请求信息
  */
-const deleteProviderRouter = registerApiRoute(`${PREFIX}/providers/:id`, {
+const deleteProviderRouter = createRoute({
   method: "DELETE",
-  handler: async (c) => {
+  path: `${PREFIX}/providers/:id`,
+  responseType: "json",
+  pathParamSchema: idParamSchema,
+  summary: "删除提供商",
+  description: "根据提供商ID删除指定的提供商",
+  tags: ["Providers"],
+  handler: async ({ id }) => {
     try {
-      // 参数校验
-      const { id } = idParamSchema.parse({
-        id: c.req.param("id")
-      });
-
       const deletedProvider = await deleteProvider(id);
-      return new Response(JSON.stringify(deletedProvider), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
+      return deletedProvider;
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return new Response(
-          JSON.stringify({
-            error: "参数校验失败",
-            details: error.issues
-          }),
-          {
-            status: 400,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
-
       // 处理业务逻辑错误（如有关联模型无法删除）
       if (error instanceof Error) {
-        return new Response(
-          JSON.stringify({
-            error: error.message,
-            code: "DELETE_CONSTRAINT_ERROR"
-          }),
-          {
-            status: 409,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
+        throw new HTTPException(409, {
+          message: error.message
+        });
       }
-
-      return new Response(JSON.stringify({ error: "删除提供商失败" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
+      throw error;
     }
   }
 });
@@ -353,106 +307,79 @@ const deleteProviderRouter = registerApiRoute(`${PREFIX}/providers/:id`, {
 /**
  * 切换提供商启用状态的路由处理器
  * @description 切换提供商的启用/禁用状态
- * @param c - Mastra上下文对象，包含请求信息
  */
-const toggleProviderEnabledRouter = registerApiRoute(
-  `${PREFIX}/providers/:id/toggle`,
-  {
-    method: "PUT",
-    handler: async (c) => {
-      try {
-        console.log("toggleProviderEnabledRouter");
-        // 参数校验
-        const { id } = idParamSchema.parse({
-          id: c.req.param("id")
-        });
-
-        const updatedProvider = await toggleProviderEnabled(id);
-        return new Response(JSON.stringify(updatedProvider), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          return new Response(
-            JSON.stringify({
-              error: "参数校验失败",
-              details: error.issues
-            }),
-            {
-              status: 400,
-              headers: { "Content-Type": "application/json" }
-            }
-          );
-        }
-
-        // 处理业务逻辑错误
-        if (error instanceof Error) {
-          return new Response(
-            JSON.stringify({
-              error: error.message,
-              code: "TOGGLE_PROVIDER_ERROR"
-            }),
-            {
-              status: 404,
-              headers: { "Content-Type": "application/json" }
-            }
-          );
-        }
-
-        return new Response(JSON.stringify({ error: "切换提供商状态失败" }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" }
-        });
+const toggleProviderEnabledRouter = createRoute({
+  method: "PUT",
+  path: `${PREFIX}/providers/:id/toggle`,
+  responseType: "json",
+  pathParamSchema: idParamSchema,
+  summary: "切换提供商启用状态",
+  description: "切换提供商的启用/禁用状态",
+  tags: ["Providers"],
+  handler: async ({ id }) => {
+    console.log("toggleProviderEnabledRouter");
+    try {
+      const updatedProvider = await toggleProviderEnabled(id);
+      return updatedProvider;
+    } catch (error) {
+      // 处理业务逻辑错误
+      if (error instanceof Error) {
+        throw new HTTPException(404, { message: error.message });
       }
+      throw error;
     }
   }
-);
+});
 
 /**
- * 根据模型ID获取提供商列表的路由处理器
- * @description 获取与指定模型关联的所有提供商
+ * 根据模型ID获取提供商列表的路由处理器（基础版本）
+ * @description 获取与指定模型关联的所有提供商，不包含关联模型
  */
-const getProvidersByModelRouter = registerApiRoute(
-  `${PREFIX}/providers/by-model/:modelId`,
-  {
-    method: "GET",
-    handler: async (c) => {
-      try {
-        // 参数校验
-        const modelId = c.req.param("modelId");
-        if (!modelId) {
-          return new Response(JSON.stringify({ error: "模型ID不能为空" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" }
-          });
-        }
-
-        const providers = await getProvidersByModelWithModels(modelId);
-        return new Response(JSON.stringify(providers), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
-      } catch (error) {
-        return new Response(
-          JSON.stringify({ error, message: "获取关联提供商列表失败" }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-      }
-    }
+const getProvidersByModelRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/by-model/:modelId`,
+  responseType: "json",
+  pathParamSchema: modelIdParamSchema,
+  summary: "根据模型ID获取提供商列表",
+  description: "获取与指定模型关联的所有提供商，不包含关联模型",
+  tags: ["Providers"],
+  handler: async ({ modelId }) => {
+    return await getProvidersByModel(modelId);
   }
-);
+});
+
+/**
+ * 根据模型ID获取提供商列表的路由处理器（包含模型列表）
+ * @description 获取与指定模型关联的所有提供商，包含关联的模型
+ */
+const getProvidersByModelWithModelsRouter = createRoute({
+  method: "GET",
+  path: `${PREFIX}/providers/by-model/:modelId/with-models`,
+  responseType: "json",
+  pathParamSchema: modelIdParamSchema,
+  summary: "根据模型ID获取提供商列表（包含模型列表）",
+  description: "获取与指定模型关联的所有提供商，包含关联的模型",
+  tags: ["Providers"],
+  handler: async ({ modelId }) => {
+    return await getProvidersByModelWithModels(modelId);
+  }
+});
 
 // 导出所有路由
 const providersRouter = [
+  // 基础版本（不包含关联模型）
   getProvidersRouter,
   getEnabledProvidersRouter,
   getProviderByIdRouter,
   getProvidersByTypeRouter,
   getProvidersByModelRouter,
+  // WithModels 版本（包含模型列表）
+  getProvidersWithModelsRouter,
+  getEnabledProvidersWithModelsRouter,
+  getProviderWithModelsByIdRouter,
+  getProvidersByTypeWithModelsRouter,
+  getProvidersByModelWithModelsRouter,
+  // 写操作
   createProviderRouter,
   updateProviderRouter,
   deleteProviderRouter,
