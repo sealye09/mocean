@@ -1,22 +1,10 @@
 /// <reference lib="dom" />
 import type { ProviderType } from "generated/prisma/enums";
+import type { z } from "zod";
 
+import { providerRoutes } from "../router/providers";
 import type {
-  CreateProviderInput, // 基础类型
-  EnabledProvidersResult, // WithModels 类型
-  EnabledProvidersWithModelsResult,
-  ProviderCreateResult,
-  ProviderDeleteResult,
-  ProviderResult,
-  ProviderToggleResult,
-  ProviderUpdateResult,
-  ProviderWithModelsResult,
-  ProvidersByModelResult,
-  ProvidersByModelWithModelsResult,
-  ProvidersByTypeResult,
-  ProvidersByTypeWithModelsResult,
-  ProvidersResult,
-  ProvidersWithModelsResult,
+  CreateProviderInput,
   UpdateProviderInput
 } from "../server/provider";
 import type { ApiClientConfig, ApiResponse } from "./base-client";
@@ -37,16 +25,28 @@ export class ProvidersApiClient extends BaseApiClient {
    * 获取所有提供商（基础版本）
    * @description 获取系统中所有可用的提供商列表，不包含关联模型
    */
-  async getProviders(): Promise<ApiResponse<ProvidersResult>> {
-    return this.get<ProvidersResult>("/providers");
+  async getProviders(): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["getProviders"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof providerRoutes)["getProviders"]["responseSchema"]>
+    >(providerRoutes.getProviders.path);
   }
 
   /**
    * 获取启用的提供商（基础版本）
    * @description 获取系统中所有启用状态的提供商列表，不包含关联模型
    */
-  async getEnabledProviders(): Promise<ApiResponse<EnabledProvidersResult>> {
-    return this.get<EnabledProvidersResult>("/providers/enabled");
+  async getEnabledProviders(): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["getEnabledProviders"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof providerRoutes)["getEnabledProviders"]["responseSchema"]>
+    >(providerRoutes.getEnabledProviders.path);
   }
 
   /**
@@ -54,8 +54,16 @@ export class ProvidersApiClient extends BaseApiClient {
    * @description 通过提供商ID获取特定提供商的详细信息，不包含关联模型
    * @param id - 提供商的唯一标识符
    */
-  async getProviderById(id: string): Promise<ApiResponse<ProviderResult>> {
-    return this.get<ProviderResult>(`/providers/${id}`);
+  async getProviderById(
+    id: string
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["getProviderById"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof providerRoutes)["getProviderById"]["responseSchema"]>
+    >(providerRoutes.getProviderById.path.replace(":id", id));
   }
 
   /**
@@ -65,8 +73,14 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProvidersByType(
     type: ProviderType
-  ): Promise<ApiResponse<ProvidersByTypeResult>> {
-    return this.get<ProvidersByTypeResult>(`/providers/type/${type}`);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["getProvidersByType"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof providerRoutes)["getProvidersByType"]["responseSchema"]>
+    >(providerRoutes.getProvidersByType.path.replace(":type", type));
   }
 
   /**
@@ -76,8 +90,14 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProvidersByModel(
     modelId: string
-  ): Promise<ApiResponse<ProvidersByModelResult>> {
-    return this.get<ProvidersByModelResult>(`/providers/by-model/${modelId}`);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["getProvidersByModel"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof providerRoutes)["getProvidersByModel"]["responseSchema"]>
+    >(providerRoutes.getProvidersByModel.path.replace(":modelId", modelId));
   }
 
   // ==================== WithModels 版本（包含模型列表）====================
@@ -87,9 +107,17 @@ export class ProvidersApiClient extends BaseApiClient {
    * @description 获取系统中所有可用的提供商列表，包含关联的模型信息
    */
   async getProvidersWithModels(): Promise<
-    ApiResponse<ProvidersWithModelsResult>
+    ApiResponse<
+      z.infer<
+        (typeof providerRoutes)["getProvidersWithModels"]["responseSchema"]
+      >
+    >
   > {
-    return this.get<ProvidersWithModelsResult>("/providers/with-models");
+    return this.get<
+      z.infer<
+        (typeof providerRoutes)["getProvidersWithModels"]["responseSchema"]
+      >
+    >(providerRoutes.getProvidersWithModels.path);
   }
 
   /**
@@ -97,11 +125,17 @@ export class ProvidersApiClient extends BaseApiClient {
    * @description 获取系统中所有启用状态的提供商列表，包含关联的模型
    */
   async getEnabledProvidersWithModels(): Promise<
-    ApiResponse<EnabledProvidersWithModelsResult>
+    ApiResponse<
+      z.infer<
+        (typeof providerRoutes)["getEnabledProvidersWithModels"]["responseSchema"]
+      >
+    >
   > {
-    return this.get<EnabledProvidersWithModelsResult>(
-      "/providers/enabled/with-models"
-    );
+    return this.get<
+      z.infer<
+        (typeof providerRoutes)["getEnabledProvidersWithModels"]["responseSchema"]
+      >
+    >(providerRoutes.getEnabledProvidersWithModels.path);
   }
 
   /**
@@ -111,8 +145,18 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProviderWithModelsById(
     id: string
-  ): Promise<ApiResponse<ProviderWithModelsResult>> {
-    return this.get<ProviderWithModelsResult>(`/providers/${id}/with-models`);
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof providerRoutes)["getProviderWithModelsById"]["responseSchema"]
+      >
+    >
+  > {
+    return this.get<
+      z.infer<
+        (typeof providerRoutes)["getProviderWithModelsById"]["responseSchema"]
+      >
+    >(providerRoutes.getProviderWithModelsById.path.replace(":id", id));
   }
 
   /**
@@ -122,10 +166,18 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProvidersByTypeWithModels(
     type: ProviderType
-  ): Promise<ApiResponse<ProvidersByTypeWithModelsResult>> {
-    return this.get<ProvidersByTypeWithModelsResult>(
-      `/providers/type/${type}/with-models`
-    );
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof providerRoutes)["getProvidersByTypeWithModels"]["responseSchema"]
+      >
+    >
+  > {
+    return this.get<
+      z.infer<
+        (typeof providerRoutes)["getProvidersByTypeWithModels"]["responseSchema"]
+      >
+    >(providerRoutes.getProvidersByTypeWithModels.path.replace(":type", type));
   }
 
   /**
@@ -135,9 +187,22 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async getProvidersByModelWithModels(
     modelId: string
-  ): Promise<ApiResponse<ProvidersByModelWithModelsResult>> {
-    return this.get<ProvidersByModelWithModelsResult>(
-      `/providers/by-model/${modelId}/with-models`
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof providerRoutes)["getProvidersByModelWithModels"]["responseSchema"]
+      >
+    >
+  > {
+    return this.get<
+      z.infer<
+        (typeof providerRoutes)["getProvidersByModelWithModels"]["responseSchema"]
+      >
+    >(
+      providerRoutes.getProvidersByModelWithModels.path.replace(
+        ":modelId",
+        modelId
+      )
     );
   }
 
@@ -148,8 +213,14 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async createProvider(
     provider: CreateProviderInput
-  ): Promise<ApiResponse<ProviderCreateResult>> {
-    return this.post<ProviderCreateResult>("/providers", provider);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["createProvider"]["responseSchema"]>
+    >
+  > {
+    return this.post<
+      z.infer<(typeof providerRoutes)["createProvider"]["responseSchema"]>
+    >(providerRoutes.createProvider.path, provider);
   }
 
   /**
@@ -161,8 +232,14 @@ export class ProvidersApiClient extends BaseApiClient {
   async updateProvider(
     id: string,
     provider: UpdateProviderInput
-  ): Promise<ApiResponse<ProviderUpdateResult>> {
-    return this.put<ProviderUpdateResult>(`/providers/${id}`, provider);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["updateProvider"]["responseSchema"]>
+    >
+  > {
+    return this.put<
+      z.infer<(typeof providerRoutes)["updateProvider"]["responseSchema"]>
+    >(providerRoutes.updateProvider.path.replace(":id", id), provider);
   }
 
   /**
@@ -170,8 +247,16 @@ export class ProvidersApiClient extends BaseApiClient {
    * @description 删除指定的提供商记录
    * @param id - 提供商的唯一标识符
    */
-  async deleteProvider(id: string): Promise<ApiResponse<ProviderDeleteResult>> {
-    return this.delete<ProviderDeleteResult>(`/providers/${id}`);
+  async deleteProvider(
+    id: string
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof providerRoutes)["deleteProvider"]["responseSchema"]>
+    >
+  > {
+    return this.delete<
+      z.infer<(typeof providerRoutes)["deleteProvider"]["responseSchema"]>
+    >(providerRoutes.deleteProvider.path.replace(":id", id));
   }
 
   /**
@@ -181,8 +266,18 @@ export class ProvidersApiClient extends BaseApiClient {
    */
   async toggleProviderEnabled(
     id: string
-  ): Promise<ApiResponse<ProviderToggleResult>> {
-    return this.put<ProviderToggleResult>(`/providers/${id}/toggle`, {});
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof providerRoutes)["toggleProviderEnabled"]["responseSchema"]
+      >
+    >
+  > {
+    return this.put<
+      z.infer<
+        (typeof providerRoutes)["toggleProviderEnabled"]["responseSchema"]
+      >
+    >(providerRoutes.toggleProviderEnabled.path.replace(":id", id), {});
   }
 }
 

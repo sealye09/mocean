@@ -1,12 +1,8 @@
 /// <reference lib="dom" />
+import type { z } from "zod";
+
+import { assistantRoutes } from "../router/assistants";
 import type {
-  AssistantCreateResult,
-  AssistantDeleteResult,
-  AssistantDetailResult,
-  AssistantThreadsResult,
-  AssistantUIMessagesResult,
-  AssistantUpdateResult,
-  AssistantsListResult,
   CreateAssistantInput,
   UpdateAssistantInput
 } from "../server/assistant";
@@ -26,8 +22,14 @@ export class AssistantsApiClient extends BaseApiClient {
    * 获取所有助手
    * @description 获取系统中所有可用的助手列表
    */
-  async getAssistants(): Promise<ApiResponse<AssistantsListResult>> {
-    return this.get<AssistantsListResult>("/assistants");
+  async getAssistants(): Promise<
+    ApiResponse<
+      z.infer<(typeof assistantRoutes)["getAssistants"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof assistantRoutes)["getAssistants"]["responseSchema"]>
+    >(assistantRoutes.getAssistants.path);
   }
 
   /**
@@ -37,34 +39,57 @@ export class AssistantsApiClient extends BaseApiClient {
    */
   async getAssistantById(
     assistantId: string
-  ): Promise<ApiResponse<AssistantDetailResult>> {
-    return this.get<AssistantDetailResult>(`/assistants/${assistantId}`);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof assistantRoutes)["getAssistantById"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof assistantRoutes)["getAssistantById"]["responseSchema"]>
+    >(
+      assistantRoutes.getAssistantById.path.replace(
+        ":assistantId",
+        assistantId
+      )
+    );
   }
 
   /**
    * 创建新助手
    * @description 在系统中创建一个新的助手
-   * @param assistantData - 助手信息对象
+   * @param assistant - 包含助手信息的对象
    */
   async createAssistant(
-    assistantData: CreateAssistantInput
-  ): Promise<ApiResponse<AssistantCreateResult>> {
-    return this.post<AssistantCreateResult>("/assistants", assistantData);
+    assistant: CreateAssistantInput
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof assistantRoutes)["createAssistant"]["responseSchema"]>
+    >
+  > {
+    return this.post<
+      z.infer<(typeof assistantRoutes)["createAssistant"]["responseSchema"]>
+    >(assistantRoutes.createAssistant.path, assistant);
   }
 
   /**
    * 更新助手信息
    * @description 更新指定助手的信息
    * @param assistantId - 助手的唯一标识符
-   * @param assistantData - 更新的助手信息
+   * @param assistant - 包含更新信息的对象
    */
   async updateAssistant(
     assistantId: string,
-    assistantData: UpdateAssistantInput
-  ): Promise<ApiResponse<AssistantUpdateResult>> {
-    return this.put<AssistantUpdateResult>(
-      `/assistants/${assistantId}`,
-      assistantData
+    assistant: UpdateAssistantInput
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof assistantRoutes)["updateAssistant"]["responseSchema"]>
+    >
+  > {
+    return this.put<
+      z.infer<(typeof assistantRoutes)["updateAssistant"]["responseSchema"]>
+    >(
+      assistantRoutes.updateAssistant.path.replace(":assistantId", assistantId),
+      assistant
     );
   }
 
@@ -75,34 +100,15 @@ export class AssistantsApiClient extends BaseApiClient {
    */
   async deleteAssistant(
     assistantId: string
-  ): Promise<ApiResponse<AssistantDeleteResult>> {
-    return this.delete<AssistantDeleteResult>(`/assistants/${assistantId}`);
-  }
-
-  /**
-   * 获取助手历史记录
-   * @description 获取指定助手的所有历史记录
-   * @param assistantId - 助手的唯一标识符
-   */
-  async getAssistantThreads(
-    assistantId: string
-  ): Promise<ApiResponse<AssistantThreadsResult>> {
-    return this.get<AssistantThreadsResult>(
-      `/assistants/history/${assistantId}`
-    );
-  }
-
-  /**
-   * 获取助手历史记录
-   * @description 获取指定助手的所有历史记录
-   * @param assistantId - 助手的唯一标识符
-   */
-  async getAssistantUIMessageByThreadId(
-    assistantId: string,
-    threadId: string
-  ): Promise<ApiResponse<AssistantUIMessagesResult>> {
-    return this.get<AssistantUIMessagesResult>(
-      `/assistants/messages/${assistantId}/${threadId}`
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof assistantRoutes)["deleteAssistant"]["responseSchema"]>
+    >
+  > {
+    return this.delete<
+      z.infer<(typeof assistantRoutes)["deleteAssistant"]["responseSchema"]>
+    >(
+      assistantRoutes.deleteAssistant.path.replace(":assistantId", assistantId)
     );
   }
 }
@@ -117,53 +123,15 @@ export const assistantsApi = new AssistantsApiClient();
  * @description 提供更简洁的函数调用方式
  */
 export const assistantsApiMethods = {
-  /**
-   * 获取所有助手
-   */
   getAssistants: () => assistantsApi.getAssistants(),
-
-  /**
-   * 根据ID获取助手
-   * @param assistantId - 助手ID
-   */
   getAssistantById: (assistantId: string) =>
     assistantsApi.getAssistantById(assistantId),
-
-  /**
-   * 创建助手
-   * @param assistantData - 助手数据
-   */
-  createAssistant: (assistantData: CreateAssistantInput) =>
-    assistantsApi.createAssistant(assistantData),
-
-  /**
-   * 更新助手
-   * @param assistantId - 助手ID
-   * @param assistantData - 更新数据
-   */
-  updateAssistant: (assistantId: string, assistantData: UpdateAssistantInput) =>
-    assistantsApi.updateAssistant(assistantId, assistantData),
-
-  /**
-   * 删除助手
-   * @param assistantId - 助手ID
-   */
+  createAssistant: (assistant: CreateAssistantInput) =>
+    assistantsApi.createAssistant(assistant),
+  updateAssistant: (assistantId: string, assistant: UpdateAssistantInput) =>
+    assistantsApi.updateAssistant(assistantId, assistant),
   deleteAssistant: (assistantId: string) =>
-    assistantsApi.deleteAssistant(assistantId),
-
-  /**
-   * 获取助手历史记录
-   * @param assistantId - 助手ID
-   */
-  getAssistantThreads: (assistantId: string) =>
-    assistantsApi.getAssistantThreads(assistantId),
-
-  /**
-   * 获取助手历史记录
-   * @param threadId - 助手ID
-   */
-  getAssistantUIMessageByThreadId: (assistantId: string, threadId: string) =>
-    assistantsApi.getAssistantUIMessageByThreadId(assistantId, threadId)
+    assistantsApi.deleteAssistant(assistantId)
 };
 
 /**
@@ -177,15 +145,13 @@ export type UseAssistantsApiReturn = Pick<
   | "createAssistant"
   | "updateAssistant"
   | "deleteAssistant"
-  | "getAssistantThreads"
-  | "getAssistantUIMessageByThreadId"
 >;
 
 /**
  * React Hook 风格的 API 调用方法
  * @description 适用于 React 应用的 Hook 风格调用
  *
- * @returns API 方法对象，直接使用 assistantsApiMethods
+ * @returns 绑定了 this 上下文的 API 方法对象
  *
  * @example
  * const api = useAssistantsApi();
@@ -193,13 +159,20 @@ export type UseAssistantsApiReturn = Pick<
  */
 export const useAssistantsApi = (): UseAssistantsApiReturn => {
   return {
-    getAssistants: assistantsApiMethods.getAssistants,
-    getAssistantById: assistantsApiMethods.getAssistantById,
-    createAssistant: assistantsApiMethods.createAssistant,
-    updateAssistant: assistantsApiMethods.updateAssistant,
-    deleteAssistant: assistantsApiMethods.deleteAssistant,
-    getAssistantThreads: assistantsApiMethods.getAssistantThreads,
-    getAssistantUIMessageByThreadId:
-      assistantsApiMethods.getAssistantUIMessageByThreadId
+    getAssistants: assistantsApi.getAssistants.bind(
+      assistantsApi
+    ) as UseAssistantsApiReturn["getAssistants"],
+    getAssistantById: assistantsApi.getAssistantById.bind(
+      assistantsApi
+    ) as UseAssistantsApiReturn["getAssistantById"],
+    createAssistant: assistantsApi.createAssistant.bind(
+      assistantsApi
+    ) as UseAssistantsApiReturn["createAssistant"],
+    updateAssistant: assistantsApi.updateAssistant.bind(
+      assistantsApi
+    ) as UseAssistantsApiReturn["updateAssistant"],
+    deleteAssistant: assistantsApi.deleteAssistant.bind(
+      assistantsApi
+    ) as UseAssistantsApiReturn["deleteAssistant"]
   };
 };

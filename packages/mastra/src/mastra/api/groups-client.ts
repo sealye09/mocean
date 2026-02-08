@@ -1,13 +1,8 @@
 /// <reference lib="dom" />
-import type {
-  CreateGroupInput,
-  GroupCreateResult,
-  GroupDeleteResult,
-  GroupDetailResult,
-  GroupUpdateResult,
-  GroupsByProviderResult,
-  UpdateGroupInput
-} from "../server/group";
+import type { z } from "zod";
+
+import { groupRoutes } from "../router/groups";
+import type { CreateGroupInput, UpdateGroupInput } from "../server/group";
 import type { ApiClientConfig, ApiResponse } from "./base-client";
 import { BaseApiClient } from "./base-client";
 
@@ -27,8 +22,14 @@ export class GroupsApiClient extends BaseApiClient {
    */
   async getGroupsByProvider(
     providerId: string
-  ): Promise<ApiResponse<GroupsByProviderResult>> {
-    return this.get<GroupsByProviderResult>(`/groups/provider/${providerId}`);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof groupRoutes)["getGroupsByProvider"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof groupRoutes)["getGroupsByProvider"]["responseSchema"]>
+    >(groupRoutes.getGroupsByProvider.path.replace(":providerId", providerId));
   }
 
   /**
@@ -36,8 +37,14 @@ export class GroupsApiClient extends BaseApiClient {
    * @description 通过分组ID获取分组详细信息，包含关联的模型
    * @param id - 分组的唯一标识符
    */
-  async getGroupById(id: string): Promise<ApiResponse<GroupDetailResult>> {
-    return this.get<GroupDetailResult>(`/groups/${id}`);
+  async getGroupById(
+    id: string
+  ): Promise<
+    ApiResponse<z.infer<(typeof groupRoutes)["getGroupById"]["responseSchema"]>>
+  > {
+    return this.get<
+      z.infer<(typeof groupRoutes)["getGroupById"]["responseSchema"]>
+    >(groupRoutes.getGroupById.path.replace(":id", id));
   }
 
   /**
@@ -47,8 +54,12 @@ export class GroupsApiClient extends BaseApiClient {
    */
   async createGroup(
     group: CreateGroupInput
-  ): Promise<ApiResponse<GroupCreateResult>> {
-    return this.post<GroupCreateResult>("/groups", group);
+  ): Promise<
+    ApiResponse<z.infer<(typeof groupRoutes)["createGroup"]["responseSchema"]>>
+  > {
+    return this.post<
+      z.infer<(typeof groupRoutes)["createGroup"]["responseSchema"]>
+    >(groupRoutes.createGroup.path, group);
   }
 
   /**
@@ -60,8 +71,12 @@ export class GroupsApiClient extends BaseApiClient {
   async updateGroup(
     id: string,
     group: UpdateGroupInput
-  ): Promise<ApiResponse<GroupUpdateResult>> {
-    return this.put<GroupUpdateResult>(`/groups/${id}`, group);
+  ): Promise<
+    ApiResponse<z.infer<(typeof groupRoutes)["updateGroup"]["responseSchema"]>>
+  > {
+    return this.put<
+      z.infer<(typeof groupRoutes)["updateGroup"]["responseSchema"]>
+    >(groupRoutes.updateGroup.path.replace(":id", id), group);
   }
 
   /**
@@ -69,8 +84,14 @@ export class GroupsApiClient extends BaseApiClient {
    * @description 删除指定的分组记录（不能删除默认分组，模型将移至默认分组）
    * @param id - 分组的唯一标识符
    */
-  async deleteGroup(id: string): Promise<ApiResponse<GroupDeleteResult>> {
-    return this.delete<GroupDeleteResult>(`/groups/${id}`);
+  async deleteGroup(
+    id: string
+  ): Promise<
+    ApiResponse<z.infer<(typeof groupRoutes)["deleteGroup"]["responseSchema"]>>
+  > {
+    return this.delete<
+      z.infer<(typeof groupRoutes)["deleteGroup"]["responseSchema"]>
+    >(groupRoutes.deleteGroup.path.replace(":id", id));
   }
 }
 
@@ -84,38 +105,13 @@ export const groupsApi = new GroupsApiClient();
  * @description 提供更简洁的函数调用方式
  */
 export const groupsApiMethods = {
-  /**
-   * 获取指定提供商的所有分组
-   * @param providerId - 提供商ID
-   */
   getGroupsByProvider: (providerId: string) =>
     groupsApi.getGroupsByProvider(providerId),
-
-  /**
-   * 根据ID获取分组
-   * @param id - 分组ID
-   */
   getGroupById: (id: string) => groupsApi.getGroupById(id),
-
-  /**
-   * 创建分组
-   * @param groupData - 分组数据
-   */
   createGroup: (groupData: CreateGroupInput) =>
     groupsApi.createGroup(groupData),
-
-  /**
-   * 更新分组
-   * @param id - 分组ID
-   * @param groupData - 更新数据
-   */
   updateGroup: (id: string, groupData: UpdateGroupInput) =>
     groupsApi.updateGroup(id, groupData),
-
-  /**
-   * 删除分组
-   * @param id - 分组ID
-   */
   deleteGroup: (id: string) => groupsApi.deleteGroup(id)
 };
 
@@ -123,13 +119,14 @@ export const groupsApiMethods = {
  * React Hook 风格的 API 调用方法返回类型
  * @description 从 GroupsApiClient 类中提取方法类型，自动保持类型同步
  */
-export type UseGroupsApiReturn = {
-  getGroupsByProvider: GroupsApiClient["getGroupsByProvider"];
-  getGroupById: GroupsApiClient["getGroupById"];
-  createGroup: GroupsApiClient["createGroup"];
-  updateGroup: GroupsApiClient["updateGroup"];
-  deleteGroup: GroupsApiClient["deleteGroup"];
-};
+export type UseGroupsApiReturn = Pick<
+  GroupsApiClient,
+  | "getGroupsByProvider"
+  | "getGroupById"
+  | "createGroup"
+  | "updateGroup"
+  | "deleteGroup"
+>;
 
 /**
  * React Hook 风格的 API 调用方法
@@ -139,22 +136,24 @@ export type UseGroupsApiReturn = {
  *
  * @example
  * const api = useGroupsApi();
- * const response = await api.getGroupsByProvider(providerId);
+ * const response = await api.getGroupsByProvider("provider-123");
  */
-export const useGroupsApi = (): UseGroupsApiReturn => ({
-  getGroupsByProvider: groupsApi.getGroupsByProvider.bind(
-    groupsApi
-  ) as GroupsApiClient["getGroupsByProvider"],
-  getGroupById: groupsApi.getGroupById.bind(
-    groupsApi
-  ) as GroupsApiClient["getGroupById"],
-  createGroup: groupsApi.createGroup.bind(
-    groupsApi
-  ) as GroupsApiClient["createGroup"],
-  updateGroup: groupsApi.updateGroup.bind(
-    groupsApi
-  ) as GroupsApiClient["updateGroup"],
-  deleteGroup: groupsApi.deleteGroup.bind(
-    groupsApi
-  ) as GroupsApiClient["deleteGroup"]
-});
+export const useGroupsApi = (): UseGroupsApiReturn => {
+  return {
+    getGroupsByProvider: groupsApi.getGroupsByProvider.bind(
+      groupsApi
+    ) as UseGroupsApiReturn["getGroupsByProvider"],
+    getGroupById: groupsApi.getGroupById.bind(
+      groupsApi
+    ) as UseGroupsApiReturn["getGroupById"],
+    createGroup: groupsApi.createGroup.bind(
+      groupsApi
+    ) as UseGroupsApiReturn["createGroup"],
+    updateGroup: groupsApi.updateGroup.bind(
+      groupsApi
+    ) as UseGroupsApiReturn["updateGroup"],
+    deleteGroup: groupsApi.deleteGroup.bind(
+      groupsApi
+    ) as UseGroupsApiReturn["deleteGroup"]
+  };
+};

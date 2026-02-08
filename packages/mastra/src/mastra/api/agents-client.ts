@@ -1,11 +1,8 @@
 /// <reference lib="dom" />
+import type { z } from "zod";
+
+import { agentRoutes } from "../router/agents";
 import type {
-  AgentCreateResult,
-  AgentDeleteResult,
-  AgentDetailResult,
-  AgentUpdateResult,
-  AgentsByGroupResult,
-  AgentsListResult,
   CreateAgentInput,
   UpdateAgentInput
 } from "../server/agent";
@@ -25,8 +22,14 @@ export class AgentsApiClient extends BaseApiClient {
    * 获取所有代理
    * @description 获取系统中所有可用的代理列表
    */
-  async getAgents(): Promise<ApiResponse<AgentsListResult>> {
-    return this.get<AgentsListResult>("/agents");
+  async getAgents(): Promise<
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["getAgents"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof agentRoutes)["getAgents"]["responseSchema"]>
+    >(agentRoutes.getAgents.path);
   }
 
   /**
@@ -34,32 +37,52 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 通过代理ID获取特定代理的详细信息
    * @param id - 代理的唯一标识符
    */
-  async getAgentById(id: string): Promise<ApiResponse<AgentDetailResult>> {
-    return this.get<AgentDetailResult>(`/agents/${id}`);
+  async getAgentById(
+    id: string
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["getAgentById"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof agentRoutes)["getAgentById"]["responseSchema"]>
+    >(agentRoutes.getAgentById.path.replace(":id", id));
   }
 
   /**
    * 创建新代理
    * @description 在系统中创建一个新的代理
-   * @param agentData - 代理信息对象
+   * @param agent - 包含代理信息的对象
    */
   async createAgent(
-    agentData: CreateAgentInput
-  ): Promise<ApiResponse<AgentCreateResult>> {
-    return this.post<AgentCreateResult>("/agents", agentData);
+    agent: CreateAgentInput
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["createAgent"]["responseSchema"]>
+    >
+  > {
+    return this.post<
+      z.infer<(typeof agentRoutes)["createAgent"]["responseSchema"]>
+    >(agentRoutes.createAgent.path, agent);
   }
 
   /**
    * 更新代理信息
    * @description 更新指定代理的信息
    * @param id - 代理的唯一标识符
-   * @param agentData - 更新的代理信息
+   * @param agent - 包含更新信息的对象
    */
   async updateAgent(
     id: string,
-    agentData: UpdateAgentInput
-  ): Promise<ApiResponse<AgentUpdateResult>> {
-    return this.put<AgentUpdateResult>(`/agents/${id}`, agentData);
+    agent: UpdateAgentInput
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["updateAgent"]["responseSchema"]>
+    >
+  > {
+    return this.put<
+      z.infer<(typeof agentRoutes)["updateAgent"]["responseSchema"]>
+    >(agentRoutes.updateAgent.path.replace(":id", id), agent);
   }
 
   /**
@@ -67,8 +90,16 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 删除指定的代理
    * @param id - 代理的唯一标识符
    */
-  async deleteAgent(id: string): Promise<ApiResponse<AgentDeleteResult>> {
-    return this.delete<AgentDeleteResult>(`/agents/${id}`);
+  async deleteAgent(
+    id: string
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["deleteAgent"]["responseSchema"]>
+    >
+  > {
+    return this.delete<
+      z.infer<(typeof agentRoutes)["deleteAgent"]["responseSchema"]>
+    >(agentRoutes.deleteAgent.path.replace(":id", id));
   }
 
   /**
@@ -78,8 +109,14 @@ export class AgentsApiClient extends BaseApiClient {
    */
   async getAgentByGroup(
     group: string
-  ): Promise<ApiResponse<AgentsByGroupResult>> {
-    return this.get<AgentsByGroupResult>(`/agents/group/${group}`);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["getAgentByGroup"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof agentRoutes)["getAgentByGroup"]["responseSchema"]>
+    >(agentRoutes.getAgentByGroup.path.replace(":group", group));
   }
 }
 
@@ -93,42 +130,12 @@ export const agentsApi = new AgentsApiClient();
  * @description 提供更简洁的函数调用方式
  */
 export const agentsApiMethods = {
-  /**
-   * 获取所有代理
-   */
   getAgents: () => agentsApi.getAgents(),
-
-  /**
-   * 根据ID获取代理
-   * @param id - 代理ID
-   */
   getAgentById: (id: string) => agentsApi.getAgentById(id),
-
-  /**
-   * 创建代理
-   * @param agentData - 代理数据
-   */
-  createAgent: (agentData: CreateAgentInput) =>
-    agentsApi.createAgent(agentData),
-
-  /**
-   * 更新代理
-   * @param id - 代理ID
-   * @param agentData - 更新数据
-   */
-  updateAgent: (id: string, agentData: UpdateAgentInput) =>
-    agentsApi.updateAgent(id, agentData),
-
-  /**
-   * 删除代理
-   * @param id - 代理ID
-   */
+  createAgent: (agent: CreateAgentInput) => agentsApi.createAgent(agent),
+  updateAgent: (id: string, agent: UpdateAgentInput) =>
+    agentsApi.updateAgent(id, agent),
   deleteAgent: (id: string) => agentsApi.deleteAgent(id),
-
-  /**
-   * 根据分组获取代理
-   * @param group - 分组
-   */
   getAgentByGroup: (group: string) => agentsApi.getAgentByGroup(group)
 };
 
@@ -158,11 +165,23 @@ export type UseAgentsApiReturn = Pick<
  */
 export const useAgentsApi = (): UseAgentsApiReturn => {
   return {
-    getAgents: agentsApiMethods.getAgents,
-    getAgentById: agentsApiMethods.getAgentById,
-    createAgent: agentsApiMethods.createAgent,
-    updateAgent: agentsApiMethods.updateAgent,
-    deleteAgent: agentsApiMethods.deleteAgent,
-    getAgentByGroup: agentsApiMethods.getAgentByGroup
+    getAgents: agentsApi.getAgents.bind(
+      agentsApi
+    ) as UseAgentsApiReturn["getAgents"],
+    getAgentById: agentsApi.getAgentById.bind(
+      agentsApi
+    ) as UseAgentsApiReturn["getAgentById"],
+    createAgent: agentsApi.createAgent.bind(
+      agentsApi
+    ) as UseAgentsApiReturn["createAgent"],
+    updateAgent: agentsApi.updateAgent.bind(
+      agentsApi
+    ) as UseAgentsApiReturn["updateAgent"],
+    deleteAgent: agentsApi.deleteAgent.bind(
+      agentsApi
+    ) as UseAgentsApiReturn["deleteAgent"],
+    getAgentByGroup: agentsApi.getAgentByGroup.bind(
+      agentsApi
+    ) as UseAgentsApiReturn["getAgentByGroup"]
   };
 };
