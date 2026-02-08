@@ -1,14 +1,73 @@
-import { ProviderSchema } from "generated/schemas/models/index";
+import type { Prisma } from "generated/prisma/client";
+import { ProviderType } from "generated/prisma/enums";
+import { ModelSchema, ProviderSchema } from "generated/schemas/models/index";
 import { z } from "zod";
 
-import type { Prisma } from "../../../generated/prisma";
-import { ProviderType } from "../../../generated/prisma";
-import type { AsyncReturnType } from "./type";
 import { prisma } from "./index";
+import type { AsyncReturnType } from "./type";
 
 /**
  * 提供商相关的zod校验schemas
  */
+
+/**
+ * Response Schemas
+ * 用于 Router 的响应类型验证
+ */
+
+// 基础 Provider Response Schema（不含关联关系）
+export const ProviderResponseSchema = ProviderSchema.pick({
+  id: true,
+  type: true,
+  name: true,
+  apiKey: true,
+  apiHost: true,
+  apiVersion: true,
+  enabled: true,
+  isSystem: true,
+  isAuthed: true,
+  notes: true,
+  isGateway: true,
+  modelCount: true,
+  docsUrl: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+// Providers 列表 Response Schema（不含 models）
+export const ProvidersResponseSchema = z.array(ProviderResponseSchema);
+
+// 带 models 数组的 Provider Response Schema
+export const ProviderWithModelsResponseSchema = ProviderSchema.pick({
+  id: true,
+  type: true,
+  name: true,
+  apiKey: true,
+  apiHost: true,
+  apiVersion: true,
+  enabled: true,
+  isSystem: true,
+  isAuthed: true,
+  notes: true,
+  isGateway: true,
+  modelCount: true,
+  docsUrl: true,
+  createdAt: true,
+  updatedAt: true
+}).extend({
+  models: z.array(ModelSchema),
+  _count: z
+    .object({
+      models: z.number()
+    })
+    .optional()
+});
+
+// Providers 列表 Response Schema（含 models）
+export const ProvidersWithModelsResponseSchema = z.array(
+  ProviderWithModelsResponseSchema
+);
+
 /**
  * URL 验证辅助函数
  */
@@ -498,7 +557,9 @@ export type EnabledProvidersResult = AsyncReturnType<
   typeof getEnabledProviders
 >;
 export type ProvidersByTypeResult = AsyncReturnType<typeof getProvidersByType>;
-export type ProvidersByModelResult = AsyncReturnType<typeof getProvidersByModel>;
+export type ProvidersByModelResult = AsyncReturnType<
+  typeof getProvidersByModel
+>;
 
 // 带模型列表的类型（models 字段为展开的 Model 数组）
 export type ProviderWithModelsResult = AsyncReturnType<

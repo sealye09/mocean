@@ -4,13 +4,133 @@ import type { StorageThreadType } from "@mastra/core/memory";
 import type { RequestContext } from "@mastra/core/request-context";
 import type { UIMessage } from "ai";
 import { createUIMessageStreamResponse } from "ai";
-import { AssistantSchema } from "generated/schemas/models/index";
+import {
+  AssistantSchema,
+  ModelSchema,
+  ProviderSchema
+} from "generated/schemas/models/index";
 import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
 import { createCommonRunTime } from "../runtime/CommonRunTime";
 import { prisma } from "./index";
 import type { AsyncReturnType } from "./type";
+
+/**
+ * Response Schemas
+ * 用于 Router 的响应类型验证
+ */
+
+// 基础 Assistant Response Schema（不含关联关系）
+export const AssistantResponseSchema = AssistantSchema.pick({
+  id: true,
+  name: true,
+  prompt: true,
+  type: true,
+  emoji: true,
+  description: true,
+  enableWebSearch: true,
+  webSearchProviderId: true,
+  enableGenerateImage: true,
+  knowledgeRecognition: true,
+  modelId: true,
+  defaultModelId: true,
+  providerId: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+// Assistants 列表 Response Schema
+export const AssistantsResponseSchema = z.array(AssistantResponseSchema);
+
+// 带 model、defaultModel、settings 的 Assistant Response Schema
+export const AssistantWithModelsResponseSchema = AssistantSchema.pick({
+  id: true,
+  name: true,
+  prompt: true,
+  type: true,
+  emoji: true,
+  description: true,
+  enableWebSearch: true,
+  webSearchProviderId: true,
+  enableGenerateImage: true,
+  knowledgeRecognition: true,
+  modelId: true,
+  defaultModelId: true,
+  providerId: true,
+  createdAt: true,
+  updatedAt: true
+}).extend({
+  model: ModelSchema,
+  defaultModel: ModelSchema,
+  settings: z.array(
+    z.object({
+      id: z.string(),
+      assistantId: z.string(),
+      key: z.string(),
+      value: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
+  )
+});
+
+// 带 provider 的完整 Assistant Response Schema
+export const AssistantFullResponseSchema = AssistantSchema.pick({
+  id: true,
+  name: true,
+  prompt: true,
+  type: true,
+  emoji: true,
+  description: true,
+  enableWebSearch: true,
+  webSearchProviderId: true,
+  enableGenerateImage: true,
+  knowledgeRecognition: true,
+  modelId: true,
+  defaultModelId: true,
+  providerId: true,
+  createdAt: true,
+  updatedAt: true
+}).extend({
+  model: ModelSchema,
+  defaultModel: ModelSchema,
+  provider: ProviderSchema,
+  settings: z.array(
+    z.object({
+      id: z.string(),
+      assistantId: z.string(),
+      key: z.string(),
+      value: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
+  ),
+  topics: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
+  ),
+  knowledgeBases: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
+  ),
+  mcpServers: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
+  )
+});
 
 /**
  * 助手相关的zod校验schemas
