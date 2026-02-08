@@ -1,24 +1,8 @@
 /// <reference lib="dom" />
-import type {
-  CreateModelInput,
-  ModelCreateResult,
-  ModelDeleteResult,
-  ModelDetailResult,
-  ModelProviderRelation,
-  ModelProviderRelationAddResult,
-  ModelProviderRelationRemoveResult,
-  ModelProviderRelationsResult,
-  ModelUpdateResult,
-  ModelWithProvidersResult,
-  ModelsBatchCreateResult,
-  ModelsByGroupResult,
-  ModelsByGroupWithProvidersResult,
-  ModelsByProviderResult,
-  ModelsByProviderWithProvidersResult,
-  ModelsListResult,
-  ModelsWithProvidersResult,
-  UpdateModelInput
-} from "../server/model";
+import type { z } from "zod";
+
+import { modelRoutes } from "../router/models";
+import type { CreateModelInput, UpdateModelInput } from "../server/model";
 import type { ApiClientConfig, ApiResponse } from "./base-client";
 import { BaseApiClient } from "./base-client";
 
@@ -37,8 +21,12 @@ export class ModelsApiClient extends BaseApiClient {
    * 获取所有模型（基础版本）
    * @description 获取系统中所有可用的模型列表，不包含关联信息
    */
-  async getModels(): Promise<ApiResponse<ModelsListResult>> {
-    return this.get<ModelsListResult>("/models");
+  async getModels(): Promise<
+    ApiResponse<z.infer<(typeof modelRoutes)["getModels"]["responseSchema"]>>
+  > {
+    return this.get<
+      z.infer<(typeof modelRoutes)["getModels"]["responseSchema"]>
+    >(modelRoutes.getModels.path);
   }
 
   /**
@@ -46,8 +34,14 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 通过模型ID获取特定模型的详细信息，不包含关联信息
    * @param id - 模型的唯一标识符
    */
-  async getModelById(id: string): Promise<ApiResponse<ModelDetailResult>> {
-    return this.get<ModelDetailResult>(`/models/${id}`);
+  async getModelById(
+    id: string
+  ): Promise<
+    ApiResponse<z.infer<(typeof modelRoutes)["getModelById"]["responseSchema"]>>
+  > {
+    return this.get<
+      z.infer<(typeof modelRoutes)["getModelById"]["responseSchema"]>
+    >(modelRoutes.getModelById.path.replace(":id", id));
   }
 
   /**
@@ -57,10 +51,14 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelsByProvider(
     providerId: string
-  ): Promise<ApiResponse<ModelsByProviderResult>> {
-    return this.get<ModelsByProviderResult>(
-      `/models/by-provider/${providerId}`
-    );
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof modelRoutes)["getModelsByProvider"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof modelRoutes)["getModelsByProvider"]["responseSchema"]>
+    >(modelRoutes.getModelsByProvider.path.replace(":providerId", providerId));
   }
 
   /**
@@ -70,8 +68,14 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelsByGroup(
     group: string
-  ): Promise<ApiResponse<ModelsByGroupResult>> {
-    return this.get<ModelsByGroupResult>(`/models/group/${group}`);
+  ): Promise<
+    ApiResponse<
+      z.infer<(typeof modelRoutes)["getModelsByGroup"]["responseSchema"]>
+    >
+  > {
+    return this.get<
+      z.infer<(typeof modelRoutes)["getModelsByGroup"]["responseSchema"]>
+    >(modelRoutes.getModelsByGroup.path.replace(":group", group));
   }
 
   // ==================== WithProviders 版本（包含提供商信息） ====================
@@ -81,9 +85,13 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 获取系统中所有可用的模型列表，包含关联的提供商信息
    */
   async getModelsWithProviders(): Promise<
-    ApiResponse<ModelsWithProvidersResult>
+    ApiResponse<
+      z.infer<(typeof modelRoutes)["getModelsWithProviders"]["responseSchema"]>
+    >
   > {
-    return this.get<ModelsWithProvidersResult>("/models/with-providers");
+    return this.get<
+      z.infer<(typeof modelRoutes)["getModelsWithProviders"]["responseSchema"]>
+    >(modelRoutes.getModelsWithProviders.path);
   }
 
   /**
@@ -93,8 +101,18 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelWithProvidersById(
     id: string
-  ): Promise<ApiResponse<ModelWithProvidersResult>> {
-    return this.get<ModelWithProvidersResult>(`/models/${id}/with-providers`);
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof modelRoutes)["getModelWithProvidersById"]["responseSchema"]
+      >
+    >
+  > {
+    return this.get<
+      z.infer<
+        (typeof modelRoutes)["getModelWithProvidersById"]["responseSchema"]
+      >
+    >(modelRoutes.getModelWithProvidersById.path.replace(":id", id));
   }
 
   /**
@@ -104,9 +122,22 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelsByProviderWithProviders(
     providerId: string
-  ): Promise<ApiResponse<ModelsByProviderWithProvidersResult>> {
-    return this.get<ModelsByProviderWithProvidersResult>(
-      `/models/by-provider/${providerId}/with-providers`
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof modelRoutes)["getModelsByProviderWithProviders"]["responseSchema"]
+      >
+    >
+  > {
+    return this.get<
+      z.infer<
+        (typeof modelRoutes)["getModelsByProviderWithProviders"]["responseSchema"]
+      >
+    >(
+      modelRoutes.getModelsByProviderWithProviders.path.replace(
+        ":providerId",
+        providerId
+      )
     );
   }
 
@@ -117,11 +148,21 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async getModelsByGroupWithProviders(
     group: string
-  ): Promise<ApiResponse<ModelsByGroupWithProvidersResult>> {
-    return this.get<ModelsByGroupWithProvidersResult>(`/models/group/${group}/with-providers`);
+  ): Promise<
+    ApiResponse<
+      z.infer<
+        (typeof modelRoutes)["getModelsByGroupWithProviders"]["responseSchema"]
+      >
+    >
+  > {
+    return this.get<
+      z.infer<
+        (typeof modelRoutes)["getModelsByGroupWithProviders"]["responseSchema"]
+      >
+    >(modelRoutes.getModelsByGroupWithProviders.path.replace(":group", group));
   }
 
-  // ==================== 修改操作（保持不变） ====================
+  // ==================== 修改操作 ====================
 
   /**
    * 创建新模型
@@ -130,8 +171,12 @@ export class ModelsApiClient extends BaseApiClient {
    */
   async createModel(
     model: CreateModelInput
-  ): Promise<ApiResponse<ModelCreateResult>> {
-    return this.post<ModelCreateResult>("/models", model);
+  ): Promise<
+    ApiResponse<z.infer<(typeof modelRoutes)["createModel"]["responseSchema"]>>
+  > {
+    return this.post<
+      z.infer<(typeof modelRoutes)["createModel"]["responseSchema"]>
+    >(modelRoutes.createModel.path, model);
   }
 
   /**
@@ -143,8 +188,12 @@ export class ModelsApiClient extends BaseApiClient {
   async updateModel(
     id: string,
     model: UpdateModelInput
-  ): Promise<ApiResponse<ModelUpdateResult>> {
-    return this.put<ModelUpdateResult>(`/models/${id}`, model);
+  ): Promise<
+    ApiResponse<z.infer<(typeof modelRoutes)["updateModel"]["responseSchema"]>>
+  > {
+    return this.put<
+      z.infer<(typeof modelRoutes)["updateModel"]["responseSchema"]>
+    >(modelRoutes.updateModel.path.replace(":id", id), model);
   }
 
   /**
@@ -152,63 +201,14 @@ export class ModelsApiClient extends BaseApiClient {
    * @description 删除指定的模型记录
    * @param id - 模型的唯一标识符
    */
-  async deleteModel(id: string): Promise<ApiResponse<ModelDeleteResult>> {
-    return this.delete<ModelDeleteResult>(`/models/${id}`);
-  }
-
-  /**
-   * 批量创建模型
-   * @description 批量创建多个模型记录
-   * @param models - 模型信息数组
-   */
-  async createManyModels(
-    models: CreateModelInput[]
-  ): Promise<ApiResponse<ModelsBatchCreateResult>> {
-    return this.post<ModelsBatchCreateResult>(
-      "/models/batch",
-      models as unknown as Record<string, unknown>
-    );
-  }
-
-  /**
-   * 添加模型与提供商的关联
-   * @description 为模型添加新的提供商关联
-   * @param relation - 模型ID和提供商ID
-   */
-  async addModelProviderRelation(
-    relation: ModelProviderRelation
-  ): Promise<ApiResponse<ModelProviderRelationAddResult>> {
-    return this.post<ModelProviderRelationAddResult>(
-      "/models/relations",
-      relation
-    );
-  }
-
-  /**
-   * 移除模型与提供商的关联
-   * @description 移除模型与提供商之间的关联关系
-   * @param relation - 模型ID和提供商ID
-   */
-  async removeModelProviderRelation(
-    relation: ModelProviderRelation
-  ): Promise<ApiResponse<ModelProviderRelationRemoveResult>> {
-    return this.delete<ModelProviderRelationRemoveResult>(
-      "/models/relations",
-      relation
-    );
-  }
-
-  /**
-   * 获取模型与提供商的关联列表
-   * @description 获取指定模型的所有提供商关联
-   * @param modelId - 模型ID
-   */
-  async getModelProviderRelations(
-    modelId: string
-  ): Promise<ApiResponse<ModelProviderRelationsResult>> {
-    return this.get<ModelProviderRelationsResult>(
-      `/models/${modelId}/relations`
-    );
+  async deleteModel(
+    id: string
+  ): Promise<
+    ApiResponse<z.infer<(typeof modelRoutes)["deleteModel"]["responseSchema"]>>
+  > {
+    return this.delete<
+      z.infer<(typeof modelRoutes)["deleteModel"]["responseSchema"]>
+    >(modelRoutes.deleteModel.path.replace(":id", id));
   }
 }
 
@@ -239,12 +239,9 @@ export const modelsApiMethods = {
     modelsApi.getModelsByGroupWithProviders(group),
 
   // 修改操作
-  createModel: (modelData: CreateModelInput) =>
-    modelsApi.createModel(modelData),
-  createManyModels: (modelsData: CreateModelInput[]) =>
-    modelsApi.createManyModels(modelsData),
-  updateModel: (id: string, modelData: UpdateModelInput) =>
-    modelsApi.updateModel(id, modelData),
+  createModel: (model: CreateModelInput) => modelsApi.createModel(model),
+  updateModel: (id: string, model: UpdateModelInput) =>
+    modelsApi.updateModel(id, model),
   deleteModel: (id: string) => modelsApi.deleteModel(id)
 };
 
@@ -252,25 +249,20 @@ export const modelsApiMethods = {
  * React Hook 风格的 API 调用方法返回类型
  * @description 从 ModelsApiClient 类中提取方法类型，自动保持类型同步
  */
-export type UseModelsApiReturn = {
-  // 基础版本
-  getModels: ModelsApiClient["getModels"];
-  getModelById: ModelsApiClient["getModelById"];
-  getModelsByProvider: ModelsApiClient["getModelsByProvider"];
-  getModelsByGroup: ModelsApiClient["getModelsByGroup"];
-
-  // WithProviders 版本
-  getModelsWithProviders: ModelsApiClient["getModelsWithProviders"];
-  getModelWithProvidersById: ModelsApiClient["getModelWithProvidersById"];
-  getModelsByProviderWithProviders: ModelsApiClient["getModelsByProviderWithProviders"];
-  getModelsByGroupWithProviders: ModelsApiClient["getModelsByGroupWithProviders"];
-
-  // 修改操作
-  createModel: ModelsApiClient["createModel"];
-  createManyModels: ModelsApiClient["createManyModels"];
-  updateModel: ModelsApiClient["updateModel"];
-  deleteModel: ModelsApiClient["deleteModel"];
-};
+export type UseModelsApiReturn = Pick<
+  ModelsApiClient,
+  | "getModels"
+  | "getModelById"
+  | "getModelsByProvider"
+  | "getModelsByGroup"
+  | "getModelsWithProviders"
+  | "getModelWithProvidersById"
+  | "getModelsByProviderWithProviders"
+  | "getModelsByGroupWithProviders"
+  | "createModel"
+  | "updateModel"
+  | "deleteModel"
+>;
 
 /**
  * React Hook 风格的 API 调用方法
@@ -282,47 +274,46 @@ export type UseModelsApiReturn = {
  * const api = useModelsApi();
  * const response = await api.getModelsWithProviders();
  */
-export const useModelsApi = (): UseModelsApiReturn => ({
-  // 基础版本
-  getModels: modelsApi.getModels.bind(
-    modelsApi
-  ) as ModelsApiClient["getModels"],
-  getModelById: modelsApi.getModelById.bind(
-    modelsApi
-  ) as ModelsApiClient["getModelById"],
-  getModelsByProvider: modelsApi.getModelsByProvider.bind(
-    modelsApi
-  ) as ModelsApiClient["getModelsByProvider"],
-  getModelsByGroup: modelsApi.getModelsByGroup.bind(
-    modelsApi
-  ) as ModelsApiClient["getModelsByGroup"],
-
-  // WithProviders 版本
-  getModelsWithProviders: modelsApi.getModelsWithProviders.bind(
-    modelsApi
-  ) as ModelsApiClient["getModelsWithProviders"],
-  getModelWithProvidersById: modelsApi.getModelWithProvidersById.bind(
-    modelsApi
-  ) as ModelsApiClient["getModelWithProvidersById"],
-  getModelsByProviderWithProviders:
-    modelsApi.getModelsByProviderWithProviders.bind(
+export const useModelsApi = (): UseModelsApiReturn => {
+  return {
+    // 基础版本
+    getModels: modelsApi.getModels.bind(
       modelsApi
-    ) as ModelsApiClient["getModelsByProviderWithProviders"],
-  getModelsByGroupWithProviders: modelsApi.getModelsByGroupWithProviders.bind(
-    modelsApi
-  ) as ModelsApiClient["getModelsByGroupWithProviders"],
+    ) as UseModelsApiReturn["getModels"],
+    getModelById: modelsApi.getModelById.bind(
+      modelsApi
+    ) as UseModelsApiReturn["getModelById"],
+    getModelsByProvider: modelsApi.getModelsByProvider.bind(
+      modelsApi
+    ) as UseModelsApiReturn["getModelsByProvider"],
+    getModelsByGroup: modelsApi.getModelsByGroup.bind(
+      modelsApi
+    ) as UseModelsApiReturn["getModelsByGroup"],
 
-  // 修改操作
-  createModel: modelsApi.createModel.bind(
-    modelsApi
-  ) as ModelsApiClient["createModel"],
-  createManyModels: modelsApi.createManyModels.bind(
-    modelsApi
-  ) as ModelsApiClient["createManyModels"],
-  updateModel: modelsApi.updateModel.bind(
-    modelsApi
-  ) as ModelsApiClient["updateModel"],
-  deleteModel: modelsApi.deleteModel.bind(
-    modelsApi
-  ) as ModelsApiClient["deleteModel"]
-});
+    // WithProviders 版本
+    getModelsWithProviders: modelsApi.getModelsWithProviders.bind(
+      modelsApi
+    ) as UseModelsApiReturn["getModelsWithProviders"],
+    getModelWithProvidersById: modelsApi.getModelWithProvidersById.bind(
+      modelsApi
+    ) as UseModelsApiReturn["getModelWithProvidersById"],
+    getModelsByProviderWithProviders:
+      modelsApi.getModelsByProviderWithProviders.bind(
+        modelsApi
+      ) as UseModelsApiReturn["getModelsByProviderWithProviders"],
+    getModelsByGroupWithProviders: modelsApi.getModelsByGroupWithProviders.bind(
+      modelsApi
+    ) as UseModelsApiReturn["getModelsByGroupWithProviders"],
+
+    // 修改操作
+    createModel: modelsApi.createModel.bind(
+      modelsApi
+    ) as UseModelsApiReturn["createModel"],
+    updateModel: modelsApi.updateModel.bind(
+      modelsApi
+    ) as UseModelsApiReturn["updateModel"],
+    deleteModel: modelsApi.deleteModel.bind(
+      modelsApi
+    ) as UseModelsApiReturn["deleteModel"]
+  };
+};
