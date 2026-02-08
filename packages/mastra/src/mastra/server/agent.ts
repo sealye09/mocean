@@ -5,6 +5,59 @@ import { prisma } from "./index";
 import type { AsyncReturnType } from "./type";
 
 /**
+ * Response Schemas
+ * 用于 Router 的响应类型验证
+ */
+
+// 基础 Agent Response Schema（不含关联关系）
+export const AgentResponseSchema = AgentSchema.pick({
+  id: true,
+  name: true,
+  prompt: true,
+  type: true,
+  emoji: true,
+  description: true,
+  enableWebSearch: true,
+  webSearchProviderId: true,
+  enableGenerateImage: true,
+  knowledgeRecognition: true,
+  groupJson: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+// Agents 列表 Response Schema
+export const AgentsResponseSchema = z.array(AgentResponseSchema);
+
+// 带 settings 的 Agent Response Schema
+export const AgentWithSettingsResponseSchema = AgentSchema.pick({
+  id: true,
+  name: true,
+  prompt: true,
+  type: true,
+  emoji: true,
+  description: true,
+  enableWebSearch: true,
+  webSearchProviderId: true,
+  enableGenerateImage: true,
+  knowledgeRecognition: true,
+  groupJson: true,
+  createdAt: true,
+  updatedAt: true
+}).extend({
+  settings: z.array(
+    z.object({
+      id: z.string(),
+      agentId: z.string(),
+      key: z.string(),
+      value: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
+  )
+});
+
+/**
  * 代理相关的zod校验schemas
  */
 

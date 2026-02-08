@@ -1,9 +1,61 @@
-import { ModelSchema } from "generated/schemas/models";
+import type { ModelGroup, Prisma, Provider } from "generated/prisma/client";
+import { ModelSchema, ProviderSchema } from "generated/schemas/models";
 import { z } from "zod";
 
-import type { ModelGroup, Prisma, Provider } from "../../../generated/prisma";
 import { prisma } from "./index";
 import type { AsyncReturnType } from "./type";
+
+/**
+ * Response Schemas
+ * 用于 Router 的响应类型验证
+ */
+
+// 基础 Model Response Schema（不含关联关系）
+export const ModelResponseSchema = ModelSchema.pick({
+  id: true,
+  name: true,
+  owned_by: true,
+  description: true,
+  isSystem: true,
+  contextLength: true,
+  supportsAttachments: true,
+  supportsTools: true,
+  supportsReasoning: true,
+  supportsImage: true,
+  supportsAudio: true,
+  supportsVideo: true,
+  supportsEmbedding: true,
+  inputPricePerMillion: true,
+  outputPricePerMillion: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+// Models 列表 Response Schema
+export const ModelsResponseSchema = z.array(ModelResponseSchema);
+
+// 带 providers 数组的 Model Response Schema
+export const ModelWithProvidersResponseSchema = ModelSchema.pick({
+  id: true,
+  name: true,
+  owned_by: true,
+  description: true,
+  isSystem: true,
+  contextLength: true,
+  supportsAttachments: true,
+  supportsTools: true,
+  supportsReasoning: true,
+  supportsImage: true,
+  supportsAudio: true,
+  supportsVideo: true,
+  supportsEmbedding: true,
+  inputPricePerMillion: true,
+  outputPricePerMillion: true,
+  createdAt: true,
+  updatedAt: true
+}).extend({
+  providers: z.array(ProviderSchema)
+});
 
 /**
  * 模型相关的zod校验schemas
