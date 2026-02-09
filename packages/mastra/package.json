@@ -15,7 +15,8 @@
     "import-assistants": "tsx scripts/import-assistants.ts",
     "check-types": "tsc --noEmit",
     "fetch-models-from-api": "dotenvx run -- tsx scripts/fetch-models-from-api.ts",
-    "updata-provider-type": "tsx scripts/ProviderTypeUpdater.ts"
+    "updata-provider-type": "tsx scripts/ProviderTypeUpdater.ts",
+    "generate": "prisma generate && tsx scripts/fix-circular-imports.ts"
   },
   "exports": {
     "./prismaType": {
