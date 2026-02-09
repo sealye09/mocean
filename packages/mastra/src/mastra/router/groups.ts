@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import { PREFIX } from "../api/base-client";
 import {
+  // Response Schemas
+  GroupResponseSchema,
+  GroupWithModelsResponseSchema,
+  GroupsResponseSchema,
   createGroup,
   createGroupSchema,
   deleteGroup,
@@ -11,11 +15,7 @@ import {
   idParamSchema,
   providerParamSchema,
   updateGroup,
-  updateGroupSchema,
-  // Response Schemas
-  GroupResponseSchema,
-  GroupWithModelsResponseSchema,
-  GroupsResponseSchema
+  updateGroupSchema
 } from "../server/group";
 
 /**

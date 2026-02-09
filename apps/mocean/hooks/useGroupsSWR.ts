@@ -1,9 +1,5 @@
-import type {
-  GroupDetailResult,
-  GroupsByProviderResult
-} from "@mocean/mastra/apiClient";
 import { useGroupsApi } from "@mocean/mastra/apiClient";
-import useSWR, { type KeyedMutator } from "swr";
+import useSWR from "swr";
 
 /**
  * 使用 SWR 的分组数据获取 hooks
@@ -17,10 +13,7 @@ import useSWR, { type KeyedMutator } from "swr";
 export function useGroupsByProviderSWR(providerId: string | null) {
   const { getGroupsByProvider } = useGroupsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    GroupsByProviderResult,
-    Error | undefined
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     providerId ? `groups-provider-${providerId}` : null,
     async () => {
       if (!providerId) return [];
@@ -52,10 +45,7 @@ export function useGroupsByProviderSWR(providerId: string | null) {
 export function useGroupSWR(id: string | null) {
   const { getGroupById } = useGroupsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    GroupDetailResult | null,
-    Error | undefined
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `group-${id}` : null,
     async () => {
       if (!id) return null;
@@ -82,20 +72,7 @@ export function useGroupSWR(id: string | null) {
  * 增强的分组 API hooks - 结合 CRUD 操作和 SWR 缓存
  * @param providerId - 提供商ID
  */
-export function useGroupsWithActions(providerId: string | null): {
-  groups: GroupsByProviderResult;
-  isLoading: boolean;
-  error: Error | undefined;
-  create: (
-    data: Parameters<ReturnType<typeof useGroupsApi>["createGroup"]>[0]
-  ) => Promise<unknown>;
-  update: (
-    id: string,
-    data: Parameters<ReturnType<typeof useGroupsApi>["updateGroup"]>[1]
-  ) => Promise<unknown>;
-  remove: (id: string) => Promise<unknown>;
-  refresh: KeyedMutator<GroupsByProviderResult>;
-} {
+export function useGroupsWithActions(providerId: string | null) {
   const { groups, isLoading, error, refresh } =
     useGroupsByProviderSWR(providerId);
   const { createGroup, updateGroup, deleteGroup } = useGroupsApi();

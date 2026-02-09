@@ -1,11 +1,10 @@
 import {
-  type AssistantDetailResult,
   type StorageThreadType,
   useAssistantsApi
 } from "@mocean/mastra/apiClient";
 import { type Assistant } from "@mocean/mastra/prismaType";
 import { type UIMessage } from "ai";
-import useSWR, { type KeyedMutator } from "swr";
+import useSWR from "swr";
 
 /**
  * 使用 SWR 的助手数据获取 hooks
@@ -15,12 +14,7 @@ import useSWR, { type KeyedMutator } from "swr";
 /**
  * 获取所有助手列表 - 使用 SWR
  */
-export function useAssistantsSWR(): {
-  assistants: Assistant[];
-  isLoading: boolean;
-  error: Error | undefined;
-  refresh: KeyedMutator<Assistant[]>;
-} {
+export function useAssistantsSWR() {
   const { getAssistants } = useAssistantsApi();
 
   const { data, error, isLoading, mutate } = useSWR(
@@ -54,10 +48,7 @@ export function useAssistantsSWR(): {
 export function useAssistantSWR(id: string | null) {
   const { getAssistantById } = useAssistantsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    AssistantDetailResult | null | undefined,
-    Error | undefined
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `assistant-${id}` : null,
     async () => {
       if (!id) return null;
@@ -97,12 +88,7 @@ export function useAssistantSWR(id: string | null) {
  * @param assistantId - 助手的唯一标识符（为空时不发起请求）
  * @returns 包含线程数据、加载状态、错误信息、刷新方法和动态获取助手方法的对象
  */
-export function useAssistantThreadsSWR(assistantId: string | null): {
-  threads: StorageThreadType[];
-  isLoading: boolean;
-  error: Error | undefined;
-  refresh: KeyedMutator<StorageThreadType[]>;
-} {
+export function useAssistantThreadsSWR(assistantId: string | null) {
   const { getAssistantThreads } = useAssistantsApi();
 
   const { data, error, isLoading, mutate } = useSWR(
@@ -133,12 +119,7 @@ export function useAssistantThreadsSWR(assistantId: string | null): {
 export function useAssistantUIMessageSWR(
   assistantId: string | null,
   threadId: string | null
-): {
-  messages: UIMessage[] | null | undefined;
-  isLoading: boolean;
-  error: Error | undefined;
-  refresh: KeyedMutator<UIMessage[] | null>;
-} {
+) {
   const { getAssistantUIMessageByThreadId } = useAssistantsApi();
 
   const { data, error, isLoading, mutate } = useSWR(
@@ -164,20 +145,7 @@ export function useAssistantUIMessageSWR(
 /**
  * 增强的助手 API hooks - 结合 CRUD 操作和 SWR 缓存
  */
-export function useAssistantsWithActions(): {
-  assistants: Assistant[];
-  isLoading: boolean;
-  error: Error | undefined;
-  create: (
-    data: Parameters<ReturnType<typeof useAssistantsApi>["createAssistant"]>[0]
-  ) => Promise<unknown>;
-  update: (
-    id: string,
-    data: Parameters<ReturnType<typeof useAssistantsApi>["updateAssistant"]>[1]
-  ) => Promise<unknown>;
-  remove: (id: string) => Promise<unknown>;
-  refresh: KeyedMutator<Assistant[]>;
-} {
+export function useAssistantsWithActions() {
   const { assistants, isLoading, error, refresh } = useAssistantsSWR();
   const { createAssistant, updateAssistant, deleteAssistant } =
     useAssistantsApi();

@@ -1,6 +1,6 @@
-import { CreateAgentInput, useAgentsApi } from "@mocean/mastra/apiClient";
-import { type Agent } from "@mocean/mastra/prismaType";
-import useSWR, { type KeyedMutator } from "swr";
+import type { CreateAgentInput } from "@mocean/mastra/apiClient";
+import { useAgentsApi } from "@mocean/mastra/apiClient";
+import useSWR from "swr";
 
 /**
  * 使用 SWR 的代理数据获取 hooks
@@ -19,7 +19,7 @@ import useSWR, { type KeyedMutator } from "swr";
 export function useAgentsSWR() {
   const { getAgents } = useAgentsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Agent[], Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     "agents",
     async () => {
       const result = await getAgents();
@@ -32,15 +32,15 @@ export function useAgentsSWR() {
       revalidateOnReconnect: true, // 重连时重新验证
       dedupingInterval: 60000, // 60秒内的重复请求会被去重
       errorRetryCount: 3, // 错误重试次数
-      errorRetryInterval: 5000, // 重试间隔
-    },
+      errorRetryInterval: 5000 // 重试间隔
+    }
   );
 
   return {
     agents: data || [],
     isLoading,
     error,
-    refresh: mutate,
+    refresh: mutate
   };
 }
 
@@ -57,10 +57,7 @@ export function useAgentsSWR() {
 export function useAgentSWR(id: string | null) {
   const { getAgentById } = useAgentsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    Agent | null,
-    Error | undefined
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `agent-${id}` : null,
     async () => {
       if (!id) return null;
@@ -71,15 +68,15 @@ export function useAgentSWR(id: string | null) {
       refreshInterval: 0,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 60000,
-    },
+      dedupingInterval: 60000
+    }
   );
 
   return {
     agent: data,
     isLoading,
     error,
-    refresh: mutate,
+    refresh: mutate
   };
 }
 
@@ -96,7 +93,7 @@ export function useAgentSWR(id: string | null) {
 export function useAgentsByGroupSWR(group: string | null) {
   const { getAgentByGroup } = useAgentsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Agent[], Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     group ? `agents-group-${group}` : null,
     async () => {
       if (!group) return [];
@@ -109,15 +106,15 @@ export function useAgentsByGroupSWR(group: string | null) {
       revalidateOnReconnect: true,
       dedupingInterval: 30000, // 30秒内的重复请求会被去重（分组数据更新频率适中）
       errorRetryCount: 3,
-      errorRetryInterval: 3000,
-    },
+      errorRetryInterval: 3000
+    }
   );
 
   return {
     agents: data || [],
     isLoading,
     error,
-    refresh: mutate,
+    refresh: mutate
   };
 }
 
@@ -138,15 +135,7 @@ export function useAgentsByGroupSWR(group: string | null) {
  * // 删除代理
  * await remove("agent-id");
  */
-export function useAgentsWithActions(): {
-  agents: Agent[];
-  isLoading: boolean;
-  error: Error | undefined;
-  create: (data: CreateAgentInput) => Promise<unknown>;
-  update: (id: string, data: Partial<CreateAgentInput>) => Promise<unknown>;
-  remove: (id: string) => Promise<unknown>;
-  refresh: KeyedMutator<Agent[]>;
-} {
+export function useAgentsWithActions() {
   const { agents, isLoading, error, refresh } = useAgentsSWR();
   const { createAgent, updateAgent, deleteAgent } = useAgentsApi();
 
@@ -200,6 +189,6 @@ export function useAgentsWithActions(): {
     },
 
     // 手动刷新
-    refresh,
+    refresh
   };
 }

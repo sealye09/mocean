@@ -1,12 +1,5 @@
-import type {
-  ModelWithProvidersResult,
-  ModelsByGroupWithProvidersResult,
-  ModelsByProviderWithProvidersResult,
-  ModelsWithProvidersResult
-} from "@mocean/mastra/apiClient";
 import { useModelsApi } from "@mocean/mastra/apiClient";
-import { type Model } from "@mocean/mastra/prismaType";
-import useSWR, { type KeyedMutator } from "swr";
+import useSWR from "swr";
 
 /**
  * 使用 SWR 的模型数据获取 hooks
@@ -21,7 +14,7 @@ import useSWR, { type KeyedMutator } from "swr";
 export function useModels() {
   const { getModels } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     "models-base",
     async () => {
       const result = await getModels();
@@ -51,7 +44,7 @@ export function useModels() {
 export function useModel(id: string | null) {
   const { getModelById } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Model | null, Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `model-base-${id}` : null,
     async () => {
       if (!id) return null;
@@ -80,7 +73,7 @@ export function useModel(id: string | null) {
 export function useModelsByProvider(providerId: string | null) {
   const { getModelsByProvider } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     providerId ? `models-base-provider-${providerId}` : null,
     async () => {
       if (!providerId) return [];
@@ -111,7 +104,7 @@ export function useModelsByProvider(providerId: string | null) {
 export function useModelsByGroup(group: string | null) {
   const { getModelsByGroup } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<Model[], Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     group ? `models-base-group-${group}` : null,
     async () => {
       if (!group) return [];
@@ -144,7 +137,7 @@ export function useModelsByGroup(group: string | null) {
 export function useModelsWithProviders() {
   const { getModelsWithProviders } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<ModelsWithProvidersResult, Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     "models-with-providers",
     async () => {
       const result = await getModelsWithProviders();
@@ -174,7 +167,7 @@ export function useModelsWithProviders() {
 export function useModelWithProviders(id: string | null) {
   const { getModelWithProvidersById } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<ModelWithProvidersResult | null, Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `model-with-providers-${id}` : null,
     async () => {
       if (!id) return null;
@@ -203,7 +196,7 @@ export function useModelWithProviders(id: string | null) {
 export function useModelsByProviderWithProviders(providerId: string | null) {
   const { getModelsByProviderWithProviders } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<ModelsByProviderWithProvidersResult, Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     providerId ? `models-provider-with-providers-${providerId}` : null,
     async () => {
       if (!providerId) return [];
@@ -234,7 +227,7 @@ export function useModelsByProviderWithProviders(providerId: string | null) {
 export function useModelsByGroupWithProviders(group: string | null) {
   const { getModelsByGroupWithProviders } = useModelsApi();
 
-  const { data, error, isLoading, mutate } = useSWR<ModelsByGroupWithProvidersResult, Error | undefined>(
+  const { data, error, isLoading, mutate } = useSWR(
     group ? `models-group-with-providers-${group}` : null,
     async () => {
       if (!group) return [];
@@ -265,15 +258,7 @@ export function useModelsByGroupWithProviders(group: string | null) {
  * 增强的模型 API hooks - 结合 CRUD 操作和 SWR 缓存
  * 默认使用 WithProviders 版本
  */
-export function useModelsWithActions(): {
-  models: ModelsWithProvidersResult;
-  isLoading: boolean;
-  error: Error | undefined;
-  create: (data: Parameters<ReturnType<typeof useModelsApi>["createModel"]>[0]) => Promise<unknown>;
-  update: (id: string, data: Parameters<ReturnType<typeof useModelsApi>["updateModel"]>[1]) => Promise<unknown>;
-  remove: (id: string) => Promise<unknown>;
-  refresh: KeyedMutator<ModelsWithProvidersResult>;
-} {
+export function useModelsWithActions() {
   const { models, isLoading, error, refresh } = useModelsWithProviders();
   const { createModel, updateModel, deleteModel } = useModelsApi();
 

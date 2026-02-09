@@ -1,14 +1,3 @@
-import type {
-  // 基础类型
-  EnabledProvidersResult, // WithModels 类型
-  EnabledProvidersWithModelsResult,
-  ProviderResult,
-  ProviderWithModelsResult,
-  ProvidersByTypeResult,
-  ProvidersByTypeWithModelsResult,
-  ProvidersResult,
-  ProvidersWithModelsResult
-} from "@mocean/mastra/apiClient";
 import { useProvidersApi } from "@mocean/mastra/apiClient";
 import type { ProviderType } from "@mocean/mastra/prismaType";
 import useSWR from "swr";
@@ -33,7 +22,7 @@ const defaultSWRConfig = {
 export function useProviders() {
   const { getProviders } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<ProvidersResult, Error>(
+  const { data, error, isLoading, mutate } = useSWR(
     "providers",
     async () => {
       const result = await getProviders();
@@ -56,10 +45,7 @@ export function useProviders() {
 export function useEnabledProviders() {
   const { getEnabledProviders } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    EnabledProvidersResult,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     "providers-enabled",
     async () => {
       const result = await getEnabledProviders();
@@ -82,10 +68,7 @@ export function useEnabledProviders() {
 export function useProvider(id: string | null) {
   const { getProviderById } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    ProviderResult | null,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `provider-${id}` : null,
     async () => {
       if (!id) return null;
@@ -109,10 +92,7 @@ export function useProvider(id: string | null) {
 export function useProvidersByType(type: string | null) {
   const { getProvidersByType } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    ProvidersByTypeResult,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     type ? `providers-type-${type}` : null,
     async () => {
       if (!type) return [];
@@ -141,10 +121,7 @@ export function useProvidersByType(type: string | null) {
 export function useProvidersWithModels() {
   const { getProvidersWithModels } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    ProvidersWithModelsResult,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     "providers-with-models",
     async () => {
       const result = await getProvidersWithModels();
@@ -167,10 +144,7 @@ export function useProvidersWithModels() {
 export function useEnabledProvidersWithModels() {
   const { getEnabledProvidersWithModels } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    EnabledProvidersWithModelsResult,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     "providers-enabled-with-models",
     async () => {
       const result = await getEnabledProvidersWithModels();
@@ -193,10 +167,7 @@ export function useEnabledProvidersWithModels() {
 export function useProviderWithModels(id: string | null) {
   const { getProviderWithModelsById } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    ProviderWithModelsResult | null,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     id ? `provider-with-models-${id}` : null,
     async () => {
       if (!id) return null;
@@ -220,10 +191,7 @@ export function useProviderWithModels(id: string | null) {
 export function useProvidersByTypeWithModels(type: string | null) {
   const { getProvidersByTypeWithModels } = useProvidersApi();
 
-  const { data, error, isLoading, mutate } = useSWR<
-    ProvidersByTypeWithModelsResult,
-    Error
-  >(
+  const { data, error, isLoading, mutate } = useSWR(
     type ? `providers-type-with-models-${type}` : null,
     async () => {
       if (!type) return [];

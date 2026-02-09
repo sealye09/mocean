@@ -409,61 +409,61 @@ export const providerRoutes = {
   // 基础版本
   getProviders: {
     path: getProvidersRouter.path,
-    responseSchema: getProvidersRouter.responseSchema
+    responseSchema: ProvidersResponseSchema
   },
   getEnabledProviders: {
     path: getEnabledProvidersRouter.path,
-    responseSchema: getEnabledProvidersRouter.responseSchema
+    responseSchema: ProvidersResponseSchema
   },
   getProviderById: {
     path: getProviderByIdRouter.path,
-    responseSchema: getProviderByIdRouter.responseSchema
+    responseSchema: ProviderResponseSchema.nullable()
   },
   getProvidersByType: {
     path: getProvidersByTypeRouter.path,
-    responseSchema: getProvidersByTypeRouter.responseSchema
+    responseSchema: ProvidersResponseSchema
   },
   getProvidersByModel: {
     path: getProvidersByModelRouter.path,
-    responseSchema: getProvidersByModelRouter.responseSchema
+    responseSchema: ProvidersResponseSchema
   },
   // WithModels 版本
   getProvidersWithModels: {
     path: getProvidersWithModelsRouter.path,
-    responseSchema: getProvidersWithModelsRouter.responseSchema
+    responseSchema: ProvidersWithModelsResponseSchema
   },
   getEnabledProvidersWithModels: {
     path: getEnabledProvidersWithModelsRouter.path,
-    responseSchema: getEnabledProvidersWithModelsRouter.responseSchema
+    responseSchema: ProvidersWithModelsResponseSchema
   },
   getProviderWithModelsById: {
     path: getProviderWithModelsByIdRouter.path,
-    responseSchema: getProviderWithModelsByIdRouter.responseSchema
+    responseSchema: ProviderWithModelsResponseSchema.nullable()
   },
   getProvidersByTypeWithModels: {
     path: getProvidersByTypeWithModelsRouter.path,
-    responseSchema: getProvidersByTypeWithModelsRouter.responseSchema
+    responseSchema: ProvidersWithModelsResponseSchema
   },
   getProvidersByModelWithModels: {
     path: getProvidersByModelWithModelsRouter.path,
-    responseSchema: getProvidersByModelWithModelsRouter.responseSchema
+    responseSchema: ProvidersWithModelsResponseSchema
   },
   // 写操作
   createProvider: {
     path: createProviderRouter.path,
-    responseSchema: createProviderRouter.responseSchema
+    responseSchema: ProviderWithModelsResponseSchema
   },
   updateProvider: {
     path: updateProviderRouter.path,
-    responseSchema: updateProviderRouter.responseSchema
+    responseSchema: ProviderWithModelsResponseSchema
   },
   deleteProvider: {
     path: deleteProviderRouter.path,
-    responseSchema: deleteProviderRouter.responseSchema
+    responseSchema: ProviderResponseSchema
   },
   toggleProviderEnabled: {
     path: toggleProviderEnabledRouter.path,
-    responseSchema: toggleProviderEnabledRouter.responseSchema
+    responseSchema: ProviderWithModelsResponseSchema
   }
 } as const;
 
