@@ -29,5 +29,5 @@
     "./prettier.config.js",
     "./prisma.config.ts"
   ],
-  "exclude": ["node_modules", "generated"]
+  "exclude": ["node_modules"]
 }

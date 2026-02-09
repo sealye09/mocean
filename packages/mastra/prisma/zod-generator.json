@@ -2,7 +2,7 @@
   "mode": "custom",
   "pureModels": true,
   "pureModelsIncludeRelations": true,
-  "pureModelsExcludeCircularRelations": true,
+  "pureModelsExcludeCircularRelations": false,
   "variants": {
     "pure": { "enabled": false },
     "input": { "enabled": false },
