@@ -47,10 +47,7 @@ export class AssistantsApiClient extends BaseApiClient {
     return this.get<
       z.infer<(typeof assistantRoutes)["getAssistantById"]["responseSchema"]>
     >(
-      assistantRoutes.getAssistantById.path.replace(
-        ":assistantId",
-        assistantId
-      )
+      assistantRoutes.getAssistantById.path.replace(":assistantId", assistantId)
     );
   }
 
