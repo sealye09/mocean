@@ -1,8 +1,8 @@
-import { createRoute } from "@mastra/server/server-adapter";
+import { registerApiRoute } from "@mastra/core/server";
+import { resolver } from "hono-openapi";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
-import { PREFIX } from "../api/base-client";
 import {
   CreateManyModelsResponseSchema,
   ModelProviderRelationResponseSchema,
@@ -39,16 +39,24 @@ import { modelRoutes } from "./type";
  * 获取所有模型的路由处理器（基础版本）
  * @description 返回系统中所有可用的模型列表，不包含关联信息
  */
-const getModelsRouter = createRoute({
+const getModelsRouter = registerApiRoute(modelRoutes.getModels.path, {
   method: "GET",
-  path: modelRoutes.getModels.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModels.responseSchema,
-  summary: "获取所有模型",
-  description: "返回系统中所有可用的模型列表，不包含关联信息",
-  tags: ["Models"],
-  handler: async () => {
-    return await getModels();
+  openapi: {
+    summary: "获取所有模型",
+    tags: ["Models"],
+    responses: {
+      200: {
+        description: "返回系统中所有可用的模型列表，不包含关联信息",
+        content: {
+          "application/json": {
+            schema: resolver(ModelsResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    return c.json(await getModels(), 200);
   }
 });
 
@@ -56,40 +64,60 @@ const getModelsRouter = createRoute({
  * 获取所有模型的路由处理器（包含提供商信息）
  * @description 返回系统中所有可用的模型列表，包含关联的提供商信息
  */
-const getModelsWithProvidersRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelsWithProviders.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelsWithProviders.responseSchema,
-  summary: "获取所有模型（包含提供商信息）",
-  description: "返回系统中所有可用的模型列表，包含关联的提供商信息",
-  tags: ["Models"],
-  handler: async () => {
-    return await getModelsWithProviders();
+const getModelsWithProvidersRouter = registerApiRoute(
+  modelRoutes.getModelsWithProviders.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "获取所有模型（包含提供商信息）",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "返回系统中所有可用的模型列表，包含关联的提供商信息",
+          content: {
+            "application/json": {
+              schema: resolver(z.array(ModelWithProvidersResponseSchema))
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      return c.json(await getModelsWithProviders(), 200);
+    }
   }
-});
+);
 
 /**
  * 根据ID获取单个模型的路由处理器（基础版本）
  * @description 通过模型ID获取特定模型的详细信息，不包含关联信息
  */
-const getModelByIdRouter = createRoute({
+const getModelByIdRouter = registerApiRoute(modelRoutes.getModelById.path, {
   method: "GET",
-  path: modelRoutes.getModelById.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelById.responseSchema,
-  pathParamSchema: idParamSchema,
-  summary: "根据ID获取单个模型",
-  description: "通过模型ID获取特定模型的详细信息，不包含关联信息",
-  tags: ["Models"],
-  handler: async ({ id }) => {
+  openapi: {
+    summary: "根据ID获取单个模型",
+    tags: ["Models"],
+    responses: {
+      200: {
+        description: "通过模型ID获取特定模型的详细信息，不包含关联信息",
+        content: {
+          "application/json": {
+            schema: resolver(ModelResponseSchema.nullable())
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const id = c.req.param("id");
+    if (!id) {
+      throw new HTTPException(400, { message: "模型ID不能为空" });
+    }
     const model = await getModelById(id);
-
     if (!model) {
       throw new HTTPException(404, { message: "模型不存在" });
     }
-
-    return model;
+    return c.json(model, 200);
   }
 });
 
@@ -97,113 +125,197 @@ const getModelByIdRouter = createRoute({
  * 根据ID获取单个模型的路由处理器（包含提供商信息）
  * @description 通过模型ID获取特定模型的详细信息，包含关联的提供商
  */
-const getModelWithProvidersByIdRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelWithProvidersById.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelWithProvidersById.responseSchema,
-  pathParamSchema: idParamSchema,
-  summary: "根据ID获取单个模型（包含提供商信息）",
-  description: "通过模型ID获取特定模型的详细信息，包含关联的提供商",
-  tags: ["Models"],
-  handler: async ({ id }) => {
-    const model = await getModelWithProvidersById(id);
-
-    if (!model) {
-      throw new HTTPException(404, { message: "模型不存在" });
+const getModelWithProvidersByIdRouter = registerApiRoute(
+  modelRoutes.getModelWithProvidersById.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "根据ID获取单个模型（包含提供商信息）",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "通过模型ID获取特定模型的详细信息，包含关联的提供商",
+          content: {
+            "application/json": {
+              schema: resolver(ModelWithProvidersResponseSchema.nullable())
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const id = c.req.param("id");
+      if (!id) {
+        throw new HTTPException(400, { message: "模型ID不能为空" });
+      }
+      const model = await getModelWithProvidersById(id);
+      if (!model) {
+        throw new HTTPException(404, { message: "模型不存在" });
+      }
+      return c.json(model, 200);
     }
-
-    return model;
   }
-});
+);
 
 /**
  * 根据提供商ID获取模型的路由处理器（基础版本）
  * @description 通过提供商ID获取对应的模型列表，不包含关联信息
  */
-const getModelsByProviderRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelsByProvider.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelsByProvider.responseSchema,
-  pathParamSchema: providerParamSchema,
-  summary: "根据提供商ID获取模型列表",
-  description: "通过提供商ID获取对应的模型列表，不包含关联信息",
-  tags: ["Models"],
-  handler: async ({ providerId }) => {
-    return await getModelsByProvider(providerId);
+const getModelsByProviderRouter = registerApiRoute(
+  modelRoutes.getModelsByProvider.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "根据提供商ID获取模型列表",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "通过提供商ID获取对应的模型列表，不包含关联信息",
+          content: {
+            "application/json": {
+              schema: resolver(ModelsResponseSchema)
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const providerId = c.req.param("providerId");
+      if (!providerId) {
+        throw new HTTPException(400, { message: "提供商ID不能为空" });
+      }
+      return c.json(await getModelsByProvider(providerId), 200);
+    }
   }
-});
+);
 
 /**
  * 根据提供商ID获取模型的路由处理器（包含提供商信息）
  * @description 通过提供商ID获取对应的模型列表，包含关联的提供商
  */
-const getModelsByProviderWithProvidersRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelsByProviderWithProviders.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelsByProviderWithProviders.responseSchema,
-  pathParamSchema: providerParamSchema,
-  summary: "根据提供商ID获取模型列表（包含提供商信息）",
-  description: "通过提供商ID获取对应的模型列表，包含关联的提供商",
-  tags: ["Models"],
-  handler: async ({ providerId }) => {
-    return await getModelsByProviderWithProviders(providerId);
+const getModelsByProviderWithProvidersRouter = registerApiRoute(
+  modelRoutes.getModelsByProviderWithProviders.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "根据提供商ID获取模型列表（包含提供商信息）",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "通过提供商ID获取对应的模型列表，包含关联的提供商",
+          content: {
+            "application/json": {
+              schema: resolver(z.array(ModelWithProvidersResponseSchema))
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const providerId = c.req.param("providerId");
+      if (!providerId) {
+        throw new HTTPException(400, { message: "提供商ID不能为空" });
+      }
+      return c.json(await getModelsByProviderWithProviders(providerId), 200);
+    }
   }
-});
+);
 
 /**
  * 根据分组获取模型的路由处理器（基础版本）
  * @description 通过模型分组获取对应的模型列表，不包含关联信息
  */
-const getModelsByGroupRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelsByGroup.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelsByGroup.responseSchema,
-  pathParamSchema: groupParamSchema,
-  summary: "根据分组获取模型列表",
-  description: "通过模型分组获取对应的模型列表，不包含关联信息",
-  tags: ["Models"],
-  handler: async ({ group }) => {
-    return await getModelsByGroup(group);
+const getModelsByGroupRouter = registerApiRoute(
+  modelRoutes.getModelsByGroup.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "根据分组获取模型列表",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "通过模型分组获取对应的模型列表，不包含关联信息",
+          content: {
+            "application/json": {
+              schema: resolver(ModelsResponseSchema)
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const group = c.req.param("group");
+      if (!group) {
+        throw new HTTPException(400, { message: "分组不能为空" });
+      }
+      return c.json(await getModelsByGroup(group), 200);
+    }
   }
-});
+);
 
 /**
  * 根据分组获取模型的路由处理器（包含提供商信息）
  * @description 通过模型分组获取对应的模型列表，包含关联的提供商
  */
-const getModelsByGroupWithProvidersRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelsByGroupWithProviders.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelsByGroupWithProviders.responseSchema,
-  pathParamSchema: groupParamSchema,
-  summary: "根据分组获取模型列表（包含提供商信息）",
-  description: "通过模型分组获取对应的模型列表，包含关联的提供商",
-  tags: ["Models"],
-  handler: async ({ group }) => {
-    return await getModelsByGroupWithProviders(group);
+const getModelsByGroupWithProvidersRouter = registerApiRoute(
+  modelRoutes.getModelsByGroupWithProviders.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "根据分组获取模型列表（包含提供商信息）",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "通过模型分组获取对应的模型列表，包含关联的提供商",
+          content: {
+            "application/json": {
+              schema: resolver(z.array(ModelWithProvidersResponseSchema))
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const group = c.req.param("group");
+      if (!group) {
+        throw new HTTPException(400, { message: "分组不能为空" });
+      }
+      return c.json(await getModelsByGroupWithProviders(group), 200);
+    }
   }
-});
+);
 
 /**
  * 创建新模型的路由处理器
  * @description 接收模型数据并在系统中创建新的模型
  */
-const createModelRouter = createRoute({
+const createModelRouter = registerApiRoute(modelRoutes.createModel.path, {
   method: "POST",
-  path: modelRoutes.createModel.path,
-  responseType: "json",
-  bodySchema: createModelSchema,
-  responseSchema: modelRoutes.createModel.responseSchema,
-  summary: "创建新模型",
-  description: "接收模型数据并在系统中创建新的模型",
-  tags: ["Models"],
-  handler: async (data) => {
-    return await createModel(data);
+  openapi: {
+    summary: "创建新模型",
+    tags: ["Models"],
+    requestBody: {
+      content: {
+        "application/json": {
+          // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+          schema: createModelSchema
+        }
+      }
+    },
+    responses: {
+      201: {
+        description: "接收模型数据并在系统中创建新的模型",
+        content: {
+          "application/json": {
+            schema: resolver(ModelWithProvidersResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const body = await c.req.json();
+    return c.json(await createModel(body), 201);
   }
 });
 
@@ -211,36 +323,74 @@ const createModelRouter = createRoute({
  * 批量创建模型的路由处理器
  * @description 接收模型数据数组并批量创建模型
  */
-const createManyModelsRouter = createRoute({
-  method: "POST",
-  path: modelRoutes.createManyModels.path,
-  responseType: "json",
-  bodySchema: z.array(createModelSchema),
-  responseSchema: modelRoutes.createManyModels.responseSchema,
-  summary: "批量创建模型",
-  description: "接收模型数据数组并批量创建模型",
-  tags: ["Models"],
-  handler: async (data) => {
-    return await createManyModels(data);
+const createManyModelsRouter = registerApiRoute(
+  modelRoutes.createManyModels.path,
+  {
+    method: "POST",
+    openapi: {
+      summary: "批量创建模型",
+      tags: ["Models"],
+      requestBody: {
+        content: {
+          "application/json": {
+            // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+            schema: z.array(createModelSchema)
+          }
+        }
+      },
+      responses: {
+        201: {
+          description: "接收模型数据数组并批量创建模型",
+          content: {
+            "application/json": {
+              schema: resolver(CreateManyModelsResponseSchema)
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const body = await c.req.json();
+      return c.json(await createManyModels(body), 201);
+    }
   }
-});
+);
 
 /**
  * 更新模型的路由处理器
  * @description 接收模型ID和更新数据，修改指定模型的信息
  */
-const updateModelRouter = createRoute({
+const updateModelRouter = registerApiRoute(modelRoutes.updateModel.path, {
   method: "PUT",
-  path: modelRoutes.updateModel.path,
-  responseType: "json",
-  pathParamSchema: idParamSchema,
-  bodySchema: updateModelSchema,
-  responseSchema: modelRoutes.updateModel.responseSchema,
-  summary: "更新模型信息",
-  description: "接收模型ID和更新数据，修改指定模型的信息",
-  tags: ["Models"],
-  handler: async ({ id }, data) => {
-    return await updateModel(id, data);
+  openapi: {
+    summary: "更新模型信息",
+    tags: ["Models"],
+    requestBody: {
+      content: {
+        "application/json": {
+          // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+          schema: updateModelSchema
+        }
+      }
+    },
+    responses: {
+      200: {
+        description: "接收模型ID和更新数据，修改指定模型的信息",
+        content: {
+          "application/json": {
+            schema: resolver(ModelWithProvidersResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const id = c.req.param("id");
+    if (!id) {
+      throw new HTTPException(400, { message: "模型ID不能为空" });
+    }
+    const body = await c.req.json();
+    return c.json(await updateModel(id, body), 200);
   }
 });
 
@@ -248,17 +398,28 @@ const updateModelRouter = createRoute({
  * 删除模型的路由处理器
  * @description 根据模型ID删除指定的模型
  */
-const deleteModelRouter = createRoute({
+const deleteModelRouter = registerApiRoute(modelRoutes.deleteModel.path, {
   method: "DELETE",
-  path: modelRoutes.deleteModel.path,
-  responseType: "json",
-  pathParamSchema: idParamSchema,
-  responseSchema: modelRoutes.deleteModel.responseSchema,
-  summary: "删除模型",
-  description: "根据模型ID删除指定的模型",
-  tags: ["Models"],
-  handler: async ({ id }) => {
-    return await deleteModel(id);
+  openapi: {
+    summary: "删除模型",
+    tags: ["Models"],
+    responses: {
+      200: {
+        description: "根据模型ID删除指定的模型",
+        content: {
+          "application/json": {
+            schema: resolver(ModelResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const id = c.req.param("id");
+    if (!id) {
+      throw new HTTPException(400, { message: "模型ID不能为空" });
+    }
+    return c.json(await deleteModel(id), 200);
   }
 });
 
@@ -266,55 +427,107 @@ const deleteModelRouter = createRoute({
  * 添加模型与提供商关联的路由处理器
  * @description 为指定模型添加与提供商的关联关系
  */
-const addModelProviderRelationRouter = createRoute({
-  method: "POST",
-  path: modelRoutes.addModelProviderRelation.path,
-  responseType: "json",
-  bodySchema: modelProviderRelationSchema,
-  responseSchema: modelRoutes.addModelProviderRelation.responseSchema,
-  summary: "添加模型与提供商关联",
-  description: "为指定模型添加与提供商的关联关系",
-  tags: ["Models"],
-  handler: async (data) => {
-    return await addModelProviderRelation(data);
+const addModelProviderRelationRouter = registerApiRoute(
+  modelRoutes.addModelProviderRelation.path,
+  {
+    method: "POST",
+    openapi: {
+      summary: "添加模型与提供商关联",
+      tags: ["Models"],
+      requestBody: {
+        content: {
+          "application/json": {
+            // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+            schema: modelProviderRelationSchema
+          }
+        }
+      },
+      responses: {
+        201: {
+          description: "为指定模型添加与提供商的关联关系",
+          content: {
+            "application/json": {
+              schema: resolver(ModelProviderRelationResponseSchema)
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const body = await c.req.json();
+      return c.json(await addModelProviderRelation(body), 201);
+    }
   }
-});
+);
 
 /**
  * 移除模型与提供商关联的路由处理器
  * @description 移除指定模型与提供商的关联关系
  */
-const removeModelProviderRelationRouter = createRoute({
-  method: "DELETE",
-  path: modelRoutes.removeModelProviderRelation.path,
-  responseType: "json",
-  bodySchema: modelProviderRelationSchema,
-  responseSchema: modelRoutes.removeModelProviderRelation.responseSchema,
-  summary: "移除模型与提供商关联",
-  description: "移除指定模型与提供商的关联关系",
-  tags: ["Models"],
-  handler: async (data) => {
-    return await removeModelProviderRelation(data);
+const removeModelProviderRelationRouter = registerApiRoute(
+  modelRoutes.removeModelProviderRelation.path,
+  {
+    method: "DELETE",
+    openapi: {
+      summary: "移除模型与提供商关联",
+      tags: ["Models"],
+      requestBody: {
+        content: {
+          "application/json": {
+            // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+            schema: modelProviderRelationSchema
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: "移除指定模型与提供商的关联关系",
+          content: {
+            "application/json": {
+              schema: resolver(ModelProviderRelationResponseSchema)
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const body = await c.req.json();
+      return c.json(await removeModelProviderRelation(body), 200);
+    }
   }
-});
+);
 
 /**
  * 获取模型与提供商关联列表的路由处理器
  * @description 获取指定模型的所有提供商关联关系
  */
-const getModelProviderRelationsRouter = createRoute({
-  method: "GET",
-  path: modelRoutes.getModelProviderRelations.path,
-  responseType: "json",
-  responseSchema: modelRoutes.getModelProviderRelations.responseSchema,
-  pathParamSchema: idParamSchema,
-  summary: "获取模型与提供商关联列表",
-  description: "获取指定模型的所有提供商关联关系",
-  tags: ["Models"],
-  handler: async ({ id }) => {
-    return await getModelProviderRelations(id);
+const getModelProviderRelationsRouter = registerApiRoute(
+  modelRoutes.getModelProviderRelations.path,
+  {
+    method: "GET",
+    openapi: {
+      summary: "获取模型与提供商关联列表",
+      tags: ["Models"],
+      responses: {
+        200: {
+          description: "获取指定模型的所有提供商关联关系",
+          content: {
+            "application/json": {
+              schema: resolver(z.array(ModelProviderRelationResponseSchema))
+            }
+          }
+        }
+      }
+    },
+    handler: async (c) => {
+      const id = c.req.param("id");
+      if (!id) {
+        throw new HTTPException(400, { message: "模型ID不能为空" });
+      }
+      return c.json(await getModelProviderRelations(id), 200);
+    }
   }
-});
+);
 
 // 导出所有路由
 export const modelsRouter = [

@@ -1,4 +1,5 @@
 import type { Model, Provider, ProviderType } from "generated/prisma/client";
+import { ProviderType as ProviderTypeEnum } from "generated/prisma/enums";
 import { z } from "zod";
 
 import { prisma } from "../src/mastra/server/index.js";
@@ -104,23 +105,25 @@ async function fetchApiData(): Promise<ModelsDevResponse> {
 }
 
 /**
- * 从解析的模型数据创建ModelCapability对象
+ * 从解析的模型数据创建Model对象
  * @param parsedModel - Zod解析后的模型数据
- * @param modelId - 模型ID
+ * @param groupId - 分组ID
  * @param providerId - 供应商ID
- * @param providerName - 供应商显示名称
- * @returns ModelCapability对象
+ * @returns Model对象
  */
 function createPrismaModel({
   parsedModel,
+  groupId,
   providerId
 }: {
   parsedModel: ApiModelInfo;
+  groupId: string;
   providerId: string;
 }): Model & { providerId: string } {
   return {
     // 放置出现重复ID
     id: `${providerId}&${parsedModel.name}`,
+    groupId: groupId,
     providerId: providerId,
     owned_by: providerId,
     description: "",
@@ -130,23 +133,22 @@ function createPrismaModel({
     supportsAttachments: parsedModel.attachment || false,
     supportsEmbedding:
       parsedModel.name?.toLowerCase().includes("embedding") || false,
-    supportsTools: parsedModel.tool_call,
-    supportsReasoning: parsedModel.reasoning,
+    supportsTools: parsedModel.tool_call || false,
+    supportsReasoning: parsedModel.reasoning || false,
     supportsImage: parsedModel.modalities?.input?.includes("image") || false,
     supportsAudio: parsedModel.modalities?.input?.includes("audio") || false,
     supportsVideo: parsedModel.modalities?.input?.includes("video") || false,
     inputPricePerMillion: parsedModel.cost?.input || null,
-    outputPricePerMillion: parsedModel.cost?.output || null
+    outputPricePerMillion: parsedModel.cost?.output || null,
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 }
 
 /**
  * 处理供应商的数据
- * @param canonicalProviderId - 供应商标准ID
- * @param providerName - 供应商名称
- * @param isPopular - 是否为热门供应商
  * @param provider - 完整的供应商对象（包含api, doc, env, npm等信息）
- * @param modelEntries - 模型条目数组
+ * @param apiModelInfos - 模型条目数组
  * @returns 供应商信息对象和处理后的模型数组
  */
 function processRegularProvider({
@@ -161,14 +163,15 @@ function processRegularProvider({
 } {
   const models: Array<Model & { providerId: string }> = [];
 
-  if (provider.id === "deepseek") {
-    console.log(apiModelInfos);
-  }
+  // 获取或创建默认分组ID（格式：providerId_default）
+  const defaultGroupId = `${provider.id}_default`;
+
   // 处理每个模型
   for (const [modelId, modelData] of apiModelInfos) {
     const parsedModel = ModelsDevModelSchema.parse(modelData);
     const model = createPrismaModel({
       parsedModel,
+      groupId: defaultGroupId,
       providerId: provider.id
     });
     models.push(model);
@@ -220,14 +223,7 @@ async function fetchModelsDevData(): Promise<ScrapedData> {
       }
 
       const provider = ModelsDevProviderSchema.parse(providerData);
-      if (provider.id === "deepseek") {
-        console.log(provider);
-      }
-      const apiModelInfos = Object.entries(provider.models);
-
-      if (provider.id === "deepseek") {
-        console.log(apiModelInfos);
-      }
+      const apiModelInfos = Object.entries(provider.models || {});
       const result = processRegularProvider({
         provider,
         apiModelInfos
@@ -288,43 +284,26 @@ async function main() {
 }
 
 /**
- * 准备模型数据和关联关系
+ * 准备模型数据
  * @param data - 从API获取的完整数据
- * @returns 模型列表和模型-供应商关联关系
+ * @returns 模型列表
  */
-function prepareModelsAndRelations(data: ScrapedData): {
-  models: Array<Model>;
-  modelProviderRelations: Array<{
-    modelId: string;
-    providerId: string;
-  }>;
-} {
+function prepareModels(data: ScrapedData): Array<Model> {
   const models: Array<Model> = [];
-  const modelProviderRelations: Array<{
-    modelId: string;
-    providerId: string;
-  }> = [];
 
-  // 处理每个模型，保留所有模型实例
+  // 处理每个模型
   for (const modelData of data.models) {
-    // 移除临时的 providerId 字段
+    // 移除临时的 providerId 字段，保留 groupId
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { providerId, ...modelWithoutProviderId } = modelData;
 
     models.push(modelWithoutProviderId);
-
-    // 创建模型-供应商关联关系
-    modelProviderRelations.push({
-      modelId: modelData.id,
-      providerId: modelData.providerId
-    });
   }
 
   console.log(`\n📊 模型数据统计:`);
   console.log(`   - 总模型数: ${models.length}`);
-  console.log(`   - 模型-供应商关联数: ${modelProviderRelations.length}`);
 
-  return { models, modelProviderRelations };
+  return models;
 }
 
 /**
@@ -337,12 +316,69 @@ function convertKebabToSnake(value: string): string {
 }
 
 /**
+ * 检查字符串是否以数字开头
+ * @param value - 要检查的字符串
+ * @returns 是否以数字开头
+ */
+function startsWithDigit(value: string): boolean {
+  return /^\d/.test(value);
+}
+
+/**
+ * 确保标识符有效（不以数字开头）
+ * @param value - 原始标识符
+ * @param prefix - 数字开头时添加的前缀
+ * @returns 有效的标识符
+ */
+function ensureValidIdentifier(
+  value: string,
+  prefix: string = "provider_"
+): string {
+  if (startsWithDigit(value)) {
+    return `${prefix}${value}`;
+  }
+  return value;
+}
+
+// 从 Prisma 枚举获取有效的 ProviderType 值
+const VALID_PROVIDER_TYPES = new Set(Object.values(ProviderTypeEnum));
+
+// 特殊映射：API ID -> Schema 枚举值（处理不规则命名）
+const PROVIDER_TYPE_MAPPING: Record<string, ProviderType> = {
+  fireworks: "fireworks_ai",
+  github: "github_models",
+  grok: "xai",
+  together: "togetherai",
+  zhipu: "zhipuai",
+  moonshot: "moonshotai",
+  dashscope: "alibaba",
+  ollama: "lmstudio"
+};
+
+/**
  * 将供应商ID映射到ProviderType枚举值
  * @param providerId - 供应商ID（如 "fireworks-ai"）
- * @returns ProviderType枚举值（如 "fireworks_ai"）
+ * @returns ProviderType枚举值（如 "fireworks_ai"）或 null（如果无效）
  */
-function mapProviderIdToType(providerId: string): ProviderType {
-  return convertKebabToSnake(providerId) as ProviderType;
+function mapProviderIdToType(providerId: string): ProviderType | null {
+  // 1. 检查特殊映射表
+  if (PROVIDER_TYPE_MAPPING[providerId]) {
+    return PROVIDER_TYPE_MAPPING[providerId];
+  }
+
+  // 2. 默认转换：kebab-case -> snake_case
+  let result = convertKebabToSnake(providerId);
+
+  // 3. 确保不以数字开头（添加 provider_ 前缀）
+  result = ensureValidIdentifier(result);
+
+  // 4. 验证是否为有效的枚举值
+  if (VALID_PROVIDER_TYPES.has(result as ProviderType)) {
+    return result as ProviderType;
+  }
+
+  // 如果不是有效值，返回 null
+  return null;
 }
 
 /**
@@ -353,34 +389,28 @@ async function insertProvidersAndModels(data: ScrapedData) {
   console.log("\n💾 开始插入数据到数据库...");
 
   try {
-    // 1. 准备模型数据和关联关系
-    const { models, modelProviderRelations } = prepareModelsAndRelations(data);
+    // 1. 准备模型数据
+    const models = prepareModels(data);
 
     // 2. 使用事务插入所有数据
     const result = await prisma.$transaction(
       async (tx) => {
         let providersCreated = 0;
         let providersUpdated = 0;
+        let groupsCreated = 0;
         let modelsCreated = 0;
         let modelsUpdated = 0;
-        let relationsCreated = 0;
 
-        // 2.1 清理旧的关联关系
-        // 为了防止数据库中残留 API 已删除的模型关联，我们需要先删除这些供应商的所有现有关联
-        const providerIds = data.providers.map((p) => p.id);
-        console.log("\n🧹 清理旧的关联关系...");
-        await tx.modelProvider.deleteMany({
-          where: {
-            providerId: {
-              in: providerIds
-            }
-          }
-        });
-
-        // 3. 插入普通供应商
-        console.log("\n📦 插入供应商数据...");
+        // 3. 插入供应商和创建默认分组
+        console.log("\n📦 插入供应商数据并创建默认分组...");
         for (const provider of data.providers) {
           const providerType = mapProviderIdToType(provider.id);
+
+          // 跳过无效的供应商类型
+          if (!providerType) {
+            console.log(`⏭️  ${provider.id}: 无效的供应商类型，跳过`);
+            continue;
+          }
 
           // 检查是否已存在
           const existing = await tx.provider.findUnique({
@@ -418,9 +448,27 @@ async function insertProvidersAndModels(data: ScrapedData) {
             });
             providersCreated++;
           }
+
+          // 确保存在默认分组
+          const defaultGroupId = `${provider.id}_default`;
+          const existingGroup = await tx.group.findUnique({
+            where: { id: defaultGroupId }
+          });
+
+          if (!existingGroup) {
+            await tx.group.create({
+              data: {
+                id: defaultGroupId,
+                name: "默认",
+                providerId: provider.id,
+                isDefault: true
+              }
+            });
+            groupsCreated++;
+          }
         }
 
-        // 5. 批量插入模型
+        // 4. 批量插入模型
         console.log("\n🤖 插入模型数据...");
         const BATCH_SIZE = 50;
         for (let i = 0; i < models.length; i += BATCH_SIZE) {
@@ -455,41 +503,12 @@ async function insertProvidersAndModels(data: ScrapedData) {
           );
         }
 
-        // 6. 建立模型-供应商关联关系
-        console.log("\n🔗 建立模型-供应商关联关系...");
-        for (const relation of modelProviderRelations) {
-          // 检查供应商是否存在
-          const providerExists = await tx.provider.findUnique({
-            where: { id: relation.providerId }
-          });
-
-          if (!providerExists) {
-            continue;
-          }
-
-          // 使用 upsert 避免重复插入
-          await tx.modelProvider.upsert({
-            where: {
-              modelId_providerId: {
-                modelId: relation.modelId,
-                providerId: relation.providerId
-              }
-            },
-            update: {},
-            create: {
-              modelId: relation.modelId,
-              providerId: relation.providerId
-            }
-          });
-          relationsCreated++;
-        }
-
         return {
           providersCreated,
           providersUpdated,
+          groupsCreated,
           modelsCreated,
-          modelsUpdated,
-          relationsCreated
+          modelsUpdated
         };
       },
       {
@@ -504,11 +523,11 @@ async function insertProvidersAndModels(data: ScrapedData) {
     console.log(`   供应商:`);
     console.log(`     - 新建: ${result.providersCreated}`);
     console.log(`     - 更新: ${result.providersUpdated}`);
+    console.log(`   分组:`);
+    console.log(`     - 新建: ${result.groupsCreated}`);
     console.log(`   模型:`);
     console.log(`     - 新建: ${result.modelsCreated}`);
     console.log(`     - 更新: ${result.modelsUpdated}`);
-    console.log(`   关联关系:`);
-    console.log(`     - 创建: ${result.relationsCreated}`);
   } catch (error) {
     console.error("\n❌ 数据库插入失败:", error);
     throw error;

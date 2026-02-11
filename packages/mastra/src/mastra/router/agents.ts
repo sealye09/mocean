@@ -1,7 +1,11 @@
-import { createRoute } from "@mastra/server/server-adapter";
+import { registerApiRoute } from "@mastra/core/server";
+import { resolver } from "hono-openapi";
 import { HTTPException } from "hono/http-exception";
 
 import {
+  AgentResponseSchema,
+  AgentWithSettingsResponseSchema,
+  AgentsResponseSchema,
   createAgentSchema,
   groupParamSchema,
   idParamSchema,
@@ -21,16 +25,24 @@ import { agentRoutes } from "./type";
  * 获取所有智能体的路由处理器
  * @description 返回系统中所有可用的智能体列表
  */
-const getAgentsRouter = createRoute({
+const getAgentsRouter = registerApiRoute(agentRoutes.getAgents.path, {
   method: "GET",
-  path: agentRoutes.getAgents.path,
-  responseType: "json",
-  responseSchema: agentRoutes.getAgents.responseSchema,
-  summary: "获取所有智能体",
-  description: "返回系统中所有可用的智能体列表",
-  tags: ["Agents"],
-  handler: async () => {
-    return await getAgents();
+  openapi: {
+    summary: "获取所有智能体",
+    tags: ["Agents"],
+    responses: {
+      200: {
+        description: "返回系统中所有可用的智能体列表",
+        content: {
+          "application/json": {
+            schema: resolver(AgentsResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    return c.json(await getAgents(), 200);
   }
 });
 
@@ -38,23 +50,32 @@ const getAgentsRouter = createRoute({
  * 根据ID获取单个智能体的路由处理器
  * @description 通过智能体ID获取特定智能体的详细信息
  */
-const getAgentByIdRouter = createRoute({
+const getAgentByIdRouter = registerApiRoute(agentRoutes.getAgentById.path, {
   method: "GET",
-  path: agentRoutes.getAgentById.path,
-  responseType: "json",
-  responseSchema: agentRoutes.getAgentById.responseSchema,
-  pathParamSchema: idParamSchema,
-  summary: "根据ID获取单个智能体",
-  description: "通过智能体ID获取特定智能体的详细信息",
-  tags: ["Agents"],
-  handler: async ({ id }) => {
+  openapi: {
+    summary: "根据ID获取单个智能体",
+    tags: ["Agents"],
+    responses: {
+      200: {
+        description: "通过智能体ID获取特定智能体的详细信息",
+        content: {
+          "application/json": {
+            schema: resolver(AgentWithSettingsResponseSchema.nullable())
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const id = c.req.param("id");
+    if (!id) {
+      throw new HTTPException(400, { message: "智能体ID不能为空" });
+    }
     const agent = await getAgentById(id);
-
     if (!agent) {
       throw new HTTPException(404, { message: "智能体不存在" });
     }
-
-    return agent;
+    return c.json(agent, 200);
   }
 });
 
@@ -62,17 +83,33 @@ const getAgentByIdRouter = createRoute({
  * 创建新智能体的路由处理器
  * @description 接收智能体数据并在系统中创建新的智能体
  */
-const createAgentRouter = createRoute({
+const createAgentRouter = registerApiRoute(agentRoutes.createAgent.path, {
   method: "POST",
-  path: agentRoutes.createAgent.path,
-  responseType: "json",
-  bodySchema: createAgentSchema,
-  responseSchema: agentRoutes.createAgent.responseSchema,
-  summary: "创建新智能体",
-  description: "接收智能体数据并在系统中创建新的智能体",
-  tags: ["Agents"],
-  handler: async (data) => {
-    return await createAgent(data);
+  openapi: {
+    summary: "创建新智能体",
+    tags: ["Agents"],
+    requestBody: {
+      content: {
+        "application/json": {
+          // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+          schema: createAgentSchema
+        }
+      }
+    },
+    responses: {
+      201: {
+        description: "接收智能体数据并在系统中创建新的智能体",
+        content: {
+          "application/json": {
+            schema: resolver(AgentWithSettingsResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const body = await c.req.json();
+    return c.json(await createAgent(body), 201);
   }
 });
 
@@ -80,18 +117,37 @@ const createAgentRouter = createRoute({
  * 更新智能体的路由处理器
  * @description 接收智能体ID和更新数据，修改指定智能体的信息
  */
-const updateAgentRouter = createRoute({
+const updateAgentRouter = registerApiRoute(agentRoutes.updateAgent.path, {
   method: "PUT",
-  path: agentRoutes.updateAgent.path,
-  responseType: "json",
-  pathParamSchema: idParamSchema,
-  bodySchema: updateAgentSchema,
-  responseSchema: agentRoutes.updateAgent.responseSchema,
-  summary: "更新智能体信息",
-  description: "接收智能体ID和更新数据，修改指定智能体的信息",
-  tags: ["Agents"],
-  handler: async ({ id }, data) => {
-    return await updateAgent(id, data);
+  openapi: {
+    summary: "更新智能体信息",
+    tags: ["Agents"],
+    requestBody: {
+      content: {
+        "application/json": {
+          // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+          schema: updateAgentSchema
+        }
+      }
+    },
+    responses: {
+      200: {
+        description: "接收智能体ID和更新数据，修改指定智能体的信息",
+        content: {
+          "application/json": {
+            schema: resolver(AgentWithSettingsResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const id = c.req.param("id");
+    if (!id) {
+      throw new HTTPException(400, { message: "智能体ID不能为空" });
+    }
+    const body = await c.req.json();
+    return c.json(await updateAgent(id, body), 200);
   }
 });
 
@@ -99,17 +155,28 @@ const updateAgentRouter = createRoute({
  * 删除智能体的路由处理器
  * @description 根据智能体ID删除指定的智能体
  */
-const deleteAgentRouter = createRoute({
+const deleteAgentRouter = registerApiRoute(agentRoutes.deleteAgent.path, {
   method: "DELETE",
-  path: agentRoutes.deleteAgent.path,
-  responseType: "json",
-  pathParamSchema: idParamSchema,
-  responseSchema: agentRoutes.deleteAgent.responseSchema,
-  summary: "删除智能体",
-  description: "根据智能体ID删除指定的智能体",
-  tags: ["Agents"],
-  handler: async ({ id }) => {
-    return await deleteAgent(id);
+  openapi: {
+    summary: "删除智能体",
+    tags: ["Agents"],
+    responses: {
+      200: {
+        description: "根据智能体ID删除指定的智能体",
+        content: {
+          "application/json": {
+            schema: resolver(AgentResponseSchema)
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const id = c.req.param("id");
+    if (!id) {
+      throw new HTTPException(400, { message: "智能体ID不能为空" });
+    }
+    return c.json(await deleteAgent(id), 200);
   }
 });
 
@@ -117,23 +184,32 @@ const deleteAgentRouter = createRoute({
  * 根据分组获取智能体的路由处理器
  * @description 通过分组获取特定分组的所有智能体
  */
-const getAgentByGroupRouter = createRoute({
+const getAgentByGroupRouter = registerApiRoute(agentRoutes.getAgentByGroup.path, {
   method: "GET",
-  path: agentRoutes.getAgentByGroup.path,
-  responseType: "json",
-  responseSchema: agentRoutes.getAgentByGroup.responseSchema,
-  pathParamSchema: groupParamSchema,
-  summary: "根据分组获取智能体",
-  description: "通过分组获取特定分组的所有智能体",
-  tags: ["Agents"],
-  handler: async ({ group }) => {
+  openapi: {
+    summary: "根据分组获取智能体",
+    tags: ["Agents"],
+    responses: {
+      200: {
+        description: "通过分组获取特定分组的所有智能体",
+        content: {
+          "application/json": {
+            schema: resolver(AgentsResponseSchema.nullable())
+          }
+        }
+      }
+    }
+  },
+  handler: async (c) => {
+    const group = c.req.param("group");
+    if (!group) {
+      throw new HTTPException(400, { message: "分组不能为空" });
+    }
     const agents = await getAgentByGroup(group);
-
     if (!agents) {
       throw new HTTPException(404, { message: "分组不存在" });
     }
-
-    return agents;
+    return c.json(agents, 200);
   }
 });
 
