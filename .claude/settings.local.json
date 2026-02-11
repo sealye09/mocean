@@ -36,7 +36,11 @@
       "Bash(git commit:*)",
       "Bash(npm run bundle:*)",
       "Bash(git reset:*)",
-      "Bash(tsx scripts/fix-apiClient.ts:*)"
+      "Bash(tsx scripts/fix-apiClient.ts:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd //c \"taskkill /PID 26404 /F\")"
     ],
     "deny": [],
     "ask": []

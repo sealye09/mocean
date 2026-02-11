@@ -130,11 +130,7 @@ const getGroupById = async (id: string) => {
       id
     },
     include: {
-      models: {
-        include: {
-          model: true
-        }
-      },
+      models: true,
       _count: {
         select: {
           models: true
@@ -284,7 +280,7 @@ const deleteGroup = async (id: string) => {
   }
 
   // 将该分组下的所有模型移至默认分组
-  await prisma.modelGroup.updateMany({
+  await prisma.model.updateMany({
     where: {
       groupId: id
     },

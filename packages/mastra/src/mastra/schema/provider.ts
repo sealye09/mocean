@@ -25,7 +25,11 @@ export const ProviderResponseSchema = ProviderSchema.pick({
 });
 
 // Providers 列表 Response Schema（不含 models）
-export const ProvidersResponseSchema = z.array(ProviderResponseSchema);
+export const ProvidersResponseSchema = z.array(
+  z.object({
+    items: ProviderResponseSchema
+  })
+);
 
 // 带 models 数组的 Provider Response Schema
 export const ProviderWithModelsResponseSchema = ProviderSchema.pick({

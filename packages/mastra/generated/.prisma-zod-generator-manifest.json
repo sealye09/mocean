@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "generatorVersion": "1.0.0",
-  "generatedAt": "2026-02-10T06:20:04.306Z",
+  "generatedAt": "2026-02-11T07:49:46.223Z",
   "outputPath": "C:\\EaseClip\\packages\\mastra\\generated",
   "files": [
     "schemas\\enums\\TransactionIsolationLevel.schema.ts",

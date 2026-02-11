@@ -1,9 +1,4 @@
-import type { ModelGroup, Prisma, Provider } from "generated/prisma/client";
-import {
-  ModelGroupSchema,
-  ModelSchema,
-  ProviderSchema
-} from "generated/schemas/models";
+import { ModelSchema, ProviderSchema } from "generated/schemas/models";
 import { z } from "zod";
 
 import { prisma } from "./index";
@@ -31,6 +26,7 @@ export const ModelResponseSchema = ModelSchema.pick({
   supportsEmbedding: true,
   inputPricePerMillion: true,
   outputPricePerMillion: true,
+  groupId: true,
   createdAt: true,
   updatedAt: true
 });
@@ -55,10 +51,19 @@ export const ModelWithProvidersResponseSchema = ModelSchema.pick({
   supportsEmbedding: true,
   inputPricePerMillion: true,
   outputPricePerMillion: true,
+  groupId: true,
   createdAt: true,
   updatedAt: true
 }).extend({
-  providers: z.array(ProviderSchema)
+  group: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      isDefault: z.boolean(),
+      providerId: z.string()
+    })
+    .optional(),
+  provider: ProviderSchema.partial().optional()
 });
 
 /**
@@ -81,10 +86,12 @@ const createModelSchema = ModelSchema.pick({
   supportsVideo: true,
   supportsEmbedding: true,
   inputPricePerMillion: true,
-  outputPricePerMillion: true
+  outputPricePerMillion: true,
+  groupId: true
 }).extend({
   id: z.string().min(1, "模型ID不能为空"),
   name: z.string().min(1, "模型名称不能为空"),
+  groupId: z.string().min(1, "分组ID不能为空"),
   isSystem: z.boolean().optional().default(false),
   supportsAttachments: z.boolean().optional().default(false),
   supportsTools: z.boolean().optional().default(false),
@@ -92,9 +99,7 @@ const createModelSchema = ModelSchema.pick({
   supportsImage: z.boolean().optional().default(false),
   supportsAudio: z.boolean().optional().default(false),
   supportsVideo: z.boolean().optional().default(false),
-  supportsEmbedding: z.boolean().optional().default(false),
-  // 扩展 providers 字段（用于 modelGroups 关联）
-  providers: ProviderSchema.partial()
+  supportsEmbedding: z.boolean().optional().default(false)
 });
 
 const updateModelSchema = ModelSchema.pick({
@@ -111,13 +116,9 @@ const updateModelSchema = ModelSchema.pick({
   supportsVideo: true,
   supportsEmbedding: true,
   inputPricePerMillion: true,
-  outputPricePerMillion: true
-})
-  .partial()
-  .extend({
-    // 扩展 providers 字段
-    provider: ProviderSchema.partial()
-  });
+  outputPricePerMillion: true,
+  groupId: true
+}).partial();
 
 const idParamSchema = z.object({
   id: z.string().min(1, "模型ID不能为空")
@@ -131,9 +132,9 @@ const groupParamSchema = z.object({
   group: z.string().min(1, "模型分组不能为空")
 });
 
-const modelProviderRelationSchema = z.object({
+// 模型-分组关联的schema（用于添加/移除模型到分组）
+const modelGroupRelationSchema = z.object({
   modelId: z.string().min(1, "模型ID不能为空"),
-  providerId: z.string().min(1, "提供商ID不能为空"),
   groupId: z.string().min(1, "分组ID不能为空")
 });
 
@@ -142,7 +143,7 @@ export const CreateManyModelsResponseSchema = z.object({
   count: z.number()
 });
 
-// 模型提供商关联响应 Schema
+// 模型提供商关联响应 Schema（通过分组关联）
 export const ModelProviderRelationResponseSchema = z.object({
   modelId: z.string(),
   providerId: z.string(),
@@ -156,7 +157,7 @@ export const ModelProviderRelationResponseSchema = z.object({
 
 export type CreateModelInput = z.infer<typeof createModelSchema>;
 export type UpdateModelInput = z.infer<typeof updateModelSchema>;
-export type ModelProviderRelation = z.infer<typeof modelProviderRelationSchema>;
+export type ModelGroupRelation = z.infer<typeof modelGroupRelationSchema>;
 
 /**
  * 获取所有模型（基础版本，不包含关联信息）
@@ -181,20 +182,11 @@ const getModels = async () => {
 const getModelsWithProviders = async () => {
   const models = await prisma.model.findMany({
     include: {
-      modelGroups: {
+      group: {
         include: {
-          group: {
-            include: {
-              provider: true
-            }
-          }
+          provider: true
         }
-      },
-      assistants: true,
-      defaultForAssistants: true,
-      knowledgeBases: true,
-      assistantSettings: true,
-      rerankFor: true
+      }
     },
     orderBy: {
       name: "asc"
@@ -202,18 +194,10 @@ const getModelsWithProviders = async () => {
   });
 
   // 整理提供商信息
-  return models.map((model) => {
-    type ModelWithGroups = typeof model & {
-      modelGroups: Array<{ group: { provider: Provider } }>;
-    };
-    return {
-      ...model,
-      providers: (model as ModelWithGroups).modelGroups.map(
-        (mg) => mg.group.provider
-      ),
-      _modelRelations: (model as ModelWithGroups).modelGroups
-    };
-  });
+  return models.map((model) => ({
+    ...model,
+    provider: model.group.provider
+  }));
 };
 
 /**
@@ -241,29 +225,19 @@ const getModelWithProvidersById = async (id: string) => {
   const model = await prisma.model.findUnique({
     where: { id },
     include: {
-      modelGroups: {
+      group: {
         include: {
-          group: true
+          provider: true
         }
-      },
-      provider: true,
-      assistants: true,
-      defaultForAssistants: true,
-      knowledgeBases: true,
-      assistantSettings: true,
-      rerankFor: true
+      }
     }
   });
 
   if (!model) return null;
 
-  // 整理提供商信息
-  type ModelWithGroups = typeof model & {
-    modelGroups: Array<{ group: { provider: Provider } }>;
-  };
   return {
     ...model,
-    groups: (model as ModelWithGroups).modelGroups.map((mg) => mg.group)
+    provider: model.group.provider
   };
 };
 
@@ -274,9 +248,12 @@ const getModelWithProvidersById = async (id: string) => {
  * @returns 符合提供商的模型数组
  */
 const getModelsByProvider = async (providerId: string) => {
+  // 通过 Group 查询，因为 Model -> Group -> Provider
   const models = await prisma.model.findMany({
     where: {
-      providerId
+      group: {
+        providerId
+      }
     },
     orderBy: {
       name: "asc"
@@ -295,18 +272,14 @@ const getModelsByProvider = async (providerId: string) => {
 const getModelsByProviderWithProviders = async (providerId: string) => {
   const models = await prisma.model.findMany({
     where: {
-      providerId
+      group: {
+        providerId
+      }
     },
-    // 查询分组中间表时
-    // 还会携带供应商
     include: {
-      modelGroups: {
+      group: {
         include: {
-          group: {
-            include: {
-              provider: true
-            }
-          }
+          provider: true
         }
       }
     },
@@ -315,171 +288,150 @@ const getModelsByProviderWithProviders = async (providerId: string) => {
     }
   });
 
-  return models.map((model) => {
-    return {
-      ...model,
-      groups: model.modelGroups.map((mg) => mg.group),
-      providers: model.modelGroups.map((mg) => mg.group.provider)
-    };
-  });
+  return models.map((model) => ({
+    ...model,
+    provider: model.group.provider
+  }));
 };
 
 /**
- * 根据分组获取模型（基础版本）
+ * 根据分组ID获取模型（基础版本）
  * @description 通过分组ID获取对应的模型列表
  * @param groupId - 分组ID
  * @returns 符合分组的模型数组
  */
 const getModelsByGroup = async (groupId: string) => {
-  // 通过 ModelGroup.groupId 查询
-  const modelGroups = await prisma.modelGroup.findMany({
-    where: { groupId },
-    include: {
-      model: true
+  const models = await prisma.model.findMany({
+    where: {
+      groupId
+    },
+    orderBy: {
+      name: "asc"
     }
   });
 
-  // 转换为模型列表格式
-  return modelGroups.map((mg) => mg.model);
+  return models;
 };
 
 /**
- * 根据分组获取模型（包含提供商信息）
+ * 根据分组ID获取模型（包含提供商信息）
  * @description 通过分组ID获取对应的模型列表
  * @param groupId - 分组ID
  * @returns 符合分组的模型数组
  */
 const getModelsByGroupWithProviders = async (groupId: string) => {
-  // 通过 ModelGroup.groupId 查询
-  const modelGroups = await prisma.modelGroup.findMany({
-    where: { groupId },
+  const models = await prisma.model.findMany({
+    where: {
+      groupId
+    },
     include: {
-      model: true,
-      provider: true,
-      group: true
+      group: {
+        include: {
+          provider: true
+        }
+      }
+    },
+    orderBy: {
+      name: "asc"
     }
   });
 
-  // 转换为模型列表格式
-  // 注意：同一模型可能出现多次（不同供应商）
-  return modelGroups.map((mg) => ({
-    ...mg.model,
-    groups: [mg],
-    providers: [mg.provider]
+  return models.map((model) => ({
+    ...model,
+    provider: model.group.provider
   }));
 };
 
 /**
  * 创建新模型
- * @description 在数据库中创建一个新的模型记录，并关联指定的提供商
+ * @description 在数据库中创建一个新的模型记录
  * @param model - 包含模型信息的对象
  * @returns 新创建的模型对象
  */
 const createModel = async (model: CreateModelInput) => {
-  // 验证提供商是否存在
-  const providerIds = model.providers.map((p) => p.id);
-  const providers = await prisma.provider.findMany({
-    where: { id: { in: providerIds } }
+  // 验证分组是否存在
+  const group = await prisma.group.findUnique({
+    where: { id: model.groupId },
+    include: { provider: true }
   });
 
-  if (providers.length !== providerIds.length) {
-    const existingIds = providers.map((p) => p.id);
-    const missingIds = providerIds.filter((id) => !existingIds.includes(id));
-    throw new Error(`以下提供商不存在: ${missingIds.join(", ")}`);
+  if (!group) {
+    throw new Error(`分组 ${model.groupId} 不存在`);
   }
-
-  const { providers: providerRelations, ...modelData } = model;
 
   const newModel = await prisma.model.create({
     data: {
-      ...modelData,
-      modelGroups: {
-        create: providerRelations.map((p) => ({
-          providerId: p.id
-        }))
+      id: model.id,
+      name: model.name,
+      owned_by: model.owned_by,
+      description: model.description,
+      isSystem: model.isSystem,
+      contextLength: model.contextLength,
+      supportsAttachments: model.supportsAttachments,
+      supportsTools: model.supportsTools,
+      supportsReasoning: model.supportsReasoning,
+      supportsImage: model.supportsImage,
+      supportsAudio: model.supportsAudio,
+      supportsVideo: model.supportsVideo,
+      supportsEmbedding: model.supportsEmbedding,
+      inputPricePerMillion: model.inputPricePerMillion,
+      outputPricePerMillion: model.outputPricePerMillion,
+      group: {
+        connect: { id: model.groupId }
       }
-    } as Prisma.ModelCreateInput,
+    },
     include: {
-      modelGroups: {
+      group: {
         include: {
-          provider: true,
-          group: true
+          provider: true
         }
       }
     }
   });
 
-  type ModelWithGroups = typeof newModel & {
-    modelGroups: Array<{ provider: Provider; group: ModelGroup }>;
-  };
-
   return {
     ...newModel,
-    providers: (newModel as ModelWithGroups).modelGroups.map(
-      (mg) => mg.provider
-    ),
-    _modelRelations: (newModel as ModelWithGroups).modelGroups
+    provider: newModel.group.provider
   };
 };
 
 /**
  * 更新模型信息
- * @description 根据模型ID更新数据库中的模型信息，包括提供商关联
+ * @description 根据模型ID更新数据库中的模型信息
  * @param id - 要更新的模型的唯一标识符
  * @param model - 包含更新信息的对象
  * @returns 更新后的模型对象
  */
 const updateModel = async (id: string, model: UpdateModelInput) => {
-  // 如果提供了providers，验证提供商是否存在
-  if (model.providers) {
-    const providerIds = model.providers.map((p) => p.id);
-    const providers = await prisma.provider.findMany({
-      where: { id: { in: providerIds } }
+  // 如果提供了groupId，验证分组是否存在
+  if (model.groupId) {
+    const group = await prisma.group.findUnique({
+      where: { id: model.groupId }
     });
 
-    if (providers.length !== providerIds.length) {
-      const existingIds = providers.map((p) => p.id);
-      const missingIds = providerIds.filter((id) => !existingIds.includes(id));
-      throw new Error(`以下提供商不存在: ${missingIds.join(", ")}`);
+    if (!group) {
+      throw new Error(`分组 ${model.groupId} 不存在`);
     }
   }
-
-  const { providers: providerRelations, ...modelData } = model;
 
   const updatedModel = await prisma.model.update({
     where: { id },
     data: {
-      ...modelData,
-      ...(providerRelations && {
-        modelGroups: {
-          deleteMany: {},
-          create: providerRelations.flatMap((p) =>
-            (p.groups || []).map((g) => ({
-              groupId: typeof g === "string" ? g : g.id
-            }))
-          )
-        }
-      })
-    } as Prisma.ModelUpdateInput,
+      ...model,
+      updatedAt: new Date()
+    },
     include: {
-      modelGroups: {
+      group: {
         include: {
-          provider: true,
-          group: true
+          provider: true
         }
       }
     }
   });
 
-  type ModelWithGroups = typeof updatedModel & {
-    modelGroups: Array<{ provider: Provider; group: ModelGroup }>;
-  };
   return {
     ...updatedModel,
-    providers: (updatedModel as ModelWithGroups).modelGroups.map(
-      (mg) => mg.provider
-    ),
-    _modelRelations: (updatedModel as ModelWithGroups).modelGroups
+    provider: updatedModel.group.provider
   };
 };
 
@@ -500,7 +452,8 @@ const deleteModel = async (id: string) => {
           defaultForAssistants: true,
           knowledgeBases: true,
           assistantSettings: true,
-          rerankFor: true
+          rerankFor: true,
+          Topic: true
         }
       }
     }
@@ -513,7 +466,8 @@ const deleteModel = async (id: string) => {
       _count.defaultForAssistants +
       _count.knowledgeBases +
       _count.assistantSettings +
-      _count.rerankFor;
+      _count.rerankFor +
+      _count.Topic;
 
     if (totalRelations > 0) {
       throw new Error(`无法删除模型：仍有 ${totalRelations} 个关联的记录`);
@@ -534,42 +488,31 @@ const deleteModel = async (id: string) => {
  * @returns 创建结果统计
  */
 const createManyModels = async (models: CreateModelInput[]) => {
-  // 验证所有提供商是否存在
-  const allProviderIds = [
-    ...new Set(models.flatMap((m) => m.providers.map((p) => p.id)))
-  ];
-  const providers = await prisma.provider.findMany({
-    where: { id: { in: allProviderIds } },
+  // 验证所有分组是否存在
+  const allGroupIds = [...new Set(models.map((m) => m.groupId))];
+  const groups = await prisma.group.findMany({
+    where: { id: { in: allGroupIds } },
     select: { id: true }
   });
 
-  const existingProviderIds = new Set(providers.map((p) => p.id));
-  const missingProviders = allProviderIds.filter(
-    (id) => !existingProviderIds.has(id)
-  );
+  const existingGroupIds = new Set(groups.map((g) => g.id));
+  const missingGroups = allGroupIds.filter((id) => !existingGroupIds.has(id));
 
-  if (missingProviders.length > 0) {
-    throw new Error(`以下提供商不存在: ${missingProviders.join(", ")}`);
+  if (missingGroups.length > 0) {
+    throw new Error(`以下分组不存在: ${missingGroups.join(", ")}`);
   }
 
-  // 使用事务创建模型和关联
+  // 使用事务创建模型
   const result = await prisma.$transaction(async (tx) => {
     const createdModels = [];
 
     for (const model of models) {
-      const { providers: providerRelations, ...modelData } = model;
-
       const createdModel = await tx.model.create({
-        data: { ...modelData }
-      });
-
-      // 创建关联关系
-      await tx.modelGroup.createMany({
-        data: providerRelations.map((p) => ({
-          modelId: createdModel.id,
-          providerId: p.id,
-          groupId: p.groups?.[0]?.id || ""
-        }))
+        data: {
+          ...model,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       });
 
       createdModels.push(createdModel);
@@ -582,101 +525,135 @@ const createManyModels = async (models: CreateModelInput[]) => {
 };
 
 /**
- * 添加模型与提供商的关联
- * @description 为模型添加新的提供商关联（分配到指定分组）
- * @param relation - 模型ID、提供商ID和分组ID
- * @returns 关联关系对象
+ * 添加模型与提供商的关联（通过更改模型所属分组）
+ * @description 将模型移动到指定提供商的分组中
+ * @param relation - 模型ID和目标分组ID
+ * @returns 更新后的模型对象
  */
-const addModelProviderRelation = async (relation: ModelProviderRelation) => {
-  // 验证模型、提供商和分组是否存在
-  const [model, provider, group] = await Promise.all([
-    prisma.model.findUnique({ where: { id: relation.modelId } }),
-    prisma.provider.findUnique({ where: { id: relation.providerId } }),
-    prisma.group.findUnique({ where: { id: relation.groupId } })
-  ]);
+const addModelProviderRelation = async (relation: {
+  modelId: string;
+  groupId: string;
+}) => {
+  // 验证模型是否存在
+  const model = await prisma.model.findUnique({
+    where: { id: relation.modelId }
+  });
 
   if (!model) {
     throw new Error("指定的模型不存在");
   }
-  if (!provider) {
-    throw new Error("指定的提供商不存在");
-  }
+
+  // 验证分组是否存在
+  const group = await prisma.group.findUnique({
+    where: { id: relation.groupId },
+    include: { provider: true }
+  });
+
   if (!group) {
     throw new Error("指定的分组不存在");
   }
 
-  // 验证分组是否属于指定的提供商
-  if (group.providerId !== relation.providerId) {
-    throw new Error("分组不属于指定的提供商");
-  }
-
-  // 检查关联是否已存在
-  const existingRelation = await prisma.modelGroup.findUnique({
-    where: {
-      modelId_providerId: {
-        modelId: relation.modelId,
-        providerId: relation.providerId
+  // 更新模型的分组
+  const updatedModel = await prisma.model.update({
+    where: { id: relation.modelId },
+    data: { groupId: relation.groupId },
+    include: {
+      group: {
+        include: {
+          provider: true
+        }
       }
     }
   });
 
-  if (existingRelation) {
-    throw new Error("该模型与提供商的关联已存在");
-  }
-
-  const newRelation = await prisma.modelGroup.create({
-    data: relation,
-    include: {
-      model: true,
-      provider: true,
-      group: true
-    }
-  });
-
-  return newRelation;
+  return {
+    modelId: updatedModel.id,
+    providerId: updatedModel.group.providerId,
+    groupId: updatedModel.groupId,
+    model: updatedModel,
+    provider: updatedModel.group.provider,
+    group: updatedModel.group
+  };
 };
 
 /**
- * 移除模型与提供商的关联
- * @description 移除模型与提供商之间的关联关系
- * @param relation - 模型ID和提供商ID
- * @returns 被删除的关联关系对象
+ * 移除模型与提供商的关联（将模型移至默认分组）
+ * @description 将模型移动到提供商的默认分组
+ * @param relation - 模型ID
+ * @returns 更新后的模型对象
  */
-const removeModelProviderRelation = async (relation: ModelProviderRelation) => {
-  const deletedRelation = await prisma.modelGroup.delete({
+const removeModelProviderRelation = async (relation: {
+  modelId: string;
+  providerId: string;
+}) => {
+  // 获取提供商的默认分组
+  const defaultGroup = await prisma.group.findFirst({
     where: {
-      modelId_providerId: {
-        modelId: relation.modelId,
-        providerId: relation.providerId
-      }
-    },
-    include: {
-      model: true,
-      provider: true,
-      group: true
+      providerId: relation.providerId,
+      isDefault: true
     }
   });
 
-  return deletedRelation;
+  if (!defaultGroup) {
+    throw new Error("未找到默认分组");
+  }
+
+  // 更新模型的分组
+  const updatedModel = await prisma.model.update({
+    where: { id: relation.modelId },
+    data: { groupId: defaultGroup.id },
+    include: {
+      group: {
+        include: {
+          provider: true
+        }
+      }
+    }
+  });
+
+  return {
+    modelId: updatedModel.id,
+    providerId: updatedModel.group.providerId,
+    groupId: updatedModel.groupId,
+    model: updatedModel,
+    provider: updatedModel.group.provider,
+    group: updatedModel.group
+  };
 };
 
 /**
  * 获取模型与提供商的关联列表
- * @description 获取指定模型的所有提供商关联
+ * @description 获取指定模型的所有信息（包含分组和提供商）
  * @param modelId - 模型ID
- * @returns 关联关系数组
+ * @returns 模型信息（包含分组和提供商）
  */
 const getModelProviderRelations = async (modelId: string) => {
-  const relations = await prisma.modelGroup.findMany({
-    where: { modelId },
+  const model = await prisma.model.findUnique({
+    where: { id: modelId },
     include: {
-      model: true,
-      provider: true,
-      group: true
+      group: {
+        include: {
+          provider: true
+        }
+      }
     }
   });
 
-  return relations;
+  if (!model) {
+    return [];
+  }
+
+  // 返回单个关联（因为一个模型只属于一个分组）
+  return [
+    {
+      modelId: model.id,
+      providerId: model.group.providerId,
+      groupId: model.groupId,
+      model: model,
+      provider: model.group.provider,
+      group: model.group
+    }
+  ];
 };
 
 /**
@@ -742,5 +719,5 @@ export {
   idParamSchema,
   providerParamSchema,
   groupParamSchema,
-  modelProviderRelationSchema
+  modelGroupRelationSchema
 };

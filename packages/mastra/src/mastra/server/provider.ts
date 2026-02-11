@@ -58,10 +58,15 @@ export const ProviderWithModelsResponseSchema = ProviderSchema.pick({
   updatedAt: true
 }).extend({
   models: z.array(ModelSchema.partial()),
-  _count: z
-    .object({
-      models: z.number()
-    })
+  groups: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        isDefault: z.boolean(),
+        models: z.array(ModelSchema.partial())
+      })
+    )
     .optional()
 });
 
@@ -149,6 +154,24 @@ export type CreateProviderInput = z.infer<typeof createProviderSchema>;
 export type UpdateProviderInput = z.infer<typeof updateProviderSchema>;
 
 /**
+ * 辅助函数：从groups中提取所有models
+ */
+const extractModelsFromGroups = (
+  groups: Array<{ models: unknown[] }>
+): unknown[] => {
+  return groups.flatMap((group) => group.models);
+};
+
+/**
+ * 辅助函数：计算所有groups中的models总数
+ */
+const countModelsFromGroups = (
+  groups: Array<{ models: unknown[] }>
+): number => {
+  return groups.reduce((sum, group) => sum + group.models.length, 0);
+};
+
+/**
  * 获取所有提供商（基础版本）
  * @description 从数据库中获取所有提供商的列表，不包含关联模型信息
  * @returns 包含所有提供商信息的数组
@@ -169,9 +192,8 @@ const getProviders = async () => {
 const getProvidersWithModels = async () => {
   const providers = await prisma.provider.findMany({
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
@@ -181,10 +203,13 @@ const getProvidersWithModels = async () => {
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
+  // 整理模型信息：从所有分组中提取模型
   return providers.map((provider) => ({
     ...provider,
-    models: provider.models
+    models: extractModelsFromGroups(provider.groups),
+    _count: {
+      models: countModelsFromGroups(provider.groups)
+    }
   }));
 };
 
@@ -214,9 +239,8 @@ const getProviderWithModelsById = async (id: string) => {
       id
     },
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
@@ -225,12 +249,17 @@ const getProviderWithModelsById = async (id: string) => {
 
   if (!provider) return null;
 
-  // 整理模型信息：将关联表数据展开为模型数组
-  // 保留原始关联表数据作为 _modelRelations（包含 group 等关联字段）
+  // 整理模型信息：从所有分组中提取模型
   return {
     ...provider,
-    models: provider.models,
-    _modelRelations: provider.models
+    models: extractModelsFromGroups(provider.groups),
+    groups: provider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(provider.groups)
+    }
   };
 };
 
@@ -260,21 +289,25 @@ const getProvidersByTypeWithModels = async (type: ProviderType) => {
       type
     },
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
-  // 保留原始关联表数据作为 _modelRelations（包含 group 等关联字段）
+  // 整理模型信息：从所有分组中提取模型
   return providers.map((provider) => ({
     ...provider,
-    models: provider.models,
-    _modelRelations: provider.models
+    models: extractModelsFromGroups(provider.groups),
+    groups: provider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(provider.groups)
+    }
   }));
 };
 
@@ -302,21 +335,25 @@ const getEnabledProvidersWithModels = async () => {
       enabled: true
     },
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
-  // 保留原始关联表数据作为 _modelRelations（包含 group 等关联字段）
+  // 整理模型信息：从所有分组中提取模型
   return providers.map((provider) => ({
     ...provider,
-    models: provider.models,
-    _modelRelations: provider.models
+    models: extractModelsFromGroups(provider.groups),
+    groups: provider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(provider.groups)
+    }
   }));
 };
 
@@ -329,9 +366,13 @@ const getEnabledProvidersWithModels = async () => {
 const getProvidersByModel = async (modelId: string) => {
   return prisma.provider.findMany({
     where: {
-      models: {
+      groups: {
         some: {
-          id: modelId
+          models: {
+            some: {
+              id: modelId
+            }
+          }
         }
       }
     }
@@ -347,28 +388,36 @@ const getProvidersByModel = async (modelId: string) => {
 const getProvidersByModelWithModels = async (modelId: string) => {
   const providers = await prisma.provider.findMany({
     where: {
-      models: {
+      groups: {
         some: {
-          id: modelId
+          models: {
+            some: {
+              id: modelId
+            }
+          }
         }
       }
     },
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
-  // 保留原始关联表数据作为 _modelRelations（包含 group 等关联字段）
+  // 整理模型信息：从所有分组中提取模型
   return providers.map((provider) => ({
     ...provider,
-    models: provider.models,
-    _modelRelations: provider.models
+    models: extractModelsFromGroups(provider.groups),
+    groups: provider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(provider.groups)
+    }
   }));
 };
 
@@ -392,20 +441,25 @@ const createProvider = async (provider: CreateProviderInput) => {
       }
     } as Prisma.ProviderCreateInput,
     include: {
-      models: true,
-      groups: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
+  // 整理模型信息：从所有分组中提取模型
   return {
     ...newProvider,
-    models: newProvider.models
+    models: extractModelsFromGroups(newProvider.groups),
+    groups: newProvider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(newProvider.groups)
+    }
   };
 };
 
@@ -426,19 +480,25 @@ const updateProvider = async (id: string, provider: UpdateProviderInput) => {
       updatedAt: new Date()
     },
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
+  // 整理模型信息：从所有分组中提取模型
   return {
     ...updatedProvider,
-    models: updatedProvider.models
+    models: extractModelsFromGroups(updatedProvider.groups),
+    groups: updatedProvider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(updatedProvider.groups)
+    }
   };
 };
 
@@ -449,22 +509,30 @@ const updateProvider = async (id: string, provider: UpdateProviderInput) => {
  * @returns 被删除的提供商对象
  */
 const deleteProvider = async (id: string) => {
-  // 先检查是否有关联的模型
-  const providerWithModels = await prisma.provider.findUnique({
+  // 先检查是否有关联的模型（通过分组检查）
+  const providerWithGroups = await prisma.provider.findUnique({
     where: { id },
     include: {
-      _count: {
-        select: {
-          models: true
+      groups: {
+        include: {
+          _count: {
+            select: {
+              models: true
+            }
+          }
         }
       }
     }
   });
 
-  if (providerWithModels && providerWithModels._count.models > 0) {
-    throw new Error(
-      `无法删除提供商：仍有 ${providerWithModels._count.models} 个关联的模型`
+  if (providerWithGroups) {
+    const totalModels = providerWithGroups.groups.reduce(
+      (sum, group) => sum + group._count.models,
+      0
     );
+    if (totalModels > 0) {
+      throw new Error(`无法删除提供商：仍有 ${totalModels} 个关联的模型`);
+    }
   }
 
   const deletedProvider = await prisma.provider.delete({
@@ -498,37 +566,61 @@ const toggleProviderEnabled = async (id: string) => {
       updatedAt: new Date()
     },
     include: {
-      models: true,
-      _count: {
-        select: {
+      groups: {
+        include: {
           models: true
         }
       }
     }
   });
 
-  // 整理模型信息：将关联表数据展开为模型数组
+  // 整理模型信息：从所有分组中提取模型
   return {
     ...updatedProvider,
-    models: updatedProvider.models
+    models: extractModelsFromGroups(updatedProvider.groups),
+    groups: updatedProvider.groups.map((group) => ({
+      ...group,
+      models: group.models
+    })),
+    _count: {
+      models: countModelsFromGroups(updatedProvider.groups)
+    }
   };
 };
 
 // 类型导出：从函数返回值推导
 export type ProviderResult = Awaited<ReturnType<typeof getProviderById>>;
 export type ProvidersResult = Awaited<ReturnType<typeof getProviders>>;
-export type EnabledProvidersResult = Awaited<ReturnType<typeof getEnabledProviders>>;
-export type ProvidersByTypeResult = Awaited<ReturnType<typeof getProvidersByType>>;
-export type ProvidersByModelResult = Awaited<ReturnType<typeof getProvidersByModel>>;
-export type ProviderWithModelsResult = Awaited<ReturnType<typeof getProviderWithModelsById>>;
-export type ProvidersWithModelsResult = Awaited<ReturnType<typeof getProvidersWithModels>>;
-export type EnabledProvidersWithModelsResult = Awaited<ReturnType<typeof getEnabledProvidersWithModels>>;
-export type ProvidersByTypeWithModelsResult = Awaited<ReturnType<typeof getProvidersByTypeWithModels>>;
-export type ProvidersByModelWithModelsResult = Awaited<ReturnType<typeof getProvidersByModelWithModels>>;
+export type EnabledProvidersResult = Awaited<
+  ReturnType<typeof getEnabledProviders>
+>;
+export type ProvidersByTypeResult = Awaited<
+  ReturnType<typeof getProvidersByType>
+>;
+export type ProvidersByModelResult = Awaited<
+  ReturnType<typeof getProvidersByModel>
+>;
+export type ProviderWithModelsResult = Awaited<
+  ReturnType<typeof getProviderWithModelsById>
+>;
+export type ProvidersWithModelsResult = Awaited<
+  ReturnType<typeof getProvidersWithModels>
+>;
+export type EnabledProvidersWithModelsResult = Awaited<
+  ReturnType<typeof getEnabledProvidersWithModels>
+>;
+export type ProvidersByTypeWithModelsResult = Awaited<
+  ReturnType<typeof getProvidersByTypeWithModels>
+>;
+export type ProvidersByModelWithModelsResult = Awaited<
+  ReturnType<typeof getProvidersByModelWithModels>
+>;
 export type ProviderCreateResult = Awaited<ReturnType<typeof createProvider>>;
 export type ProviderUpdateResult = Awaited<ReturnType<typeof updateProvider>>;
 export type ProviderDeleteResult = Awaited<ReturnType<typeof deleteProvider>>;
-export type ProviderToggleResult = Awaited<ReturnType<typeof toggleProviderEnabled>>;
+export type ProviderToggleResult = Awaited<
+  ReturnType<typeof toggleProviderEnabled>
+>;
 
 export {
   // 基础查询函数（不包含关联模型）

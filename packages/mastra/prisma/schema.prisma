@@ -56,6 +56,7 @@ enum ProviderType {
   azure_cognitive_services
   bailing
   baseten
+  berget
   cerebras
   chutes
   cloudflare_ai_gateway
@@ -78,6 +79,7 @@ enum ProviderType {
   inception
   inference
   io_net
+  jiekou
   kimi_for_coding
   llama
   lmstudio
