@@ -4,8 +4,8 @@ import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
 import {
+  FullProviderSchema,
   ProviderResponseSchema,
-  ProviderWithModelsResponseSchema,
   ProvidersResponseSchema,
   ProvidersWithModelsResponseSchema,
   createProviderSchema,
@@ -199,7 +199,7 @@ const getProviderWithModelsByIdRouter = registerApiRoute(
           content: {
             "application/json": {
               // @ts-expect-error hono-openapi response schema type doesn't support ZodSchema
-              schema: ProviderWithModelsResponseSchema.nullable()
+              schema: FullProviderSchema.nullable()
             }
           }
         }
@@ -313,7 +313,7 @@ const createProviderRouter = registerApiRoute(
           content: {
             "application/json": {
               // @ts-expect-error hono-openapi response schema type doesn't support ZodSchema
-              schema: ProviderWithModelsResponseSchema
+              schema: FullProviderSchema
             }
           }
         }
@@ -361,7 +361,7 @@ const updateProviderRouter = registerApiRoute(
           content: {
             "application/json": {
               // @ts-expect-error hono-openapi response schema type doesn't support ZodSchema
-              schema: ProviderWithModelsResponseSchema
+              schema: FullProviderSchema
             }
           }
         }
@@ -436,7 +436,7 @@ const toggleProviderEnabledRouter = registerApiRoute(
           content: {
             "application/json": {
               // @ts-expect-error hono-openapi response schema type doesn't support ZodSchema
-              schema: ProviderWithModelsResponseSchema
+              schema: FullProviderSchema
             }
           }
         }

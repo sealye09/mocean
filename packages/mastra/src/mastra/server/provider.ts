@@ -1,10 +1,14 @@
 import type { Prisma } from "generated/prisma/client";
 import type { ProviderType } from "generated/prisma/enums";
-import type {
-  CreateProviderInput,
-  UpdateProviderInput
+import type z from "zod";
+
+import type { FullProviderSchema } from "../schema/provider";
+import {
+  type CreateProviderInput,
+  type UpdateProviderInput
 } from "../schema/provider";
 import { prisma } from "./index";
+
 const extractModelsFromGroups = (
   groups: Array<{ models: unknown[] }>
 ): unknown[] => {
@@ -82,7 +86,9 @@ const getProviderById = async (id: string) => {
  * @param id - 提供商的唯一标识符
  * @returns 提供商对象（含展开的模型列表），如果不存在则返回null
  */
-const getProviderWithModelsById = async (id: string) => {
+const getProviderWithModelsById = async (
+  id: string
+): Promise<z.infer<typeof FullProviderSchema>> => {
   const provider = await prisma.provider.findUnique({
     where: {
       id
@@ -101,11 +107,6 @@ const getProviderWithModelsById = async (id: string) => {
   // 整理模型信息：从所有分组中提取模型
   return {
     ...provider,
-    models: extractModelsFromGroups(provider.groups),
-    groups: provider.groups.map((group) => ({
-      ...group,
-      models: group.models
-    })),
     _count: {
       models: countModelsFromGroups(provider.groups)
     }
