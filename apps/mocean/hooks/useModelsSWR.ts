@@ -1,5 +1,5 @@
 import { useModelsApi } from "@mocean/mastra/apiClient";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 /**
  * 使用 SWR 的模型数据获取 hooks
@@ -252,63 +252,77 @@ export function useModelsByGroupWithProviders(group: string | null) {
   };
 }
 
-// ==================== 增强的 hooks（结合 CRUD 操作和 SWR 缓存） ====================
+// ==================== 操作 Hooks（与数据获取解耦）====================
 
 /**
- * 增强的模型 API hooks - 结合 CRUD 操作和 SWR 缓存
- * 默认使用 WithProviders 版本
+ * Model 操作 hooks - 与数据获取解耦
+ * @param customMutate 可选的自定义刷新函数，如果不传则自动刷新所有相关缓存
+ *
+ * @example
+ * // 场景1: 自动刷新所有相关数据
+ * const { create, update, remove } = useModelActions();
+ *
+ * @example
+ * // 场景2: 只刷新特定列表
+ * const { models, refresh } = useModels();
+ * const { create, update } = useModelActions(refresh);
+ *
+ * @example
+ * // 场景3: 刷新多个数据源
+ * const { refresh: refreshList } = useModels();
+ * const { refresh: refreshDetail } = useModel(id);
+ * const actions = useModelActions(async () => {
+ *   await Promise.all([refreshList(), refreshDetail()]);
+ * });
  */
-export function useModelsWithActions() {
-  const { models, isLoading, error, refresh } = useModelsWithProviders();
+export function useModelActions(customMutate?: () => Promise<unknown>) {
+  const { mutate: globalMutate } = useSWRConfig();
   const { createModel, updateModel, deleteModel } = useModelsApi();
 
+  // 刷新逻辑：优先使用自定义 mutate，否则使用全局刷新
+  const refreshData = async () => {
+    if (customMutate) {
+      await customMutate();
+    } else {
+      // 刷新所有 model 相关的缓存
+      await globalMutate(
+        (key) => typeof key === "string" && key.startsWith("model"),
+        undefined,
+        { revalidate: true }
+      );
+    }
+  };
+
+  const create = async (data: Parameters<typeof createModel>[0]) => {
+    const result = await createModel(data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  const update = async (
+    id: string,
+    data: Parameters<typeof updateModel>[1]
+  ) => {
+    const result = await updateModel(id, data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  const remove = async (id: string) => {
+    const result = await deleteModel(id);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
   return {
-    // SWR 数据
-    models,
-    isLoading,
-    error,
-
-    // CRUD 操作（带缓存更新）
-    async create(data: Parameters<typeof createModel>[0]) {
-      try {
-        const result = await createModel(data);
-        if (result) {
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("创建模型失败:", error);
-        throw error;
-      }
-    },
-
-    async update(id: string, data: Parameters<typeof updateModel>[1]) {
-      try {
-        const result = await updateModel(id, data);
-        if (result) {
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("更新模型失败:", error);
-        throw error;
-      }
-    },
-
-    async remove(id: string) {
-      try {
-        const result = await deleteModel(id);
-        if (result) {
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("删除模型失败:", error);
-        throw error;
-      }
-    },
-
-    // 手动刷新
-    refresh
+    create,
+    update,
+    remove
   };
 }

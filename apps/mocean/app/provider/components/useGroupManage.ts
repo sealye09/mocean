@@ -1,21 +1,24 @@
 import { useCallback, useReducer } from "react";
 
+import type { Group } from "@mocean/mastra/prismaType";
 import { useForm } from "react-hook-form";
 
-import { useGroupsWithActions } from "@/hooks/useGroupsSWR";
+import { useGroupActions } from "@/hooks/useGroupsSWR";
 
 /**
  * 分组管理对话框属性
  */
 export interface GroupManageDialogProps {
+  /** 模型分组 */
+  groups: Group[];
   /** 供应商ID */
-  providerId: string | null;
+  providerId: string;
   /** 对话框开启状态 */
   open: boolean;
   /** 对话框状态变更回调 */
   onOpenChange: (open: boolean) => void;
   /** 成功回调 */
-  onSuccess?: () => void;
+  onSuccess?: () => Promise<unknown>;
 }
 
 export interface GroupConfigFormData {
@@ -84,8 +87,7 @@ export const useGroupManage = ({
   onSuccess
 }: GroupManageDialogProps) => {
   // API hooks
-  const { groups, isLoading, create, update, remove } =
-    useGroupsWithActions(providerId);
+  const { create, update, remove } = useGroupActions(onSuccess);
 
   // 使用 useReducer 管理对话框状态
   const [state, dispatch] = useReducer(dialogReducer, { mode: "list" });
@@ -151,13 +153,12 @@ export const useGroupManage = ({
 
             form.reset({ groupName: "" });
             dispatch({ type: "RESET" });
-            onSuccess?.();
           } catch (error) {
             console.error("添加分组失败:", error);
             throw error;
           }
         },
-        [providerId, create, form, onSuccess]
+        [providerId, create, form]
       )
     ),
 
@@ -182,13 +183,12 @@ export const useGroupManage = ({
 
             form.reset({ groupName: "" });
             dispatch({ type: "RESET" });
-            onSuccess?.();
           } catch (error) {
             console.error("编辑分组失败:", error);
             throw error;
           }
         },
-        [state, update, form, onSuccess]
+        [state, update, form]
       )
     ),
 
@@ -202,19 +202,14 @@ export const useGroupManage = ({
         await remove(state.groupId);
 
         dispatch({ type: "RESET" });
-        onSuccess?.();
       } catch (error) {
         console.error("删除分组失败:", error);
         throw error;
       }
-    }, [state, remove, onSuccess])
+    }, [state, remove])
   };
 
   return {
-    // 数据状态
-    groups,
-    isLoading,
-
     // 对话框状态
     state,
 

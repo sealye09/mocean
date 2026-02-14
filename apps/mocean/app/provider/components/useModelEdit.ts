@@ -1,20 +1,18 @@
 import { useCallback, useMemo } from "react";
 
-import type { ModelsByProviderResult } from "@mocean/mastra/apiClient";
+import type { Model } from "@mocean/mastra/prismaType";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 
 import { useGroupsByProviderSWR } from "@/hooks/useGroupsSWR";
-import { useModelsWithActions } from "@/hooks/useModelsSWR";
-
-type FullModel = ModelsByProviderResult[0];
+import { useModelActions } from "@/hooks/useModelsSWR";
 
 /**
  * 编辑模型对话框属性
  */
 export interface EditModelProps {
   /** 要编辑的模型 */
-  model: FullModel | null;
+  model: Model | null;
   /** 供应商ID */
   providerId: string | null;
   /** 对话框打开状态 */
@@ -22,7 +20,7 @@ export interface EditModelProps {
   /** 状态变更回调 */
   onOpenChange: (open: boolean) => void;
   /** 成功回调 */
-  onSuccess?: () => void;
+  onSuccess?: () => Promise<unknown>;
 }
 
 const abilityMap = {
@@ -47,7 +45,7 @@ export const useModelEdit = ({
   onOpenChange,
   onSuccess
 }: EditModelProps) => {
-  const { update } = useModelsWithActions();
+  const { update } = useModelActions(onSuccess);
   const { groups, isLoading: groupsLoading } =
     useGroupsByProviderSWR(providerId);
 
@@ -56,7 +54,7 @@ export const useModelEdit = ({
    */
   const modelAbility = useMemo(() => {
     return Object.entries(abilityMap)
-      .filter(([key]) => model?.[key as keyof FullModel])
+      .filter(([key]) => model?.[key as keyof Model])
       .map(([, value]) => value);
   }, [model]);
 
@@ -64,19 +62,8 @@ export const useModelEdit = ({
    * 模型在当前供应商的分组ID
    */
   const groupId = useMemo(() => {
-    if (!providerId || !model) {
-      return null;
-    }
-
-    const groupForCurrentProvider = model.modelGroups.find(
-      (group) => group.providerId === providerId
-    );
-    if (!groupForCurrentProvider) {
-      return null;
-    }
-
-    return groupForCurrentProvider.groupId;
-  }, [providerId, model]);
+    return model?.groupId ?? undefined;
+  }, [model]);
 
   /**
    * 表单提交
@@ -110,6 +97,7 @@ export const useModelEdit = ({
         }
 
         const updateData = {
+          id: model.id,
           name: data.name.trim(),
           groupId: data.groupId,
           description: data.description.trim()
@@ -117,15 +105,12 @@ export const useModelEdit = ({
 
         await update(model?.id, updateData);
         onOpenChange(false);
-        if (onSuccess) {
-          onSuccess();
-        }
       } catch (error: unknown) {
         console.error("更新供应商配置失败:", error);
         throw error;
       }
     },
-    [model, update, onOpenChange, onSuccess]
+    [model, update, onOpenChange]
   );
 
   return {
