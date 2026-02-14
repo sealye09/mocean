@@ -1,5 +1,5 @@
 import { useGroupsApi } from "@mocean/mastra/apiClient";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 /**
  * 使用 SWR 的分组数据获取 hooks
@@ -68,65 +68,77 @@ export function useGroupSWR(id: string | null) {
   };
 }
 
+// ==================== 操作 Hooks（与数据获取解耦）====================
+
 /**
- * 增强的分组 API hooks - 结合 CRUD 操作和 SWR 缓存
- * @param providerId - 提供商ID
+ * Group 操作 hooks - 与数据获取解耦
+ * @param customMutate 可选的自定义刷新函数，如果不传则自动刷新所有相关缓存
+ *
+ * @example
+ * // 场景1: 自动刷新所有相关数据
+ * const { create, update, remove } = useGroupActions();
+ *
+ * @example
+ * // 场景2: 只刷新特定列表
+ * const { groups, refresh } = useGroupsByProviderSWR(providerId);
+ * const { create, update } = useGroupActions(refresh);
+ *
+ * @example
+ * // 场景3: 刷新多个数据源
+ * const { refresh: refreshList } = useGroupsByProviderSWR(providerId);
+ * const { refresh: refreshDetail } = useGroupSWR(id);
+ * const actions = useGroupActions(async () => {
+ *   await Promise.all([refreshList(), refreshDetail()]);
+ * });
  */
-export function useGroupsWithActions(providerId: string | null) {
-  const { groups, isLoading, error, refresh } =
-    useGroupsByProviderSWR(providerId);
+export function useGroupActions(customMutate?: () => Promise<unknown>) {
+  const { mutate: globalMutate } = useSWRConfig();
   const { createGroup, updateGroup, deleteGroup } = useGroupsApi();
 
+  // 刷新逻辑：优先使用自定义 mutate，否则使用全局刷新
+  const refreshData = async () => {
+    if (customMutate) {
+      await customMutate();
+    } else {
+      // 刷新所有 group 相关的缓存
+      await globalMutate(
+        (key) => typeof key === "string" && key.startsWith("group"),
+        undefined,
+        { revalidate: true }
+      );
+    }
+  };
+
+  const create = async (data: Parameters<typeof createGroup>[0]) => {
+    const result = await createGroup(data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  const update = async (
+    id: string,
+    data: Parameters<typeof updateGroup>[1]
+  ) => {
+    const result = await updateGroup(id, data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  const remove = async (id: string) => {
+    const result = await deleteGroup(id);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
   return {
-    // SWR 数据
-    groups,
-    isLoading,
-    error,
-
-    // CRUD 操作（带缓存更新）
-    async create(data: Parameters<typeof createGroup>[0]) {
-      try {
-        const result = await createGroup(data);
-        if (result) {
-          // 创建成功后，刷新缓存
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("创建分组失败:", error);
-        throw error;
-      }
-    },
-
-    async update(id: string, data: Parameters<typeof updateGroup>[1]) {
-      try {
-        const result = await updateGroup(id, data);
-        if (result) {
-          // 更新成功后，刷新缓存
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("更新分组失败:", error);
-        throw error;
-      }
-    },
-
-    async remove(id: string) {
-      try {
-        const result = await deleteGroup(id);
-        if (result) {
-          // 删除成功后，刷新缓存
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("删除分组失败:", error);
-        throw error;
-      }
-    },
-
-    // 手动刷新
-    refresh
+    create,
+    update,
+    remove
   };
 }

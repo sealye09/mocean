@@ -1,6 +1,6 @@
 import { useProvidersApi } from "@mocean/mastra/apiClient";
 import type { ProviderType } from "@mocean/mastra/prismaType";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 /**
  * SWR 默认配置
@@ -212,11 +212,31 @@ export function useProvidersByTypeWithModels(type: string | null) {
   };
 }
 
+// ==================== 操作 Hooks（与数据获取解耦）====================
+
 /**
- * 增强的提供商 API hooks - 结合 CRUD 操作和 SWR 缓存
+ * Provider 操作 hooks - 与数据获取解耦
+ * @param customMutate 可选的自定义刷新函数，如果不传则自动刷新所有相关缓存
+ *
+ * @example
+ * // 场景1: 自动刷新所有相关数据
+ * const { create, update, remove } = useProviderActions();
+ *
+ * @example
+ * // 场景2: 只刷新特定列表
+ * const { providers, refresh } = useProviders();
+ * const { create, update } = useProviderActions(refresh);
+ *
+ * @example
+ * // 场景3: 刷新多个数据源
+ * const { refresh: refreshList } = useProviders();
+ * const { refresh: refreshDetail } = useProvider(id);
+ * const actions = useProviderActions(async () => {
+ *   await Promise.all([refreshList(), refreshDetail()]);
+ * });
  */
-export function useProvidersWithActions() {
-  const { providers, isLoading, error, refresh } = useProvidersWithModels();
+export function useProviderActions(customMutate?: () => Promise<unknown>) {
+  const { mutate: globalMutate } = useSWRConfig();
   const {
     createProvider,
     updateProvider,
@@ -224,71 +244,56 @@ export function useProvidersWithActions() {
     toggleProviderEnabled
   } = useProvidersApi();
 
-  const create = async (data: Parameters<typeof createProvider>[0]) => {
-    try {
-      const result = await createProvider(data);
-      if (result) {
-        await refresh();
-      }
-      return result;
-    } catch (err) {
-      console.error("创建提供商失败:", err);
-      throw err;
+  // 刷新逻辑：优先使用自定义 mutate，否则使用全局刷新
+  const refreshData = async () => {
+    if (customMutate) {
+      await customMutate();
+    } else {
+      // 刷新所有 provider 相关的缓存
+      await globalMutate(
+        (key) => typeof key === "string" && key.startsWith("provider"),
+        undefined,
+        { revalidate: true }
+      );
     }
+  };
+
+  const create = async (data: Parameters<typeof createProvider>[0]) => {
+    const result = await createProvider(data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
   };
 
   const update = async (
     id: string,
     data: Parameters<typeof updateProvider>[1]
   ) => {
-    try {
-      const result = await updateProvider(id, data);
-      if (result) {
-        await refresh();
-      }
-      return result;
-    } catch (err) {
-      console.error("更新提供商失败:", err);
-      throw err;
+    const result = await updateProvider(id, data);
+    if (result) {
+      await refreshData();
     }
+    return result;
   };
 
   const remove = async (id: string) => {
-    try {
-      const result = await deleteProvider(id);
-      if (result) {
-        await refresh();
-      }
-      return result;
-    } catch (err) {
-      console.error("删除提供商失败:", err);
-      throw err;
+    const result = await deleteProvider(id);
+    if (result) {
+      await refreshData();
     }
+    return result;
   };
 
   const toggleEnabled = async (id: string) => {
-    try {
-      const result = await toggleProviderEnabled(id);
-      if (result) {
-        await refresh();
-      }
-      return result;
-    } catch (err) {
-      console.error("切换提供商状态失败:", err);
-      throw err;
+    const result = await toggleProviderEnabled(id);
+    if (result) {
+      await refreshData();
     }
+    return result;
   };
 
   return {
-    // SWR 数据
-    providers,
-    isLoading,
-    error,
-
-    // 手动刷新
-    refresh,
-
-    // CRUD 操作
     create,
     update,
     remove,

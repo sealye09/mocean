@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import type { Provider } from "@mocean/mastra/prismaType";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { useProvidersWithActions } from "@/hooks/useProvidersSWR";
+import { useProviderActions } from "@/hooks/useProvidersSWR";
 
 /**
  * 供应商配置编辑对话框属性
@@ -15,6 +15,8 @@ export interface ProviderConfigDialogProps {
   open: boolean;
   /** 对话框状态变更回调 */
   onOpenChange: (open: boolean) => void;
+  /** 供应商更新成功回调 */
+  onSuccess?: () => Promise<void>;
 }
 
 /**
@@ -36,9 +38,10 @@ export type ProviderConfigFormData = {
 export const useProviderConfig = ({
   provider,
   open,
-  onOpenChange
+  onOpenChange,
+  onSuccess
 }: ProviderConfigDialogProps) => {
-  const { update } = useProvidersWithActions();
+  const { update } = useProviderActions(onSuccess);
 
   const {
     register,
@@ -88,6 +91,7 @@ export const useProviderConfig = ({
     async (data: ProviderConfigFormData) => {
       try {
         const updateData = {
+          id: provider.id,
           name: data.name.trim(),
           apiKey: data.apiKey.trim(),
           apiHost: data.apiHost.trim(),
