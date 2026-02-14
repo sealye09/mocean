@@ -2,7 +2,11 @@
  * Response Schemas
  * 用于 Router 的响应类型验证
  */
-import { ModelSchema, ProviderSchema } from "generated/schemas/models/index";
+import {
+  GroupSchema,
+  ModelSchema,
+  ProviderSchema
+} from "generated/schemas/models/index";
 import { z } from "zod";
 
 // 基础 Provider Response Schema（不含关联关系）
@@ -32,7 +36,7 @@ export const ProvidersResponseSchema = z.array(
 );
 
 // 带 models 数组的 Provider Response Schema
-export const ProviderWithModelsResponseSchema = ProviderSchema.pick({
+export const FullProviderSchema = ProviderSchema.pick({
   id: true,
   type: true,
   name: true,
@@ -49,7 +53,11 @@ export const ProviderWithModelsResponseSchema = ProviderSchema.pick({
   createdAt: true,
   updatedAt: true
 }).extend({
-  models: z.array(ModelSchema.partial()),
+  groups: z.array(
+    GroupSchema.extend({
+      models: z.array(ModelSchema.partial())
+    })
+  ),
   _count: z
     .object({
       models: z.number()
@@ -58,9 +66,7 @@ export const ProviderWithModelsResponseSchema = ProviderSchema.pick({
 });
 
 // Providers 列表 Response Schema（含 models）
-export const ProvidersWithModelsResponseSchema = z.array(
-  ProviderWithModelsResponseSchema
-);
+export const ProvidersWithModelsResponseSchema = z.array(FullProviderSchema);
 
 /**
  * URL 验证辅助函数

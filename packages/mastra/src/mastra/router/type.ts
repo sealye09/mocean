@@ -26,7 +26,7 @@ import {
 } from "../schema/model";
 import {
   ProviderResponseSchema,
-  ProviderWithModelsResponseSchema,
+  FullProviderSchema,
   ProvidersResponseSchema,
   ProvidersWithModelsResponseSchema
 } from "../schema/provider";
@@ -64,7 +64,7 @@ export const providerRoutes = {
   },
   getProviderWithModelsById: {
     path: `${PREFIX}/providers/:id/with-models`,
-    responseSchema: ProviderWithModelsResponseSchema.nullable()
+    responseSchema: FullProviderSchema.nullable()
   },
   getProvidersByTypeWithModels: {
     path: `${PREFIX}/providers/type/:type/with-models`,
@@ -77,11 +77,11 @@ export const providerRoutes = {
   // 写操作
   createProvider: {
     path: `${PREFIX}/providers`,
-    responseSchema: ProviderWithModelsResponseSchema
+    responseSchema: FullProviderSchema
   },
   updateProvider: {
     path: `${PREFIX}/providers/:id`,
-    responseSchema: ProviderWithModelsResponseSchema
+    responseSchema: FullProviderSchema
   },
   deleteProvider: {
     path: `${PREFIX}/providers/:id`,
@@ -89,7 +89,7 @@ export const providerRoutes = {
   },
   toggleProviderEnabled: {
     path: `${PREFIX}/providers/:id/toggle`,
-    responseSchema: ProviderWithModelsResponseSchema
+    responseSchema: FullProviderSchema
   }
 } as const;
 
