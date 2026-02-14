@@ -1,9 +1,10 @@
-import { FC } from "react";
+import type { FC } from "react";
 
-import Image, { StaticImageData } from "next/image";
+import type { StaticImageData } from "next/image";
+import Image from "next/image";
 
 import { ModelProvider, ProviderIcon } from "@lobehub/icons";
-import { Provider, ProviderType } from "@mocean/mastra/prismaType";
+import type { Provider, ProviderType } from "@mocean/mastra/prismaType";
 
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,7 @@ const convertProviderTypeToProviderIcon = (
     zhipuai: ModelProvider.ZhiPu,
     zhipuai_coding_plan: ModelProvider.ZhiPu,
     openrouter: ModelProvider.OpenRouter,
-    vercel: ModelProvider.Vercel,
+    vercel: ModelProvider.Vercel
   };
 
   return providerMap[providerType];
@@ -72,7 +73,7 @@ interface RenderProviderAvatarProps {
  */
 export const renderProviderAvatar: FC<RenderProviderAvatarProps> = ({
   provider,
-  className,
+  className
 }) => {
   if (!provider) {
     return (
