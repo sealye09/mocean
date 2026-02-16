@@ -19,7 +19,7 @@ const MODEL_TYPE_ICONS = {
   embedding: Database,
   reasoning: Zap,
   function_calling: Zap,
-  web_search: Search,
+  web_search: Search
 } as const;
 
 /**
@@ -35,7 +35,7 @@ const getModelTypeColor = (type: string) => {
     function_calling:
       "bg-destructive/10 text-destructive dark:bg-destructive/20",
     web_search:
-      "bg-brand-secondary-400/10 text-brand-secondary-700 dark:bg-brand-secondary-400/20",
+      "bg-brand-secondary-400/10 text-brand-secondary-700 dark:bg-brand-secondary-400/20"
   };
   return (
     colorMap[type as keyof typeof colorMap] || "bg-muted text-muted-foreground"
@@ -53,7 +53,7 @@ const getModelTypeName = (type: string) => {
     embedding: "向量",
     reasoning: "推理",
     function_calling: "函数调用",
-    web_search: "网络搜索",
+    web_search: "网络搜索"
   };
   return nameMap[type as keyof typeof nameMap] || type;
 };
@@ -90,7 +90,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
   onClick,
   onEdit,
   onDelete,
-  className = "",
+  className = ""
 }) => {
   const modelLogo = getModelLogo(model.id as keyof typeof getModelLogo);
 
@@ -141,7 +141,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
           </div>
         ),
         variant: "secondary" as const,
-        className: getModelTypeColor(type),
+        className: getModelTypeColor(type)
       };
     });
   };

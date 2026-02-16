@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 
+import { DndContext, DragOverlay, pointerWithin } from "@dnd-kit/core";
 import type { Provider } from "@mocean/mastra/prismaType";
 import { Database, Edit, Loader2, Plus, Search, Settings } from "lucide-react";
 
@@ -18,19 +19,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 
 import { AddModelDialog } from "../components/AddModelDialog";
 import { renderProviderAvatar } from "../components/CustomerIcon";
+import { DroppableGroup } from "../components/DroppableGroup";
 import { EditModelDialog } from "../components/EditModelDialog";
 import { GroupManageDialog } from "../components/GroupManageDialog";
 import { ModelCard } from "../components/ModelCard";
@@ -65,7 +60,11 @@ export default function ProviderDetailPage() {
     confirmDeleteModel,
     onToggleEnabled,
     onOpenAddModel,
-    refreshProvider
+    refreshProvider,
+    sensors,
+    onDragStart,
+    onDragEnd,
+    activeModel
   } = useProviderPage(providerId);
 
   // 加载状态
@@ -259,69 +258,45 @@ export default function ProviderDetailPage() {
         </div>
       </div>
 
-      {/* 模型分组列表 */}
-      <div className="flex-1 overflow-auto">
-        <ScrollArea className="h-full">
-          <div className="space-y-6 p-6">
-            {filteredModelGroups.map((group) => (
-              <Collapsible key={group.groupName} defaultOpen={true}>
-                <div className="space-y-4">
-                  {/* 分组标题和操作区域 */}
-                  <div className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-muted/50">
-                    <CollapsibleTrigger className="flex flex-1 items-center space-x-3">
-                      <h3 className="text-lg font-semibold">
-                        {group.groupName}
-                      </h3>
-                      <Badge variant="secondary" className="text-xs">
-                        {group.count} 个模型
-                      </Badge>
-                    </CollapsibleTrigger>
+      {/* 模型分组列表 - 拖拽容器 */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={pointerWithin}
+        onDragStart={onDragStart}
+        onDragEnd={async (e) => {
+          await onDragEnd(e);
+        }}
+      >
+        <div className="flex-1 overflow-auto">
+          <ScrollArea className="h-full">
+            <div className="space-y-6 p-6">
+              {filteredModelGroups.map((group, index) => (
+                <DroppableGroup
+                  key={group.groupName}
+                  group={group}
+                  isLast={index === filteredModelGroups.length - 1}
+                  onAddModel={onOpenAddModel}
+                  onModelClick={onModelClick}
+                  onModelEdit={onModelEdit}
+                  onModelDelete={onModelDelete}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
 
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenAddModel(group.groupName);
-                        }}
-                        className="h-8 px-2"
-                        title="添加模型到此分组"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <CollapsibleContent
-                    className={cn(
-                      `text-popover-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2`
-                    )}
-                  >
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-                      {group.models.map((model) => (
-                        <ModelCard
-                          key={model.id}
-                          model={model}
-                          onClick={onModelClick}
-                          onEdit={onModelEdit}
-                          onDelete={onModelDelete}
-                        />
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </div>
-
-                {/* 分组间分隔线 */}
-                {group !==
-                  filteredModelGroups[filteredModelGroups.length - 1] && (
-                  <Separator className="my-6" />
-                )}
-              </Collapsible>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
+        {/* 拖拽覆盖层 - 显示拖拽中的模型卡片 */}
+        <DragOverlay dropAnimation={null} style={{ borderRadius: "0.75rem" }}>
+          {activeModel ? (
+            <div className="rounded-xl" style={{ background: "transparent" }}>
+              <ModelCard
+                model={activeModel}
+                className="w-80 rotate-3 opacity-90 shadow-2xl"
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       {/* 对话框 */}
       {provider && (
@@ -340,7 +315,6 @@ export default function ProviderDetailPage() {
         onOpenChange={(open) =>
           dispatchDialog({ type: "addModel", payload: open })
         }
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSuccess={refreshProvider}
       />
 
@@ -352,6 +326,7 @@ export default function ProviderDetailPage() {
           dispatchDialog({ type: "editModel", payload: open })
         }
         onSuccess={refreshProvider}
+        groups={groups}
       />
 
       {/* 删除确认对话框 */}

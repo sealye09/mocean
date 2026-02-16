@@ -1,10 +1,9 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import type { Model } from "@mocean/mastra/prismaType";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 
-import { useGroupsByProviderSWR } from "@/hooks/useGroupsSWR";
 import { useModelActions } from "@/hooks/useModelsSWR";
 
 /**
@@ -21,6 +20,10 @@ export interface EditModelProps {
   onOpenChange: (open: boolean) => void;
   /** 成功回调 */
   onSuccess?: () => Promise<unknown>;
+  /** 分组列表 */
+  groups: Array<{ id: string; name: string; isDefault?: boolean }>;
+  /** 分组是否加载中 */
+  groupsLoading?: boolean;
 }
 
 const abilityMap = {
@@ -38,16 +41,30 @@ export type ModelEditForm = Record<keyof typeof abilityMap, boolean> & {
   description: string;
 };
 
+/**
+ * 根据模型生成表单初始值
+ */
+const getFormDefaultValues = (model: Model | null): ModelEditForm => ({
+  name: model?.name || "",
+  groupId: model?.groupId || "",
+  description: model?.description || "",
+  supportsTools: model?.supportsTools || false,
+  supportsReasoning: model?.supportsReasoning || false,
+  supportsImage: model?.supportsImage || false,
+  supportsVideo: model?.supportsVideo || false,
+  supportsAudio: model?.supportsAudio || false,
+  supportsEmbedding: model?.supportsEmbedding || false
+});
+
 export const useModelEdit = ({
   model,
-  providerId,
   open,
   onOpenChange,
-  onSuccess
+  onSuccess,
+  groups: propGroups,
+  groupsLoading: propGroupsLoading
 }: EditModelProps) => {
   const { update } = useModelActions(onSuccess);
-  const { groups, isLoading: groupsLoading } =
-    useGroupsByProviderSWR(providerId);
 
   /**
    * 模型能力
@@ -59,32 +76,26 @@ export const useModelEdit = ({
   }, [model]);
 
   /**
-   * 模型在当前供应商的分组ID
-   */
-  const groupId = useMemo(() => {
-    return model?.groupId ?? undefined;
-  }, [model]);
-
-  /**
    * 表单提交
    */
   const {
     register,
     handleSubmit,
+    control,
+    reset,
     formState: { isSubmitting }
   } = useForm<ModelEditForm>({
-    defaultValues: {
-      name: model?.name || "",
-      groupId: groupId || "",
-      description: model?.description || "",
-      supportsTools: model?.supportsTools || false,
-      supportsReasoning: model?.supportsReasoning || false,
-      supportsImage: model?.supportsImage || false,
-      supportsVideo: model?.supportsVideo || false,
-      supportsAudio: model?.supportsAudio || false,
-      supportsEmbedding: model?.supportsEmbedding || false
-    }
+    defaultValues: getFormDefaultValues(model)
   });
+
+  /**
+   * 当 model 发生变化时，同步更新表单值
+   */
+  useEffect(() => {
+    if (model) {
+      reset(getFormDefaultValues(model));
+    }
+  }, [model, reset]);
 
   /**
    * 处理表单提交
@@ -97,13 +108,13 @@ export const useModelEdit = ({
         }
 
         const updateData = {
-          id: model.id,
+          ...model,
           name: data.name.trim(),
           groupId: data.groupId,
           description: data.description.trim()
         };
 
-        await update(model?.id, updateData);
+        await update(model.id, updateData);
         onOpenChange(false);
       } catch (error: unknown) {
         console.error("更新供应商配置失败:", error);
@@ -116,12 +127,13 @@ export const useModelEdit = ({
   return {
     model,
     open,
-    groups,
+    groups: propGroups,
     modelAbility,
-    groupsLoading,
+    groupsLoading: propGroupsLoading,
     isSubmitting,
     onOpenChange,
     register,
+    control,
     onSubmit,
     handleSubmit
   };

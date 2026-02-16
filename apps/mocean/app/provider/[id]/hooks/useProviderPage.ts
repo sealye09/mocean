@@ -8,10 +8,12 @@ import {
   useProviderWithModels
 } from "@/hooks/useProvidersSWR";
 
+import { useDragModels } from "./useDragModels";
+
 /**
  * 模型分组接口
  */
-interface ModelGroup {
+export interface ModelGroup {
   groupName: string;
   models: Model[];
   count: number;
@@ -99,9 +101,11 @@ export function useProviderPage(selectedProviderId: string | null) {
    */
   const modelGroups = useMemo((): ModelGroup[] => {
     return groups.map((group) => {
-      const sortedModels = ((group.models || []) as Model[]).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+      const sortedModels = ((group.models || []) as Model[]).sort((a, b) => {
+        // 优先按 sort 字段排序，然后按名称字母排序
+        if (a.sort !== b.sort) return a.sort - b.sort;
+        return a.name.localeCompare(b.name);
+      });
       return {
         groupName: group.name,
         groupId: group.id,
@@ -252,6 +256,17 @@ export function useProviderPage(selectedProviderId: string | null) {
     dispatchDialog({ type: "addModel", payload: true });
   };
 
+  /**
+   * 拖拽功能 Hook
+   * @description 处理模型拖拽排序和分组转移
+   */
+  const { sensors, onDragStart, onDragEnd, activeModel } = useDragModels({
+    provider,
+    models,
+    modelGroups,
+    onRefresh: refreshProvider
+  });
+
   return {
     // 数据状态
     provider,
@@ -282,6 +297,12 @@ export function useProviderPage(selectedProviderId: string | null) {
     confirmDeleteModel,
     onToggleEnabled,
     onOpenAddModel,
-    refreshProvider
+    refreshProvider,
+
+    // 拖拽功能
+    sensors,
+    onDragStart,
+    onDragEnd,
+    activeModel
   };
 }
