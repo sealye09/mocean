@@ -40,7 +40,15 @@
       "Bash(pnpm exec tsc:*)",
       "Bash(netstat:*)",
       "Bash(taskkill:*)",
-      "Bash(cmd //c \"taskkill /PID 26404 /F\")"
+      "Bash(cmd //c \"taskkill /PID 26404 /F\")",
+      "Bash(git rm:*)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm exec prisma:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(ls:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)"
     ],
     "deny": [],
     "ask": []
