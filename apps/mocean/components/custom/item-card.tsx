@@ -94,7 +94,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   onClick,
   selected = false,
   className = "",
-  children,
+  children
 }) => {
   const hasActions = primaryAction || secondaryAction;
 
@@ -104,7 +104,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         "group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg",
         selected && "border-brand-primary bg-brand-primary/10",
         !selected && "hover:bg-muted/20",
-        className,
+        className
       )}
       onClick={onClick}
     >
