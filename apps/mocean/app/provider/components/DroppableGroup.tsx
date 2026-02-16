@@ -84,19 +84,26 @@ export function DroppableGroup({
               <div
                 ref={setNodeRef}
                 className={cn(
-                  "grid grid-cols-1 gap-4 rounded-lg transition-colors lg:grid-cols-2 xl:grid-cols-3",
-                  isOver && "bg-accent/50"
+                  "grid grid-cols-1 gap-4 rounded-lg p-2 transition-colors lg:grid-cols-2 xl:grid-cols-3",
+                  isOver && "bg-accent/50",
+                  group.models.length === 0 && "min-h-24"
                 )}
               >
-                {group.models.map((model) => (
-                  <DraggableModelCard
-                    key={model.id}
-                    model={model}
-                    onClick={onModelClick}
-                    onEdit={onModelEdit}
-                    onDelete={onModelDelete}
-                  />
-                ))}
+                {group.models.length === 0 ? (
+                  <div className="col-span-full flex items-center justify-center rounded-md border border-dashed border-muted-foreground/25 p-6 text-sm text-muted-foreground">
+                    拖拽模型到此分组
+                  </div>
+                ) : (
+                  group.models.map((model) => (
+                    <DraggableModelCard
+                      key={model.id}
+                      model={model}
+                      onClick={onModelClick}
+                      onEdit={onModelEdit}
+                      onDelete={onModelDelete}
+                    />
+                  ))
+                )}
               </div>
             </SortableContext>
           </CollapsibleContent>
