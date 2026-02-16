@@ -4,23 +4,22 @@ import type { StorageThreadType } from "@mastra/core/memory";
 import type { RequestContext } from "@mastra/core/request-context";
 import type { UIMessage } from "ai";
 import { createUIMessageStreamResponse } from "ai";
+import { z } from "zod";
+
+import { DynamicAgent } from "../agents/dynamicAgent";
+import { createCommonRunTime } from "../runtime/CommonRunTime";
 import type {
+  AssistantFullResponse,
+  AssistantResponse,
+  AssistantWithModelsResponse,
   CreateAssistantInput,
   UpdateAssistantInput
 } from "../schema/assistant";
 import {
   AssistantFullResponseSchema,
   AssistantResponseSchema,
-  AssistantWithModelsResponseSchema,
-  assistantIdParamSchema,
-  assistantThreadIdParamSchema,
-  chatWithAssistantSchema,
-  createAssistantSchema,
-  updateAssistantSchema
+  AssistantWithModelsResponseSchema
 } from "../schema/assistant";
-
-import { DynamicAgent } from "../agents/dynamicAgent";
-import { createCommonRunTime } from "../runtime/CommonRunTime";
 import { prisma } from "./index";
 import type { AsyncReturnType } from "./type";
 
@@ -40,7 +39,7 @@ export {
  * @description 从数据库中获取所有助手的列表
  * @returns 包含所有助手信息的数组
  */
-const getAssistants = async () => {
+const getAssistants = async (): Promise<AssistantWithModelsResponse[]> => {
   const assistants = await prisma.assistant.findMany({
     include: {
       model: true,
@@ -48,7 +47,7 @@ const getAssistants = async () => {
       settings: true
     }
   });
-  return assistants;
+  return z.array(AssistantWithModelsResponseSchema).parse(assistants);
 };
 
 /**
@@ -57,7 +56,9 @@ const getAssistants = async () => {
  * @param id - 助手的唯一标识符
  * @returns 助手对象，如果不存在则返回null
  */
-const getAssistantById = async (id: string) => {
+const getAssistantById = async (
+  id: string
+): Promise<AssistantFullResponse | null> => {
   const assistant = await prisma.assistant.findUnique({
     where: {
       id
@@ -72,7 +73,7 @@ const getAssistantById = async (id: string) => {
       mcpServers: true
     }
   });
-  return assistant;
+  return assistant ? AssistantFullResponseSchema.parse(assistant) : null;
 };
 
 /**
@@ -104,7 +105,9 @@ const getFullAssistantById = async (id: string) => {
  * @param assistant - 包含助手信息的对象，包括名称、描述、提示词等必要字段
  * @returns 新创建的助手对象，包含生成的ID和时间戳
  */
-const createAssistant = async (assistant: CreateAssistantInput) => {
+const createAssistant = async (
+  assistant: CreateAssistantInput
+): Promise<AssistantWithModelsResponse> => {
   const newAssistant = await prisma.assistant.create({
     data: {
       ...assistant,
@@ -119,7 +122,7 @@ const createAssistant = async (assistant: CreateAssistantInput) => {
       settings: true
     }
   });
-  return newAssistant;
+  return AssistantWithModelsResponseSchema.parse(newAssistant);
 };
 
 /**
@@ -129,7 +132,10 @@ const createAssistant = async (assistant: CreateAssistantInput) => {
  * @param assistant - 包含更新信息的对象，包括名称、描述、提示词等字段
  * @returns 更新后的助手对象
  */
-const updateAssistant = async (id: string, assistant: UpdateAssistantInput) => {
+const updateAssistant = async (
+  id: string,
+  assistant: UpdateAssistantInput
+): Promise<AssistantWithModelsResponse> => {
   const updatedAssistant = await prisma.assistant.update({
     where: {
       id
@@ -144,7 +150,7 @@ const updateAssistant = async (id: string, assistant: UpdateAssistantInput) => {
       settings: true
     }
   });
-  return updatedAssistant;
+  return AssistantWithModelsResponseSchema.parse(updatedAssistant);
 };
 
 /**
@@ -153,13 +159,13 @@ const updateAssistant = async (id: string, assistant: UpdateAssistantInput) => {
  * @param id - 要删除的助手的唯一标识符
  * @returns 被删除的助手对象
  */
-const deleteAssistant = async (id: string) => {
+const deleteAssistant = async (id: string): Promise<AssistantResponse> => {
   const deletedAssistant = await prisma.assistant.delete({
     where: {
       id
     }
   });
-  return deletedAssistant;
+  return AssistantResponseSchema.parse(deletedAssistant);
 };
 
 /**
@@ -292,10 +298,5 @@ export {
   getAssistantWithModelByAssistantId,
   executeChatWithAssistant,
   getThreadsByAssistantId,
-  getUIMessagesByThreadId,
-  createAssistantSchema,
-  updateAssistantSchema,
-  chatWithAssistantSchema,
-  assistantIdParamSchema,
-  assistantThreadIdParamSchema
+  getUIMessagesByThreadId
 };

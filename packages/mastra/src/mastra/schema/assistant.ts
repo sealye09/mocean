@@ -146,3 +146,9 @@ export const chatWithAssistantSchema = z.object({
 // zod类型推导
 export type CreateAssistantInput = z.infer<typeof createAssistantSchema>;
 export type UpdateAssistantInput = z.infer<typeof updateAssistantSchema>;
+export type AssistantResponse = z.infer<typeof AssistantResponseSchema>;
+export type AssistantsResponse = z.infer<typeof AssistantsResponseSchema>;
+export type AssistantWithModelsResponse = z.infer<
+  typeof AssistantWithModelsResponseSchema
+>;
+export type AssistantFullResponse = z.infer<typeof AssistantFullResponseSchema>;
