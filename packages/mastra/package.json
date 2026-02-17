@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "dotenvx": "dotenvx",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "serve": "dotenvx run -- mastra dev",
     "build": "mastra build",
     "bundle": "rollup -c && tsx scripts/fix-apiClient.ts",
@@ -65,6 +67,7 @@
     "@rollup/plugin-typescript": "^12.3.0",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/node": "^20.17.6",
+    "@vitest/coverage-v8": "^2.1.0",
     "better-sqlite3": "^12.4.1",
     "eslint": "^9.15.0",
     "install": "^0.13.0",
@@ -74,6 +77,7 @@
     "rollup": "^4.52.5",
     "rollup-plugin-dts": "^6.2.3",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.0"
   }
 }
