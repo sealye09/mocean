@@ -285,13 +285,7 @@ const updateModel = async (id: string, model: UpdateModelInput) => {
   }
 
   // 分离 groupId 和其他字段，因为 groupId 是外键，需要通过 connect 来更新
-  const {
-    groupId,
-    assistants,
-    defaultForAssistants,
-    rerankFor,
-    ...otherFields
-  } = model;
+  const { groupId, ...otherFields } = model;
 
   // 构建 Prisma 更新数据，使用 any 类型避免复杂的类型推导
 
@@ -334,10 +328,7 @@ const deleteModel = async (id: string) => {
         select: {
           assistants: true,
           defaultForAssistants: true,
-          knowledgeBases: true,
-          assistantSettings: true,
-          rerankFor: true,
-          Topic: true
+          rerankFor: true
         }
       }
     }
@@ -346,12 +337,7 @@ const deleteModel = async (id: string) => {
   if (modelWithRelations) {
     const { _count } = modelWithRelations;
     const totalRelations =
-      _count.assistants +
-      _count.defaultForAssistants +
-      _count.knowledgeBases +
-      _count.assistantSettings +
-      _count.rerankFor +
-      _count.Topic;
+      _count.assistants + _count.defaultForAssistants + _count.rerankFor;
 
     if (totalRelations > 0) {
       throw new Error(`无法删除模型：仍有 ${totalRelations} 个关联的记录`);
