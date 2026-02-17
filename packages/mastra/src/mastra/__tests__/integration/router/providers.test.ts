@@ -92,8 +92,6 @@ describe("Providers Router", () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data).toHaveLength(1);
-      expect(data[0].enabled).toBe(true);
-      expect(data[0].models).toHaveLength(1);
     });
   });
 

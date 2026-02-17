@@ -29,8 +29,8 @@ const countModelsFromGroups = (
  * 接受 PrismaClient 实例，返回所有 provider 操作函数
  * 支持依赖注入，便于测试时传入 mock 或测试数据库实例
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createProviderService(db: PrismaClient | any) {
+
+export function createProviderService(db: PrismaClient) {
   const getProviders = async () => {
     return db.provider.findMany({
       orderBy: {
@@ -121,9 +121,7 @@ export function createProviderService(db: PrismaClient | any) {
     });
 
     return providers.map(
-      (provider: {
-        groups: Array<{ models: unknown[] }>;
-      }) => ({
+      (provider: { groups: Array<{ models: unknown[] }> }) => ({
         ...provider,
         models: extractModelsFromGroups(provider.groups),
         groups: provider.groups.map((group) => ({
@@ -161,15 +159,7 @@ export function createProviderService(db: PrismaClient | any) {
       }
     });
 
-    return providers.map(
-      (provider: { groups: Array<{ models: unknown[] }> }) => ({
-        ...provider,
-        models: extractModelsFromGroups(provider.groups),
-        _count: {
-          models: countModelsFromGroups(provider.groups)
-        }
-      })
-    );
+    return providers;
   };
 
   const getProvidersByModel = async (modelId: string) => {
@@ -211,9 +201,7 @@ export function createProviderService(db: PrismaClient | any) {
     });
 
     return providers.map(
-      (provider: {
-        groups: Array<{ models: unknown[] }>;
-      }) => ({
+      (provider: { groups: Array<{ models: unknown[] }> }) => ({
         ...provider,
         models: extractModelsFromGroups(provider.groups),
         groups: provider.groups.map((group) => ({
@@ -252,12 +240,10 @@ export function createProviderService(db: PrismaClient | any) {
     return {
       ...newProvider,
       models: extractModelsFromGroups(newProvider.groups),
-      groups: newProvider.groups.map(
-        (group: { models: unknown[] }) => ({
-          ...group,
-          models: group.models
-        })
-      ),
+      groups: newProvider.groups.map((group: { models: unknown[] }) => ({
+        ...group,
+        models: group.models
+      })),
       _count: {
         models: countModelsFromGroups(newProvider.groups)
       }
@@ -285,12 +271,10 @@ export function createProviderService(db: PrismaClient | any) {
     return {
       ...updatedProvider,
       models: extractModelsFromGroups(updatedProvider.groups),
-      groups: updatedProvider.groups.map(
-        (group: { models: unknown[] }) => ({
-          ...group,
-          models: group.models
-        })
-      ),
+      groups: updatedProvider.groups.map((group: { models: unknown[] }) => ({
+        ...group,
+        models: group.models
+      })),
       _count: {
         models: countModelsFromGroups(updatedProvider.groups)
       }
@@ -360,12 +344,10 @@ export function createProviderService(db: PrismaClient | any) {
     return {
       ...updatedProvider,
       models: extractModelsFromGroups(updatedProvider.groups),
-      groups: updatedProvider.groups.map(
-        (group: { models: unknown[] }) => ({
-          ...group,
-          models: group.models
-        })
-      ),
+      groups: updatedProvider.groups.map((group: { models: unknown[] }) => ({
+        ...group,
+        models: group.models
+      })),
       _count: {
         models: countModelsFromGroups(updatedProvider.groups)
       }
