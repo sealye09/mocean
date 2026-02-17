@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { EnabledProvidersWithModelsResult } from "@mocean/mastra/apiClient";
-import { Model, Provider } from "@mocean/mastra/prismaType";
+import type { Model, Provider } from "@mocean/mastra/prismaType";
+
+import type { FullProvider } from "@/app/provider/[id]/type";
+import { useEnabledProviders } from "@/hooks/useProvidersSWR";
 
 /**
  * 模型分组接口
@@ -26,8 +28,6 @@ interface ModelSelection {
  * 组件属性接口
  */
 export interface ModelSelectorProps {
-  /** 供应商列表 */
-  providers: EnabledProvidersWithModelsResult;
   /** 当前选中的模型 */
   value?: ModelSelection;
   /** 选择变更回调 */
@@ -36,77 +36,17 @@ export interface ModelSelectorProps {
   className?: string;
 }
 
-export const useModelSelector = ({
-  providers,
-  value,
-  onChange,
-}: ModelSelectorProps) => {
+export const useModelSelector = ({ value, onChange }: ModelSelectorProps) => {
   const [open, setOpen] = useState(false);
 
-  /**
-   * 按组分组模型
-   *
-   * @description 将模型列表按模型-供应商分组分组并排序
-   * @param models - 模型列表
-   * @param groupList - 分组关系列表（从 provider.models 获取）
-   * @returns 分组后的模型数组
-   */
-  const transformModelGroups = useCallback(
-    ({
-      models,
-      groupList,
-    }: {
-      models: EnabledProvidersWithModelsResult[0]["_modelRelations"];
-      groupList: {
-        providerId: string;
-        modelId: string;
-        group: string | null;
-      }[];
-    }): ModelGroup[] => {
-      if (!models || models.length === 0) return [];
+  const { providers } = useEnabledProviders();
 
-      const groups: Record<string, Model[]> = {};
-
-      models.forEach((model) => {
-        // 根据 groupList 获取当前模型的分组
-        const groupRelation = groupList.find((g) => g.modelId === model.id);
-        const groupName = groupRelation?.group || "未分组";
-
-        if (!groups[groupName]) {
-          groups[groupName] = [];
-        }
-        groups[groupName].push(model);
-      });
-
-      return Object.entries(groups)
-        .map(([groupName, models]) => ({
-          groupName,
-          models: models.sort((a, b) => a.name.localeCompare(b.name)),
-          count: models.length,
-        }))
-        .sort((a, b) => {
-          if (a.groupName === "未分组") return 1;
-          if (b.groupName === "未分组") return -1;
-          return a.groupName.localeCompare(b.groupName);
-        });
-    },
-    [],
-  );
-
-  /**
-   * 缓存所有供应商的分组模型
-   *
-   * @description 使用 useMemo 避免每次渲染都重新计算分组
-   */
   const providersWithGroups = useMemo(() => {
-    return providers.map((provider) => ({
-      ...provider,
-      modelGroups: transformModelGroups({
-        models: provider.models,
-        groupList: provider._modelRelations,
-      }),
-    }));
-  }, [providers, transformModelGroups]);
+    if (!providers) {
+      return [];
+    }
+    return providers.map((p) => p.items);
+  }, [providers]);
 
   /**
    * 缓存选中的 provider
@@ -117,8 +57,8 @@ export const useModelSelector = ({
     if (!value) {
       return undefined;
     }
-    return providers.find((p) => p.id === value.providerId);
-  }, [providers, value]);
+    return providersWithGroups.find((p) => p.id === value.providerId);
+  }, [providersWithGroups, value]);
 
   /**
    * 处理模型选择
@@ -133,11 +73,11 @@ export const useModelSelector = ({
         providerId: provider.id,
         providerName: provider.name,
         modelId: model.id,
-        modelName: model.name,
+        modelName: model.name
       });
       setOpen(false);
     },
-    [onChange],
+    [onChange]
   );
 
   return {
@@ -145,6 +85,6 @@ export const useModelSelector = ({
     providersWithGroups,
     setOpen,
     selectedProvider,
-    onSelectModel,
+    onSelectModel
   };
 };

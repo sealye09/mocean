@@ -1,18 +1,23 @@
-import {
-  type StorageThreadType,
-  useAssistantsApi
-} from "@mocean/mastra/apiClient";
-import { type Assistant } from "@mocean/mastra/prismaType";
-import { type UIMessage } from "ai";
-import useSWR from "swr";
+import type { StorageThreadType } from "@mocean/mastra/apiClient";
+import { useAssistantsApi } from "@mocean/mastra/apiClient";
+import useSWR, { useSWRConfig } from "swr";
 
 /**
- * 使用 SWR 的助手数据获取 hooks
- * @description 在前端应用层提供带缓存的数据获取功能
+ * SWR 默认配置
  */
+const defaultSWRConfig = {
+  refreshInterval: 0,
+  revalidateOnFocus: false,
+  revalidateOnReconnect: true,
+  dedupingInterval: 60000,
+  errorRetryCount: 3,
+  errorRetryInterval: 5000
+};
+
+// ==================== 基础版本（不包含关联数据）====================
 
 /**
- * 获取所有助手列表 - 使用 SWR
+ * 获取所有助手列表（基础版本）- 使用 SWR
  */
 export function useAssistantsSWR() {
   const { getAssistants } = useAssistantsApi();
@@ -23,15 +28,7 @@ export function useAssistantsSWR() {
       const result = await getAssistants();
       return result?.data || [];
     },
-    {
-      // 配置选项
-      refreshInterval: 0, // 不自动刷新
-      revalidateOnFocus: false, // 焦点时不重新验证
-      revalidateOnReconnect: true, // 重连时重新验证
-      dedupingInterval: 60000, // 60秒内的重复请求会被去重
-      errorRetryCount: 3, // 错误重试次数
-      errorRetryInterval: 5000 // 重试间隔
-    }
+    defaultSWRConfig
   );
 
   return {
@@ -43,7 +40,7 @@ export function useAssistantsSWR() {
 }
 
 /**
- * 获取单个助手 - 使用 SWR
+ * 获取单个助手（基础版本）- 使用 SWR
  */
 export function useAssistantSWR(id: string | null) {
   const { getAssistantById } = useAssistantsApi();
@@ -55,38 +52,71 @@ export function useAssistantSWR(id: string | null) {
       const result = await getAssistantById(id);
       return result?.data || null;
     },
-    {
-      refreshInterval: 0,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 60000
-    }
+    defaultSWRConfig
   );
-
-  /**
-   * 根据 ID 动态获取助手详情
-   * @param id - 助手 ID
-   * @returns 助手详情数据
-   */
-  const fetchAssistantById = async (id: string) => {
-    if (!id) return null;
-    const result = await getAssistantById(id);
-    return result?.data || null;
-  };
 
   return {
     assistant: data,
     isLoading,
     error,
-    refresh: mutate,
-    getAssistantById: fetchAssistantById
+    refresh: mutate
+  };
+}
+
+// ==================== WithModels 版本（包含模型信息）====================
+
+/**
+ * 获取所有助手列表（包含模型）- 使用 SWR
+ */
+export function useAssistantsWithModels() {
+  const { getAssistants } = useAssistantsApi();
+
+  const { data, error, isLoading, mutate } = useSWR(
+    "assistants-with-models",
+    async () => {
+      const result = await getAssistants();
+      return result?.data || [];
+    },
+    defaultSWRConfig
+  );
+
+  return {
+    assistants: data || [],
+    isLoading,
+    error,
+    refresh: mutate
   };
 }
 
 /**
+ * 获取单个助手（包含模型）- 使用 SWR
+ */
+export function useAssistantWithModels(id: string | null) {
+  const { getAssistantById } = useAssistantsApi();
+
+  const { data, error, isLoading, mutate } = useSWR(
+    id ? `assistant-with-models-${id}` : null,
+    async () => {
+      if (!id) return null;
+      const result = await getAssistantById(id);
+      return result?.data || null;
+    },
+    defaultSWRConfig
+  );
+
+  return {
+    assistant: data,
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+// ==================== 线程和消息 Hooks ====================
+
+/**
  * 获取助手线程列表 - 使用 SWR
  * @param assistantId - 助手的唯一标识符（为空时不发起请求）
- * @returns 包含线程数据、加载状态、错误信息、刷新方法和动态获取助手方法的对象
  */
 export function useAssistantThreadsSWR(assistantId: string | null) {
   const { getAssistantThreads } = useAssistantsApi();
@@ -96,15 +126,17 @@ export function useAssistantThreadsSWR(assistantId: string | null) {
     async () => {
       if (!assistantId) return [];
       const result = await getAssistantThreads(assistantId);
-      return result?.data || [];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (result.error || !result.data) {
+        return [];
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      return result.data as StorageThreadType[];
     },
     {
-      refreshInterval: 0,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 30000, // 30秒内的重复请求会被去重（线程数据更新频率较高）
-      errorRetryCount: 3,
-      errorRetryInterval: 3000
+      ...defaultSWRConfig,
+      dedupingInterval: 30000 // 线程数据更新频率较高
     }
   );
 
@@ -116,6 +148,11 @@ export function useAssistantThreadsSWR(assistantId: string | null) {
   };
 }
 
+/**
+ * 获取助手线程消息 - 使用 SWR
+ * @param assistantId - 助手的唯一标识符
+ * @param threadId - 线程的唯一标识符
+ */
 export function useAssistantUIMessageSWR(
   assistantId: string | null,
   threadId: string | null
@@ -126,12 +163,15 @@ export function useAssistantUIMessageSWR(
     threadId ? `assistant-thread-${assistantId}-${threadId}` : null,
     async () => {
       if (!assistantId || !threadId) return null;
-      const result = await getAssistantUIMessageByThreadId(
+      const result = await getAssistantUIMessageByThreadId({
         assistantId,
         threadId
-      );
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return result?.data || null;
-    }
+    },
+    defaultSWRConfig
   );
 
   return {
@@ -142,13 +182,91 @@ export function useAssistantUIMessageSWR(
   };
 }
 
+// ==================== 操作 Hooks（与数据获取解耦）====================
+
+/**
+ * Assistant 操作 hooks - 与数据获取解耦
+ * @param customMutate 可选的自定义刷新函数，如果不传则自动刷新所有相关缓存
+ *
+ * @example
+ * // 场景1: 自动刷新所有相关数据
+ * const { create, update, remove } = useAssistantActions();
+ *
+ * @example
+ * // 场景2: 只刷新特定列表
+ * const { assistants, refresh } = useAssistantsSWR();
+ * const { create, update } = useAssistantActions(refresh);
+ *
+ * @example
+ * // 场景3: 刷新多个数据源
+ * const { refresh: refreshList } = useAssistantsSWR();
+ * const { refresh: refreshDetail } = useAssistantSWR(id);
+ * const actions = useAssistantActions(async () => {
+ *   await Promise.all([refreshList(), refreshDetail()]);
+ * });
+ */
+export function useAssistantActions(customMutate?: () => Promise<unknown>) {
+  const { mutate: globalMutate } = useSWRConfig();
+  const { createAssistant, updateAssistant, deleteAssistant } =
+    useAssistantsApi();
+
+  // 刷新逻辑：优先使用自定义 mutate，否则使用全局刷新
+  const refreshData = async () => {
+    if (customMutate) {
+      await customMutate();
+    } else {
+      // 刷新所有 assistant 相关的缓存
+      await globalMutate(
+        (key) => typeof key === "string" && key.startsWith("assistant"),
+        undefined,
+        { revalidate: true }
+      );
+    }
+  };
+
+  const create = async (data: Parameters<typeof createAssistant>[0]) => {
+    const result = await createAssistant(data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  const update = async (
+    id: string,
+    data: Parameters<typeof updateAssistant>[1]
+  ) => {
+    const result = await updateAssistant(id, data);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  const remove = async (id: string) => {
+    const result = await deleteAssistant(id);
+    if (result) {
+      await refreshData();
+    }
+    return result;
+  };
+
+  return {
+    create,
+    update,
+    remove
+  };
+}
+
+// ==================== 组合 Hooks（数据 + 操作）====================
+
 /**
  * 增强的助手 API hooks - 结合 CRUD 操作和 SWR 缓存
+ * @deprecated 推荐使用 useAssistantsSWR() + useAssistantActions() 组合
  */
 export function useAssistantsWithActions() {
   const { assistants, isLoading, error, refresh } = useAssistantsSWR();
-  const { createAssistant, updateAssistant, deleteAssistant } =
-    useAssistantsApi();
+  const actions = useAssistantActions(refresh);
 
   return {
     // SWR 数据
@@ -156,49 +274,8 @@ export function useAssistantsWithActions() {
     isLoading,
     error,
 
-    // CRUD 操作（带缓存更新）
-    async create(data: Parameters<typeof createAssistant>[0]) {
-      try {
-        const result = await createAssistant(data);
-        if (result) {
-          // 创建成功后，刷新缓存
-          await refresh();
-        }
-
-        return result;
-      } catch (error) {
-        console.error("创建助手失败:", error);
-        throw error;
-      }
-    },
-
-    async update(id: string, data: Parameters<typeof updateAssistant>[1]) {
-      try {
-        const result = await updateAssistant(id, data);
-        if (result) {
-          // 更新成功后，刷新缓存
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("更新助手失败:", error);
-        throw error;
-      }
-    },
-
-    async remove(id: string) {
-      try {
-        const result = await deleteAssistant(id);
-        if (result) {
-          // 删除成功后，刷新缓存
-          await refresh();
-        }
-        return result;
-      } catch (error) {
-        console.error("删除助手失败:", error);
-        throw error;
-      }
-    },
+    // CRUD 操作
+    ...actions,
 
     // 手动刷新
     refresh

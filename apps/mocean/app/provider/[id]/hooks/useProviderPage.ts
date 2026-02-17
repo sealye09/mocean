@@ -4,6 +4,7 @@ import type { Model } from "@mocean/mastra/prismaType";
 
 import { useModelActions } from "@/hooks/useModelsSWR";
 import {
+  useEnabledProviders,
   useProviderActions,
   useProviderWithModels
 } from "@/hooks/useProvidersSWR";
@@ -83,8 +84,13 @@ export function useProviderPage(selectedProviderId: string | null) {
   const { provider, refresh: refreshProvider } =
     useProviderWithModels(selectedProviderId);
 
+  const { refresh: refreshEnabledProviders } = useEnabledProviders();
+
   // 操作（传入 refreshProvider 实现数据和操作的联动）
-  const { toggleEnabled } = useProviderActions(refreshProvider);
+  const { toggleEnabled } = useProviderActions(async () => {
+    await refreshProvider();
+    await refreshEnabledProviders();
+  });
   const { remove: removeModel } = useModelActions(refreshProvider);
 
   const groups = useMemo(() => {
@@ -299,6 +305,7 @@ export function useProviderPage(selectedProviderId: string | null) {
     onToggleEnabled,
     onOpenAddModel,
     refreshProvider,
+    refreshEnabledProviders,
 
     // 拖拽功能
     sensors,

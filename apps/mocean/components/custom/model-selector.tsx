@@ -4,6 +4,8 @@ import { memo } from "react";
 
 import Image from "next/image";
 
+import type { Provider } from "@mocean/mastra/prismaType";
+
 import { renderProviderAvatar as RenderProviderAvatar } from "@/app/provider/components/CustomerIcon";
 import { getModelLogo } from "@/app/provider/constant";
 import { Button } from "@/components/ui/button";
@@ -14,12 +16,13 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-import { ModelSelectorProps, useModelSelector } from "./useModelSelector";
+import type { ModelSelectorProps } from "./useModelSelector";
+import { useModelSelector } from "./useModelSelector";
 
 /**
  * 模型选择器组件
@@ -27,33 +30,21 @@ import { ModelSelectorProps, useModelSelector } from "./useModelSelector";
  * @description 树状下拉选择器，支持按供应商分组选择模型
  * @param props - 组件属性
  * @returns 模型选择器组件
- *
- * @example
- * ```tsx
- * <ModelSelector
- *   providers={providers}
- *   value={selectedModel}
- *   onChange={onModelChange}
- * />
- * ```
  */
-
 const ModelSelectorComponent = ({
-  providers,
   value,
   onChange,
-  className,
+  className
 }: ModelSelectorProps) => {
   const {
     providersWithGroups,
     open,
     setOpen,
     selectedProvider,
-    onSelectModel,
+    onSelectModel
   } = useModelSelector({
-    providers,
     value,
-    onChange,
+    onChange
   });
 
   return (
@@ -65,14 +56,14 @@ const ModelSelectorComponent = ({
           aria-expanded={open}
           className={cn(
             "hover:to-brand-secondary/10 h-10 justify-between gap-2 border-brand-primary/20 py-0 !no-underline hover:border-brand-primary/40 hover:from-brand-primary/10 focus-visible:outline-none focus-visible:ring-0",
-            className,
+            className
           )}
           onClick={() => setOpen(!open)}
         >
           {value ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 shrink-0">
-                <RenderProviderAvatar provider={selectedProvider} />
+                <RenderProviderAvatar provider={selectedProvider as Provider} />
               </div>
               <span className="truncate text-sm font-medium">
                 {value.modelName}
@@ -94,7 +85,7 @@ const ModelSelectorComponent = ({
           <DropdownMenuSub key={provider.id}>
             <DropdownMenuSubTrigger className="gap-2">
               <div className="h-5 w-5 shrink-0">
-                <RenderProviderAvatar provider={provider} />
+                <RenderProviderAvatar provider={provider as Provider} />
               </div>
               <span className="font-medium">{provider.name}</span>
             </DropdownMenuSubTrigger>
@@ -102,13 +93,13 @@ const ModelSelectorComponent = ({
             <DropdownMenuSubContent className="p-0">
               <ScrollArea className="h-52">
                 <div className="p-2">
-                  {provider.modelGroups.length > 0 ? (
+                  {provider.length > 0 ? (
                     provider.modelGroups.map((group, groupIndex) => (
                       <div
                         key={group.groupName}
                         className={cn(
                           "relative rounded-md border border-border/50 bg-muted/20 p-2 pb-1",
-                          groupIndex > 0 && "mt-3",
+                          groupIndex > 0 && "mt-3"
                         )}
                       >
                         <div className="space-y-0.5">
@@ -118,7 +109,7 @@ const ModelSelectorComponent = ({
                               className={cn(
                                 "cursor-pointer gap-2 rounded-sm",
                                 value?.modelId === model.id &&
-                                  "bg-brand-primary/10 font-medium text-brand-primary",
+                                  "bg-brand-primary/10 font-medium text-brand-primary"
                               )}
                               onSelect={() => onSelectModel(provider, model)}
                             >
@@ -126,7 +117,7 @@ const ModelSelectorComponent = ({
                                 <Image
                                   src={
                                     getModelLogo(
-                                      model.id as keyof typeof getModelLogo,
+                                      model.id as keyof typeof getModelLogo
                                     ) ?? ""
                                   }
                                   alt={model.name}

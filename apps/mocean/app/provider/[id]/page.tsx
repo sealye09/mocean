@@ -61,6 +61,7 @@ export default function ProviderDetailPage() {
     onToggleEnabled,
     onOpenAddModel,
     refreshProvider,
+    refreshEnabledProviders,
     sensors,
     onDragStart,
     onDragEnd,
@@ -158,6 +159,7 @@ export default function ProviderDetailPage() {
             }
             onSuccess={() => {
               void refreshProvider();
+              void refreshEnabledProviders();
             }}
           />
         )}
