@@ -1,4 +1,3 @@
-import type { CreateAgentInput } from "@mocean/mastra/apiClient";
 import { useAgentsApi } from "@mocean/mastra/apiClient";
 import useSWR from "swr";
 
@@ -119,6 +118,42 @@ export function useAgentsByGroupSWR(group: string | null) {
 }
 
 /**
+ * 获取所有代理分组名称 - 使用 SWR
+ * @returns 包含分组名称数组、加载状态、错误信息和刷新方法的对象
+ *
+ * @example
+ * // 获取所有分组
+ * const { groups, isLoading, error, refresh } = useAgentGroupsSWR();
+ * console.log(groups); // -> string[]
+ */
+export function useAgentGroupsSWR() {
+  const { getAgentGroups } = useAgentsApi();
+
+  const { data, error, isLoading, mutate } = useSWR(
+    "agent-groups",
+    async () => {
+      const result = await getAgentGroups();
+      return result?.data || [];
+    },
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000, // 60秒内的重复请求会被去重
+      errorRetryCount: 3,
+      errorRetryInterval: 5000
+    }
+  );
+
+  return {
+    groups: data || [],
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+/**
  * 增强的代理 API hooks - 结合 CRUD 操作和 SWR 缓存
  * @returns 包含代理数据、CRUD 操作方法和缓存管理的对象
  *
@@ -146,12 +181,12 @@ export function useAgentsWithActions() {
     error,
 
     // CRUD 操作（带缓存更新）
-    async create(data: CreateAgentInput) {
+    async create(data: Parameters<typeof createAgent>[0]) {
       try {
         const result = await createAgent(data);
         if (result) {
           // 创建成功后，刷新缓存
-          refresh();
+          await refresh();
         }
         return result;
       } catch (error) {
@@ -160,12 +195,12 @@ export function useAgentsWithActions() {
       }
     },
 
-    async update(id: string, data: Partial<CreateAgentInput>) {
+    async update(id: string, data: Parameters<typeof updateAgent>[1]) {
       try {
         const result = await updateAgent(id, data);
         if (result) {
           // 更新成功后，刷新缓存
-          refresh();
+          await refresh();
         }
         return result;
       } catch (error) {
@@ -179,7 +214,7 @@ export function useAgentsWithActions() {
         const result = await deleteAgent(id);
         if (result) {
           // 删除成功后，刷新缓存
-          refresh();
+          await refresh();
         }
         return result;
       } catch (error) {

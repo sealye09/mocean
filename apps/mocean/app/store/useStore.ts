@@ -1,4 +1,4 @@
-import type { Agent, Assistant } from "@mocean/mastra/prismaType";
+import type { Assistant } from "@mocean/mastra/prismaType";
 import type { UIMessage } from "ai";
 import { create } from "zustand";
 
@@ -14,12 +14,6 @@ export type Store = {
    */
   activeAgentGroup: string | null;
   setActiveAgentGroup: (group: string) => void;
-
-  /**
-   * @description 智能体列表
-   */
-  agentList: Agent[];
-  setAgentList: (agents: Agent[]) => void;
 
   /**
    * @description 当前助手
@@ -47,9 +41,6 @@ const useStore = create<Store>((set) => ({
 
   activeAgentGroup: "精选",
   setActiveAgentGroup: (group: string) => set({ activeAgentGroup: group }),
-
-  agentList: [] as Agent[],
-  setAgentList: (agents: Agent[]) => set({ agentList: agents }),
 
   activeAssistant: null as Assistant | null,
   setActiveAssistant: (assistant: Assistant) =>
