@@ -150,3 +150,39 @@ export const assistantFactory = {
     });
   }
 };
+
+/**
+ * Agent 数据工厂
+ */
+export const agentFactory = {
+  build: (
+    overrides?: Partial<Parameters<PrismaClient["agent"]["create"]>[0]["data"]>
+  ) => ({
+    name: "Test Agent",
+    prompt: "You are a helpful agent",
+    type: "agent",
+    emoji: "🤖",
+    description: "Test agent description",
+    enableWebSearch: false,
+    enableGenerateImage: false,
+    knowledgeRecognition: "off",
+    groupJson: JSON.stringify(["精选"]),
+    ...overrides
+  }),
+
+  create: async (
+    prisma: PrismaClient,
+    overrides?: Partial<Parameters<PrismaClient["agent"]["create"]>[0]["data"]>
+  ) => {
+    const data = agentFactory.build(overrides);
+    return await prisma.agent.create({
+      data,
+      include: {
+        settings: true,
+        topics: true,
+        knowledgeBases: true,
+        mcpServers: true
+      }
+    });
+  }
+};
