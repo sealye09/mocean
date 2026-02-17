@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 import { useParams, useRouter } from "next/navigation";
 
-import { AssistantModel } from "@mocean/mastra/prismaType";
+import type { Assistant } from "@mocean/mastra/prismaType";
 
 import { useStore } from "@/app/store/useStore";
 import { useAssistantsSWR } from "@/hooks/useAssistantsSWR";
@@ -23,9 +23,9 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   // 处理助手列表数据更新
   const onAssistantListUpdate = useCallback(
     (
-      assistants: AssistantModel[] | undefined,
+      assistants: Assistant[] | undefined,
       isLoading: boolean,
-      error: Error | null | undefined,
+      error: Error | null | undefined
     ) => {
       if (error) {
         console.error("获取助手列表失败:", error);
@@ -40,7 +40,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       }
       return assistants || [];
     },
-    [setAssistantList],
+    [setAssistantList]
   );
 
   // 统一处理助手数据和初始化路由
@@ -48,7 +48,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     const currentAssistants = onAssistantListUpdate(
       assistants,
       isLoading,
-      error,
+      error
     );
 
     // 只在首次加载且没有路由参数时才跳转到默认助手
@@ -69,7 +69,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     params.assistantId,
     onAssistantListUpdate,
     router,
-    activeAssistant,
+    activeAssistant
   ]);
 
   return (

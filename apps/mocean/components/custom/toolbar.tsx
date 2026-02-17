@@ -4,11 +4,7 @@ import { Info } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useStore } from "@/app/store/useStore";
-import {
-  useAssistantSWR,
-  useAssistantsWithActions,
-} from "@/hooks/useAssistantsSWR";
-import { useEnabledProvidersSWR } from "@/hooks/useProvidersSWR";
+import { useAssistantActions, useAssistantSWR } from "@/hooks/useAssistantsSWR";
 
 import { ModelSelector } from "./model-selector";
 
@@ -19,8 +15,7 @@ import { ModelSelector } from "./model-selector";
  * @returns 工具栏组件
  */
 export function Toolbar() {
-  const { providers } = useEnabledProvidersSWR();
-  const { update: updateAssistant } = useAssistantsWithActions();
+  const { update: updateAssistant } = useAssistantActions();
   const { activeAssistant, setActiveAssistant } = useStore();
   const { assistant, refresh } = useAssistantSWR(activeAssistant?.id ?? "");
 
@@ -43,7 +38,7 @@ export function Toolbar() {
     try {
       await updateAssistant(activeAssistant.id, {
         modelId: selection.modelId,
-        providerId: selection.providerId,
+        providerId: selection.providerId
       });
 
       const assistant = await refresh();
@@ -68,12 +63,11 @@ export function Toolbar() {
 
   return (
     <ModelSelector
-      providers={providers}
       value={{
         providerId: assistant?.provider?.id ?? "",
         providerName: assistant?.provider?.name ?? "",
         modelId: assistant?.model?.id ?? "",
-        modelName: assistant?.model?.name ?? "",
+        modelName: assistant?.model?.name ?? ""
       }}
       onChange={onModelChange}
     />

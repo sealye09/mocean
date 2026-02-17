@@ -1,18 +1,13 @@
-import { type AssistantDetailResult } from "@mocean/mastra/apiClient";
-import {
-  AgentModel,
-  AssistantModel,
-  TopicModel,
-} from "@mocean/mastra/prismaType";
-import { UIMessage } from "ai";
+import type { Agent, Assistant } from "@mocean/mastra/prismaType";
+import type { UIMessage } from "ai";
 import { create } from "zustand";
 
 export type Store = {
   /**
    * @description 助手列表
    */
-  assistantList: AssistantModel[];
-  setAssistantList: (assistants: AssistantModel[]) => void;
+  assistantList: Assistant[];
+  setAssistantList: (assistants: Assistant[]) => void;
 
   /**
    * @description 当前智能体分组
@@ -23,26 +18,14 @@ export type Store = {
   /**
    * @description 智能体列表
    */
-  agentList: AgentModel[];
-  setAgentList: (agents: AgentModel[]) => void;
+  agentList: Agent[];
+  setAgentList: (agents: Agent[]) => void;
 
   /**
    * @description 当前助手
    */
-  activeAssistant: AssistantDetailResult | null;
-  setActiveAssistant: (assistant: AssistantDetailResult) => void;
-
-  /**
-   * @description 话题列表
-   */
-  topicList: TopicModel[];
-  setTopicList: (topics: TopicModel[]) => void;
-
-  /**
-   * @description 当前话题
-   */
-  activeTopic: TopicModel | null;
-  setActiveTopic: (topic: TopicModel) => void;
+  activeAssistant: Assistant | null;
+  setActiveAssistant: (assistant: Assistant) => void;
 
   /**
    * @description 初始化消息
@@ -58,32 +41,26 @@ export type Store = {
 };
 
 const useStore = create<Store>((set) => ({
-  assistantList: [] as AssistantModel[],
-  setAssistantList: (assistants: AssistantModel[]) =>
+  assistantList: [] as Assistant[],
+  setAssistantList: (assistants: Assistant[]) =>
     set({ assistantList: assistants }),
 
   activeAgentGroup: "精选",
   setActiveAgentGroup: (group: string) => set({ activeAgentGroup: group }),
 
-  agentList: [] as AgentModel[],
-  setAgentList: (agents: AgentModel[]) => set({ agentList: agents }),
+  agentList: [] as Agent[],
+  setAgentList: (agents: Agent[]) => set({ agentList: agents }),
 
-  activeAssistant: null as AssistantDetailResult | null,
-  setActiveAssistant: (assistant: AssistantDetailResult) =>
+  activeAssistant: null as Assistant | null,
+  setActiveAssistant: (assistant: Assistant) =>
     set({ activeAssistant: assistant }),
-
-  topicList: [] as TopicModel[],
-  setTopicList: (topics: TopicModel[]) => set({ topicList: topics }),
-
-  activeTopic: null as TopicModel | null,
-  setActiveTopic: (topic: TopicModel) => set({ activeTopic: topic }),
 
   initialMessages: [] as UIMessage[],
   setInitialMessages: (messages: UIMessage[]) =>
     set({ initialMessages: messages }),
 
   activeThread: null as string | null,
-  setActiveThread: (thread: string | null) => set({ activeThread: thread }),
+  setActiveThread: (thread: string | null) => set({ activeThread: thread })
 }));
 
 export { useStore };
