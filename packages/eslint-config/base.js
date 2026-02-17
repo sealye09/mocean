@@ -53,7 +53,7 @@ export const config = [
       "no-console": "warn",
       "no-debugger": "error",
       "no-alert": "error",
-      "no-unused-vars": "error",
+      // "no-unused-vars": "error",  // 禁用基础规则，使用 @typescript-eslint/no-unused-vars
       "no-undef": "error",
       "no-duplicate-imports": "error",
       "no-unreachable": "error",
