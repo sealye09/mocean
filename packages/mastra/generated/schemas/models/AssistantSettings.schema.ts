@@ -1,6 +1,4 @@
 import * as z from 'zod';
-import { AgentSchema } from './Agent.schema';
-import { AssistantSchema } from './Assistant.schema';
 
 export const AssistantSettingsSchema = z.object({
   id: z.string(),
@@ -15,9 +13,9 @@ export const AssistantSettingsSchema = z.object({
   reasoning_effort: z.string().nullish(),
   qwenThinkMode: z.boolean().nullish(),
   toolUseMode: z.string().nullish(),
-  assistant: z.lazy(() => AssistantSchema).nullish(),
+
   assistantId: z.string().nullish(),
-  agent: z.lazy(() => AgentSchema).nullish(),
+
   agentId: z.string().nullish(),
   defaultModelId: z.string().nullish(),
 });

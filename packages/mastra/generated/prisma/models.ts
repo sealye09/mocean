@@ -11,6 +11,8 @@
 export type * from './models/Provider.ts'
 export type * from './models/Assistant.ts'
 export type * from './models/Agent.ts'
+export type * from './models/AgentGroup.ts'
+export type * from './models/AgentAgentGroup.ts'
 export type * from './models/Topic.ts'
 export type * from './models/FileType.ts'
 export type * from './models/Model.ts'

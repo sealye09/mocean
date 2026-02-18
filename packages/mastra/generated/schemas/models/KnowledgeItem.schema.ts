@@ -1,5 +1,4 @@
 import * as z from 'zod';
-import { KnowledgeBaseSchema } from './KnowledgeBase.schema';
 
 export const KnowledgeItemSchema = z.object({
   id: z.string(),
@@ -12,7 +11,7 @@ export const KnowledgeItemSchema = z.object({
   processingProgress: z.number().nullish(),
   processingError: z.string().nullish(),
   retryCount: z.number().int().nullish(),
-  knowledgeBase: z.lazy(() => KnowledgeBaseSchema),
+
   baseId: z.string(),
   created_at: z.date(),
   updated_at: z.date(),

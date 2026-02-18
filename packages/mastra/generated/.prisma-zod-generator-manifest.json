@@ -1,13 +1,15 @@
 {
   "version": "1.0",
   "generatorVersion": "1.0.0",
-  "generatedAt": "2026-02-17T08:45:36.452Z",
+  "generatedAt": "2026-02-18T17:04:27.996Z",
   "outputPath": "D:\\projects\\EaseClip\\packages\\mastra\\generated",
   "files": [
     "schemas\\enums\\TransactionIsolationLevel.schema.ts",
     "schemas\\enums\\ProviderScalarFieldEnum.schema.ts",
     "schemas\\enums\\AssistantScalarFieldEnum.schema.ts",
     "schemas\\enums\\AgentScalarFieldEnum.schema.ts",
+    "schemas\\enums\\AgentGroupScalarFieldEnum.schema.ts",
+    "schemas\\enums\\AgentAgentGroupScalarFieldEnum.schema.ts",
     "schemas\\enums\\TopicScalarFieldEnum.schema.ts",
     "schemas\\enums\\FileTypeScalarFieldEnum.schema.ts",
     "schemas\\enums\\ModelScalarFieldEnum.schema.ts",
