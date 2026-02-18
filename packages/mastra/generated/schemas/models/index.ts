@@ -6,6 +6,8 @@
 export { ProviderSchema } from './Provider.schema';
 export { AssistantSchema } from './Assistant.schema';
 export { AgentSchema } from './Agent.schema';
+export { AgentGroupSchema } from './AgentGroup.schema';
+export { AgentAgentGroupSchema } from './AgentAgentGroup.schema';
 export { TopicSchema } from './Topic.schema';
 export { FileTypeSchema } from './FileType.schema';
 export { ModelSchema } from './Model.schema';

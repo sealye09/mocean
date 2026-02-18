@@ -55,6 +55,16 @@ export type Assistant = Prisma.AssistantModel
  */
 export type Agent = Prisma.AgentModel
 /**
+ * Model AgentGroup
+ * 
+ */
+export type AgentGroup = Prisma.AgentGroupModel
+/**
+ * Model AgentAgentGroup
+ * 
+ */
+export type AgentAgentGroup = Prisma.AgentAgentGroupModel
+/**
  * Model Topic
  * 
  */
