@@ -31,7 +31,9 @@ describe("Agent Schema Validation", () => {
       const result = createAgentSchema.safeParse({ ...validData, name: "" });
       expect(result.success).toBe(false);
       if (!result.success) {
-        const nameError = result.error.issues.find((i) => i.path.includes("name"));
+        const nameError = result.error.issues.find((i) =>
+          i.path.includes("name")
+        );
         expect(nameError?.message).toBe("代理名称不能为空");
       }
     });
@@ -40,7 +42,9 @@ describe("Agent Schema Validation", () => {
       const result = createAgentSchema.safeParse({ ...validData, prompt: "" });
       expect(result.success).toBe(false);
       if (!result.success) {
-        const promptError = result.error.issues.find((i) => i.path.includes("prompt"));
+        const promptError = result.error.issues.find((i) =>
+          i.path.includes("prompt")
+        );
         expect(promptError?.message).toBe("提示词不能为空");
       }
     });
@@ -65,32 +69,9 @@ describe("Agent Schema Validation", () => {
         enableWebSearch: true,
         enableGenerateImage: true,
         knowledgeRecognition: "on",
-        type: "custom",
-        groupJson: JSON.stringify(["精选", "写作"])
+        type: "custom"
       });
       expect(result.success).toBe(true);
-    });
-
-    it("应接受 groupJson 为字符串数组", () => {
-      const result = createAgentSchema.safeParse({
-        ...validData,
-        groupJson: JSON.stringify(["精选", "工具"])
-      });
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.groupJson).toBe(JSON.stringify(["精选", "工具"]));
-      }
-    });
-
-    it("应接受 groupJson 为 null", () => {
-      const result = createAgentSchema.safeParse({
-        ...validData,
-        groupJson: null
-      });
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.groupJson).toBeNull();
-      }
     });
 
     it("type 可以自定义", () => {
@@ -131,16 +112,6 @@ describe("Agent Schema Validation", () => {
           enableWebSearch: true,
           type: "agent"
         });
-      }
-    });
-
-    it("应接受 groupJson 更新", () => {
-      const result = updateAgentSchema.safeParse({
-        groupJson: JSON.stringify(["工具", "编程"])
-      });
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.groupJson).toBe(JSON.stringify(["工具", "编程"]));
       }
     });
   });

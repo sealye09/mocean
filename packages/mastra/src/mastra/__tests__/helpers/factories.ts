@@ -166,7 +166,6 @@ export const agentFactory = {
     enableWebSearch: false,
     enableGenerateImage: false,
     knowledgeRecognition: "off",
-    groupJson: JSON.stringify(["精选"]),
     ...overrides
   }),
 
@@ -178,6 +177,11 @@ export const agentFactory = {
     return await prisma.agent.create({
       data,
       include: {
+        groups: {
+          select: {
+            agentGroup: { select: { id: true, name: true, label: true } }
+          }
+        },
         settings: true,
         topics: true,
         knowledgeBases: true,
