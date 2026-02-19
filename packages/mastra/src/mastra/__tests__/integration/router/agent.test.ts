@@ -18,7 +18,9 @@ describe("Agents Router", () => {
 
   /** 构造创建 Agent 的请求体 */
   function buildCreateBody(
-    overrides?: Partial<Omit<Agent, "id" | "createdAt" | "updatedAt">>
+    overrides?: Partial<
+      Omit<Agent, "id" | "createdAt" | "updatedAt" | "groupJson">
+    >
   ) {
     return {
       name: "Test Agent",
@@ -29,14 +31,15 @@ describe("Agents Router", () => {
       enableWebSearch: false,
       enableGenerateImage: false,
       knowledgeRecognition: "off",
-      groupJson: JSON.stringify(["精选"]),
       ...overrides
     };
   }
 
   /** 通过 API 创建一个 Agent 并返回响应体 */
   async function createViaApi(
-    overrides?: Partial<Omit<Agent, "id" | "createdAt" | "updatedAt">>
+    overrides?: Partial<
+      Omit<Agent, "id" | "createdAt" | "updatedAt" | "groupJson">
+    >
   ) {
     const res = await app.request(BASE, {
       method: "POST",
@@ -44,6 +47,51 @@ describe("Agents Router", () => {
       headers: { "Content-Type": "application/json" }
     });
     return { res, body: (await res.json()) as Record<string, unknown> };
+  }
+
+  /** 创建测试用的 AgentGroup 并关联到 Agent */
+  async function createAgentWithGroups(
+    groupLabels: string[]
+  ): Promise<{ id: string }> {
+    // 将中文标签映射为 AgentGroup name
+    const labelToName: Record<string, string> = {
+      精选: "featured",
+      工具: "tools",
+      编程: "programming",
+      写作: "writing",
+      创意: "creative",
+      设计: "design",
+      职业: "career"
+    };
+
+    const groupNames = groupLabels
+      .map((label) => labelToName[label])
+      .filter((name): name is string => name != null);
+
+    // 创建 AgentGroup
+    const groupIds: string[] = [];
+    for (const name of groupNames) {
+      const group = await prisma.agentGroup.upsert({
+        where: { name },
+        update: {},
+        create: { name, label: groupLabels[groupNames.indexOf(name)] }
+      });
+      groupIds.push(group.id);
+    }
+
+    // 创建 Agent 并关联 groups
+    const agent = await prisma.agent.create({
+      data: {
+        name: `Agent with ${groupLabels.join(", ")}`,
+        prompt: "Test agent",
+        type: "agent",
+        groups: {
+          create: groupIds.map((agentGroupId) => ({ agentGroupId }))
+        }
+      }
+    });
+
+    return agent;
   }
 
   // ─── 获取所有 Agents ─────────────────────────────────
@@ -83,36 +131,28 @@ describe("Agents Router", () => {
     });
 
     it("应返回所有不重复的分组名称", async () => {
-      await agentFactory.create(prisma, {
-        groupJson: JSON.stringify(["精选", "工具"])
-      });
-      await agentFactory.create(prisma, {
-        groupJson: JSON.stringify(["工具", "编程"])
-      });
-      await agentFactory.create(prisma, {
-        groupJson: JSON.stringify(["精选"])
-      });
+      await createAgentWithGroups(["精选", "工具"]);
+      await createAgentWithGroups(["工具", "编程"]);
+      await createAgentWithGroups(["精选"]);
 
       const res = await app.request(`${BASE}/groups`);
       expect(res.status).toBe(200);
 
       const body = (await res.json()) as string[];
       expect(body).toHaveLength(3);
-      expect(body).toContain("精选");
-      expect(body).toContain("工具");
-      expect(body).toContain("编程");
+      expect(body).toContain("featured");
+      expect(body).toContain("tools");
+      expect(body).toContain("programming");
     });
 
-    it("应正确解析字符串格式的 groupJson", async () => {
-      await agentFactory.create(prisma, {
-        groupJson: JSON.stringify(["写作"])
-      });
+    it("应正确返回单个分组的名称", async () => {
+      await createAgentWithGroups(["写作"]);
 
       const res = await app.request(`${BASE}/groups`);
       expect(res.status).toBe(200);
 
       const body = (await res.json()) as string[];
-      expect(body).toContain("写作");
+      expect(body).toContain("writing");
     });
   });
 
@@ -128,7 +168,6 @@ describe("Agents Router", () => {
       const body = (await res.json()) as Record<string, unknown>;
       expect(body.id).toBe(id);
       expect(body.name).toBe("Test Agent");
-      // AgentWithSettingsResponseSchema 应包含 settings
       expect(body).toHaveProperty("settings");
     });
 
@@ -194,8 +233,7 @@ describe("Agents Router", () => {
         description: "Creative agent",
         enableWebSearch: true,
         enableGenerateImage: true,
-        knowledgeRecognition: "on",
-        groupJson: JSON.stringify(["创意", "设计"])
+        knowledgeRecognition: "on"
       });
 
       expect(res.status).toBe(201);
@@ -236,8 +274,7 @@ describe("Agents Router", () => {
           name: "New Name",
           prompt: "New prompt",
           description: "New description",
-          enableWebSearch: true,
-          groupJson: JSON.stringify(["工具"])
+          enableWebSearch: true
         }),
         headers: { "Content-Type": "application/json" }
       });
@@ -250,21 +287,6 @@ describe("Agents Router", () => {
         description: "New description",
         enableWebSearch: true
       });
-    });
-
-    it("应接受更新 groupJson", async () => {
-      const { body: created } = await createViaApi();
-      const id = created.id as string;
-
-      const res = await app.request(`${BASE}/${id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          groupJson: JSON.stringify(["编程", "工具"])
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
-
-      expect(res.status).toBe(200);
     });
   });
 
@@ -307,34 +329,21 @@ describe("Agents Router", () => {
   describe("根据分组获取智能体", () => {
     beforeEach(async () => {
       // 创建测试数据
-      await agentFactory.create(prisma, {
-        name: "Agent A",
-        groupJson: JSON.stringify(["精选"])
-      });
-      await agentFactory.create(prisma, {
-        name: "Agent B",
-        groupJson: JSON.stringify(["工具"])
-      });
-      await agentFactory.create(prisma, {
-        name: "Agent C",
-        groupJson: JSON.stringify(["精选", "工具"])
-      });
+      await createAgentWithGroups(["精选"]);
+      await createAgentWithGroups(["工具"]);
+      await createAgentWithGroups(["精选", "工具"]);
     });
 
     it("应返回指定分组的所有 Agent", async () => {
-      const res = await app.request(`${BASE}/group/精选`);
+      const res = await app.request(`${BASE}/group/featured`);
       expect(res.status).toBe(200);
 
       const body = (await res.json()) as Array<Record<string, unknown>>;
       expect(body).toHaveLength(2);
-
-      const names = body.map((a) => a.name);
-      expect(names).toContain("Agent A");
-      expect(names).toContain("Agent C");
     });
 
     it("不存在的分组应返回空数组", async () => {
-      const res = await app.request(`${BASE}/group/不存在的分组`);
+      const res = await app.request(`${BASE}/group/nonexistent`);
       expect(res.status).toBe(200);
 
       const body = await res.json();

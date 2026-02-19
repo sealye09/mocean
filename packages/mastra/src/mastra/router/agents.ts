@@ -235,6 +235,14 @@ const getAgentByGroupRouter = registerApiRoute(
     openapi: {
       summary: "根据分组获取智能体",
       tags: ["Agents"],
+      requestBody: {
+        content: {
+          "application/json": {
+            // @ts-expect-error hono-openapi requestBody schema type doesn't support ZodSchema
+            schema: groupParamSchema
+          }
+        }
+      },
       responses: {
         200: {
           description: "通过分组获取特定分组的所有智能体",
@@ -248,8 +256,10 @@ const getAgentByGroupRouter = registerApiRoute(
       }
     },
     handler: async (c) => {
-      const params = groupParamSchema.parse({ group: c.req.param("group") });
-      const agents = await getAgentByGroup(params.group);
+      const params = groupParamSchema.parse({
+        groupId: c.req.param("groupId")
+      });
+      const agents = await getAgentByGroup(params.groupId);
       if (!agents) {
         throw new HTTPException(404, { message: "分组不存在" });
       }

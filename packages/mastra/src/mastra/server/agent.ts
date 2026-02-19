@@ -2,6 +2,15 @@ import type { CreateAgentInput, UpdateAgentInput } from "../schema/agent";
 import { prisma } from "./index";
 import type { AsyncReturnType } from "./type";
 
+// Agent 查询时统一 include groups 关系的配置
+const agentGroupsInclude = {
+  groups: {
+    select: {
+      agentGroup: { select: { id: true, name: true, label: true } }
+    }
+  }
+} as const;
+
 /**
  * 获取所有代理
  * @description 从数据库中获取所有代理的列表
@@ -11,6 +20,7 @@ import type { AsyncReturnType } from "./type";
 const getAgents = async () => {
   const agents = await prisma.agent.findMany({
     include: {
+      ...agentGroupsInclude,
       settings: true,
 
       topics: true,
@@ -38,6 +48,7 @@ const getAgentById = async (id: string) => {
     },
 
     include: {
+      ...agentGroupsInclude,
       settings: true,
 
       topics: true,
@@ -51,12 +62,22 @@ const getAgentById = async (id: string) => {
   return agent;
 };
 
-const getAgentByGroup = async (group: string) => {
+/**
+ * 根据分组ID获取代理列表
+ * @description 通过 AgentGroup.id 关联查询属于该分组的所有代理
+ * @param groupId - 分组ID（AgentGroup.id）
+ */
+const getAgentByGroup = async (groupId: string) => {
   const agents = await prisma.agent.findMany({
     where: {
-      groupJson: {
-        string_contains: group
+      groups: {
+        some: {
+          agentGroupId: groupId
+        }
       }
+    },
+    include: {
+      ...agentGroupsInclude
     }
   });
 
@@ -64,37 +85,17 @@ const getAgentByGroup = async (group: string) => {
 };
 
 /**
- * 获取所有不重复的代理分组名称
- * @description 从所有代理的 groupJson 字段中聚合出不重复的分组名列表
- * @returns 分组名称数组
+ * 获取所有有关联代理的分组
+ * @description 从 AgentGroup 表中查询所有至少有一个关联代理的分组
+ * @returns 分组数组
  */
-const getAgentGroups = async (): Promise<string[]> => {
-  const agents = await prisma.agent.findMany({
-    select: { groupJson: true },
-    where: { groupJson: { not: null } }
+const getAgentGroups = async () => {
+  return prisma.agentGroup.findMany({
+    where: {
+      agents: { some: {} }
+    },
+    orderBy: { name: "asc" }
   });
-
-  const groups = new Set<string>();
-  for (const agent of agents) {
-    if (!agent.groupJson) continue;
-    try {
-      let groupData = agent.groupJson;
-      if (typeof groupData === "string") {
-        groupData = JSON.parse(groupData);
-      }
-      if (Array.isArray(groupData)) {
-        for (const item of groupData) {
-          if (typeof item === "string") groups.add(item);
-        }
-      } else if (typeof groupData === "string") {
-        groups.add(groupData);
-      }
-    } catch {
-      // skip invalid groupJson
-    }
-  }
-
-  return Array.from(groups);
 };
 
 /**
@@ -115,6 +116,7 @@ const createAgent = async (agent: CreateAgentInput) => {
     } as Parameters<typeof prisma.agent.create>[0]["data"],
 
     include: {
+      ...agentGroupsInclude,
       settings: true
     }
   });
@@ -143,6 +145,7 @@ const updateAgent = async (id: string, agent: UpdateAgentInput) => {
     },
 
     include: {
+      ...agentGroupsInclude,
       settings: true
     }
   });
@@ -181,6 +184,7 @@ const getAgentWithSettingsByAgentId = async (agentId: string) => {
     },
 
     include: {
+      ...agentGroupsInclude,
       settings: true
     }
   });

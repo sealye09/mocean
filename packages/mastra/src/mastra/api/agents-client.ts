@@ -90,12 +90,12 @@ export class AgentsApiClient extends BaseApiClient {
   }
 
   /**
-   * 根据分组获取代理
-   * @description 根据分组获取代理
-   * @param group - 分组
+   * 根据分组ID获取代理
+   * @description 根据分组ID获取代理
+   * @param groupId - 分组ID（AgentGroup.id）
    */
   async getAgentByGroup(
-    group: string
+    groupId: string
   ): Promise<
     ApiResponse<
       z.infer<(typeof agentRoutes)["getAgentByGroup"]["responseSchema"]>
@@ -103,7 +103,7 @@ export class AgentsApiClient extends BaseApiClient {
   > {
     return this.get<
       z.infer<(typeof agentRoutes)["getAgentByGroup"]["responseSchema"]>
-    >(agentRoutes.getAgentByGroup.path.replace(":group", group));
+    >(agentRoutes.getAgentByGroup.path.replace(":groupId", groupId));
   }
 
   /**
@@ -111,7 +111,9 @@ export class AgentsApiClient extends BaseApiClient {
    * @description 获取系统中所有不重复的代理分组名称列表
    */
   async getAgentGroups(): Promise<
-    ApiResponse<z.infer<(typeof agentRoutes)["getAgentGroups"]["responseSchema"]>>
+    ApiResponse<
+      z.infer<(typeof agentRoutes)["getAgentGroups"]["responseSchema"]>
+    >
   > {
     return this.get<
       z.infer<(typeof agentRoutes)["getAgentGroups"]["responseSchema"]>
@@ -136,7 +138,7 @@ export const agentsApiMethods = {
   updateAgent: (id: string, agent: UpdateAgentInput) =>
     agentsApi.updateAgent(id, agent),
   deleteAgent: (id: string) => agentsApi.deleteAgent(id),
-  getAgentByGroup: (group: string) => agentsApi.getAgentByGroup(group)
+  getAgentByGroup: (groupId: string) => agentsApi.getAgentByGroup(groupId)
 };
 
 /**
