@@ -4,6 +4,7 @@ import type { StorageThreadType } from "@mastra/core/memory";
 import type { RequestContext } from "@mastra/core/request-context";
 import type { UIMessage } from "ai";
 import { createUIMessageStreamResponse } from "ai";
+import type { KnowledgeRecognition } from "generated/prisma/enums";
 import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
@@ -43,7 +44,6 @@ const getAssistants = async (): Promise<AssistantWithModelsResponse[]> => {
   const assistants = await prisma.assistant.findMany({
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
@@ -63,7 +63,6 @@ const getAssistantById = async (id: string): Promise<FullAssistant | null> => {
     },
     include: {
       model: true,
-      defaultModel: true,
       provider: true,
       settings: true,
       topics: true,
@@ -88,7 +87,6 @@ const getFullAssistantById = async (
     },
     include: {
       model: true,
-      defaultModel: true,
       provider: true,
       settings: true,
       topics: true,
@@ -108,29 +106,27 @@ const getFullAssistantById = async (
 const createAssistant = async (
   assistant: CreateAssistantInput
 ): Promise<AssistantWithModelsResponse> => {
-  const DEFAULT_PROVIDER_ID = "aihubmix";
-  const DEFAULT_MODULE_ID = "gpt-4.1-mini-free";
-
-  // 如果 modelId 或 defaultModelId 未提供，自动填充
-  const providerId = assistant.providerId ?? DEFAULT_PROVIDER_ID;
-  const modelId = assistant.modelId ?? DEFAULT_MODULE_ID;
-  const defaultModelId = assistant.defaultModelId ?? DEFAULT_MODULE_ID;
-
   const newAssistant = await prisma.assistant.create({
     data: {
-      ...assistant,
-      modelId: `${providerId}&${modelId}`,
-      providerId,
-      defaultModelId,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    } as Parameters<typeof prisma.assistant.create>[0]["data"],
+      name: assistant.name,
+      prompt: assistant.prompt,
+      type: assistant.type ?? "assistant",
+      emoji: assistant.emoji ?? undefined,
+      description: assistant.description ?? undefined,
+      enableWebSearch: assistant.enableWebSearch ?? false,
+      webSearchProviderId: assistant.webSearchProviderId ?? undefined,
+      enableGenerateImage: assistant.enableGenerateImage ?? false,
+      knowledgeRecognition:
+        assistant.knowledgeRecognition as KnowledgeRecognition,
+      modelId: assistant.modelId ?? undefined,
+      providerId: assistant.providerId ?? undefined
+    },
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
+
   return AssistantWithModelsResponseSchema.parse(newAssistant);
 };
 
@@ -145,17 +141,34 @@ const updateAssistant = async (
   id: string,
   assistant: UpdateAssistantInput
 ): Promise<AssistantWithModelsResponse> => {
+  // Filter out undefined values to avoid overwriting with undefined
+  const updateData: Record<string, unknown> = { updatedAt: new Date() };
+
+  if (assistant.name !== undefined) updateData.name = assistant.name;
+  if (assistant.prompt !== undefined) updateData.prompt = assistant.prompt;
+  if (assistant.type !== undefined) updateData.type = assistant.type;
+  if (assistant.emoji !== undefined) updateData.emoji = assistant.emoji;
+  if (assistant.description !== undefined)
+    updateData.description = assistant.description;
+  if (assistant.enableWebSearch !== undefined)
+    updateData.enableWebSearch = assistant.enableWebSearch;
+  if (assistant.webSearchProviderId !== undefined)
+    updateData.webSearchProviderId = assistant.webSearchProviderId;
+  if (assistant.enableGenerateImage !== undefined)
+    updateData.enableGenerateImage = assistant.enableGenerateImage;
+  if (assistant.knowledgeRecognition !== undefined)
+    updateData.knowledgeRecognition = assistant.knowledgeRecognition;
+  if (assistant.modelId !== undefined) updateData.modelId = assistant.modelId;
+  if (assistant.providerId !== undefined)
+    updateData.providerId = assistant.providerId;
+
   const updatedAssistant = await prisma.assistant.update({
     where: {
       id
     },
-    data: {
-      ...assistant,
-      updatedAt: new Date()
-    },
+    data: updateData as Parameters<typeof prisma.assistant.update>[0]["data"],
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
@@ -190,7 +203,6 @@ const getAssistantWithModelByAssistantId = async (assistantId: string) => {
     },
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
