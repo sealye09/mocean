@@ -26,7 +26,6 @@ export const AssistantResponseSchema = AssistantSchema.pick({
   enableGenerateImage: true,
   knowledgeRecognition: true,
   modelId: true,
-  defaultModelId: true,
   providerId: true,
   createdAt: true,
   updatedAt: true
@@ -35,7 +34,7 @@ export const AssistantResponseSchema = AssistantSchema.pick({
 // Assistants 列表 Response Schema
 export const AssistantsResponseSchema = z.array(AssistantResponseSchema);
 
-// 带 model、defaultModel、settings 的 Assistant Response Schema
+// 带 model、settings 的 Assistant Response Schema
 export const AssistantWithModelsResponseSchema = AssistantSchema.pick({
   id: true,
   name: true,
@@ -48,13 +47,11 @@ export const AssistantWithModelsResponseSchema = AssistantSchema.pick({
   enableGenerateImage: true,
   knowledgeRecognition: true,
   modelId: true,
-  defaultModelId: true,
   providerId: true,
   createdAt: true,
   updatedAt: true
 }).extend({
   model: ModelSchema.partial().nullish(),
-  defaultModel: ModelSchema.partial().nullish(),
   settings: AssistantSettingsSchema.partial().nullish()
 });
 
@@ -71,13 +68,11 @@ export const FullAssistantSchema = AssistantSchema.pick({
   enableGenerateImage: true,
   knowledgeRecognition: true,
   modelId: true,
-  defaultModelId: true,
   providerId: true,
   createdAt: true,
   updatedAt: true
 }).extend({
   model: ModelSchema.partial().nullish(),
-  defaultModel: ModelSchema.partial().nullish(),
   provider: ProviderSchema.partial().nullish(),
   settings: AssistantSettingsSchema.partial().nullish(),
   topics: z.array(TopicSchema.partial()),
@@ -90,46 +85,33 @@ export const FullAssistantSchema = AssistantSchema.pick({
  */
 
 // 基于 AssistantSchema 扩展自定义验证
-export const createAssistantSchema = AssistantSchema.pick({
-  name: true,
-  prompt: true,
-  type: true,
-  emoji: true,
-  description: true,
-  enableWebSearch: true,
-  webSearchProviderId: true,
-  enableGenerateImage: true,
-  knowledgeRecognition: true,
-  modelId: true,
-  defaultModelId: true,
-  providerId: true
-}).extend({
+export const createAssistantSchema = z.object({
   name: z.string().min(1, "助手名称不能为空"),
   prompt: z.string().min(1, "提示词不能为空"),
   type: z.string().optional().default("assistant"),
+  emoji: z.string().nullish().optional(),
+  description: z.string().nullish().optional(),
   enableWebSearch: z.boolean().optional().default(false),
+  webSearchProviderId: z.string().nullish().optional(),
   enableGenerateImage: z.boolean().optional().default(false),
+  knowledgeRecognition: z.string().nullish().optional(),
   modelId: z.string().nullable().optional(),
-  defaultModelId: z.string().nullable().optional()
+  providerId: z.string().nullable().optional()
 });
 
-export const updateAssistantSchema = AssistantSchema.pick({
-  name: true,
-  prompt: true,
-  type: true,
-  emoji: true,
-  description: true,
-  enableWebSearch: true,
-  webSearchProviderId: true,
-  enableGenerateImage: true,
-  knowledgeRecognition: true,
-  modelId: true,
-  defaultModelId: true
-})
-  .partial()
-  .extend({
-    name: z.string().min(1, "助手名称不能为空").optional()
-  });
+export const updateAssistantSchema = z.object({
+  name: z.string().min(1, "助手名称不能为空").optional(),
+  prompt: z.string().min(1, "提示词不能为空").optional(),
+  type: z.string().optional(),
+  emoji: z.string().nullish().optional(),
+  description: z.string().nullish().optional(),
+  enableWebSearch: z.boolean().optional(),
+  webSearchProviderId: z.string().nullish().optional(),
+  enableGenerateImage: z.boolean().optional(),
+  knowledgeRecognition: z.string().nullish().optional(),
+  modelId: z.string().nullable().optional(),
+  providerId: z.string().nullable().optional()
+});
 
 export const assistantIdParamSchema = z.object({
   assistantId: z.string().min(1, "助手ID不能为空")
@@ -148,7 +130,6 @@ export const chatWithAssistantSchema = z.object({
 
 export const assistantWithModelSchema = AssistantSchema.extend({
   model: ModelSchema.partial().nullish(),
-  defaultModel: ModelSchema.partial().nullish(),
   settings: AssistantSettingsSchema.partial().nullish()
 });
 
