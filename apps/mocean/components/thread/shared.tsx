@@ -1,8 +1,10 @@
 import type { FC } from "react";
+
 import { BranchPickerPrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import { ArrowDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import { TooltipIconButton } from "@/components/tooltip-icon-button";
+import { cn } from "@/lib/utils";
 
 export const ThreadScrollToBottom: FC = () => {
   return (

@@ -1,8 +1,15 @@
 import type { FC } from "react";
-import { ActionBarPrimitive, ComposerPrimitive, MessagePrimitive } from "@assistant-ui/react";
+
+import {
+  ActionBarPrimitive,
+  ComposerPrimitive,
+  MessagePrimitive
+} from "@assistant-ui/react";
 import { PencilIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { TooltipIconButton } from "@/components/tooltip-icon-button";
+import { Button } from "@/components/ui/button";
+
 import { BranchPicker } from "./shared";
 
 export const UserMessage: FC = () => {
