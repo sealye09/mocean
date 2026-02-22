@@ -33,7 +33,7 @@ export function useMastraRuntime({
   api: string;
   initialMessages?: UIMessage[];
 }) {
-  const { activeThread, activeAssistantId } = useStore();
+  const { activeThreadId: activeThread, activeAssistantId } = useStore();
 
   const { refresh } = useAssistantThreadsSWR(activeAssistantId || null);
 
