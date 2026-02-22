@@ -1,15 +1,18 @@
 import type { FC } from "react";
+
 import { ComposerPrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import { SendHorizontalIcon } from "lucide-react";
+
 import { TooltipIconButton } from "@/components/tooltip-icon-button";
-import { Textarea } from "../ui/textarea";
+
+import { AdvanceInput } from "../custom/advance-input";
 import { CircleStopIcon } from "./shared";
 
 export const Composer: FC = () => {
   return (
     <ComposerPrimitive.Root className="flex w-full flex-wrap items-end rounded-lg border bg-inherit shadow-sm transition-colors ease-in focus-within:border-ring/20">
       <ComposerPrimitive.Input asChild>
-        <Textarea
+        <AdvanceInput
           rows={1}
           autoFocus
           placeholder="有什么可以帮你的吗..."
