@@ -17,21 +17,21 @@ export type Store = {
   /**
    * @description 当前线程
    */
-  activeThread: string | null;
-  setActiveThread: (thread: string | null) => void;
+  activeThreadId: string | null;
+  setActiveThreadId: (thread: string | null) => void;
 };
 
 const useStore = create<Store>((set) => ({
   activeAssistantId: null as string | null,
-  setActiveAssistantId: (id: string | null) =>
-    set({ activeAssistantId: id }),
+  setActiveAssistantId: (id: string | null) => set({ activeAssistantId: id }),
 
   initialMessages: [] as UIMessage[],
   setInitialMessages: (messages: UIMessage[]) =>
     set({ initialMessages: messages }),
 
-  activeThread: null as string | null,
-  setActiveThread: (thread: string | null) => set({ activeThread: thread })
+  activeThreadId: null as string | null,
+  setActiveThreadId: (threadId: string | null) =>
+    set({ activeThreadId: threadId })
 }));
 
 export { useStore };
