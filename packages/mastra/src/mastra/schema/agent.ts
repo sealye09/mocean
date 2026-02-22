@@ -2,7 +2,7 @@
  * Response Schemas
  * 用于 Router 的响应类型验证
  */
-import { AgentSchema } from "generated/schemas/models";
+import { AgentGroupSchema, AgentSchema } from "generated/schemas/models";
 import z from "zod";
 
 // 基础 Agent Response Schema（不含关联关系）
@@ -17,7 +17,6 @@ export const AgentResponseSchema = AgentSchema.pick({
   webSearchProviderId: true,
   enableGenerateImage: true,
   knowledgeRecognition: true,
-  groupJson: true,
   createdAt: true,
   updatedAt: true
 });
@@ -37,7 +36,6 @@ export const AgentWithSettingsResponseSchema = AgentSchema.pick({
   webSearchProviderId: true,
   enableGenerateImage: true,
   knowledgeRecognition: true,
-  groupJson: true,
   createdAt: true,
   updatedAt: true
 }).extend({
@@ -73,8 +71,7 @@ export const createAgentSchema = AgentSchema.pick({
   prompt: z.string().min(1, "提示词不能为空"),
   type: z.string().optional().default("agent"),
   enableWebSearch: z.boolean().optional().default(false),
-  enableGenerateImage: z.boolean().optional().default(false),
-  groupJson: z.string().nullable().optional() // 存储 String[]
+  enableGenerateImage: z.boolean().optional().default(false)
 });
 
 export const updateAgentSchema = AgentSchema.pick({
@@ -87,22 +84,18 @@ export const updateAgentSchema = AgentSchema.pick({
   webSearchProviderId: true,
   enableGenerateImage: true,
   knowledgeRecognition: true
-})
-  .partial()
-  .extend({
-    groupJson: z.string().nullable().optional() // 存储 String[]
-  });
+}).partial();
 
 export const idParamSchema = z.object({
   id: z.string().min(1, "代理ID不能为空")
 });
 
 export const groupParamSchema = z.object({
-  group: z.string().min(1, "分组不能为空")
+  groupId: z.string().min(1, "分组ID不能为空")
 });
 
 // Agent 分组列表 Response Schema
-export const AgentGroupsResponseSchema = z.array(z.string());
+export const AgentGroupsResponseSchema = z.array(AgentGroupSchema);
 
 // zod类型推导
 

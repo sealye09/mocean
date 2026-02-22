@@ -54,6 +54,8 @@ export const ModelName = {
   Provider: 'Provider',
   Assistant: 'Assistant',
   Agent: 'Agent',
+  AgentGroup: 'AgentGroup',
+  AgentAgentGroup: 'AgentAgentGroup',
   Topic: 'Topic',
   FileType: 'FileType',
   Model: 'Model',
@@ -119,7 +121,6 @@ export const AssistantScalarFieldEnum = {
   knowledgeRecognition: 'knowledgeRecognition',
   modelId: 'modelId',
   providerId: 'providerId',
-  defaultModelId: 'defaultModelId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -134,7 +135,6 @@ export const AgentScalarFieldEnum = {
   type: 'type',
   emoji: 'emoji',
   description: 'description',
-  groupJson: 'groupJson',
   enableWebSearch: 'enableWebSearch',
   webSearchProviderId: 'webSearchProviderId',
   enableGenerateImage: 'enableGenerateImage',
@@ -144,6 +144,25 @@ export const AgentScalarFieldEnum = {
 } as const
 
 export type AgentScalarFieldEnum = (typeof AgentScalarFieldEnum)[keyof typeof AgentScalarFieldEnum]
+
+
+export const AgentGroupScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  label: 'label',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentGroupScalarFieldEnum = (typeof AgentGroupScalarFieldEnum)[keyof typeof AgentGroupScalarFieldEnum]
+
+
+export const AgentAgentGroupScalarFieldEnum = {
+  agentId: 'agentId',
+  agentGroupId: 'agentGroupId'
+} as const
+
+export type AgentAgentGroupScalarFieldEnum = (typeof AgentAgentGroupScalarFieldEnum)[keyof typeof AgentAgentGroupScalarFieldEnum]
 
 
 export const TopicScalarFieldEnum = {

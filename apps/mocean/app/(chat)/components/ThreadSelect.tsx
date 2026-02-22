@@ -2,59 +2,69 @@ import { useCallback, useEffect } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { StorageThreadType } from "@mocean/mastra/apiClient";
+import type { StorageThreadType } from "@mocean/mastra/apiClient";
 
 import { useStore } from "@/app/store/useStore";
 import {
+  useAssistantSWR,
   useAssistantThreadsSWR,
-  useAssistantUIMessageSWR,
+  useAssistantUIMessageSWR
 } from "@/hooks/useAssistantsSWR";
 
 import ThreadList from "./thead/ThreadList";
 
 interface ThreadSelectProps {
-  isActive: boolean;
+  onBack: () => void;
 }
 
-const ThreadSelect: React.FC<ThreadSelectProps> = ({ isActive }) => {
-  const { activeAssistant, activeThread, setActiveThread } = useStore();
+const ThreadSelect: React.FC<ThreadSelectProps> = ({ onBack }) => {
+  const {
+    activeAssistantId,
+    activeThreadId: activeThread,
+    setActiveThreadId: setActiveThread
+  } = useStore();
 
   const router = useRouter();
 
+  const { assistant } = useAssistantSWR(activeAssistantId || null);
+
   const { threads, refresh } = useAssistantThreadsSWR(
-    activeAssistant?.id || null,
+    activeAssistantId || null
   );
 
   const { refresh: refreshUIMessage } = useAssistantUIMessageSWR(
-    activeAssistant?.id || null,
-    activeThread || null,
+    activeAssistantId || null,
+    activeThread || null
   );
 
   useEffect(() => {
     void refresh();
-  }, [refresh, activeAssistant?.id, isActive]);
+  }, [refresh, activeAssistantId]);
 
   const onCreateThread = useCallback(() => {
-    if (!activeAssistant) {
+    if (!activeAssistantId) {
       return;
     }
     setActiveThread(null);
     void refreshUIMessage();
-    router.push(`/${activeAssistant.id}`);
-  }, [activeAssistant, refreshUIMessage, router, setActiveThread]);
+    router.push(`/${activeAssistantId}`);
+  }, [activeAssistantId, refreshUIMessage, router, setActiveThread]);
 
   const onThreadClick = (thread: StorageThreadType) => {
     setActiveThread(thread.id);
     void refreshUIMessage();
-    router.replace(`/${activeAssistant?.id}/${thread.id}`);
+    router.replace(`/${activeAssistantId}/${thread.id}`);
   };
 
   return (
     <div className="h-full w-full">
       <ThreadList
         threads={threads || []}
+        assistantName={assistant?.name || "助手"}
+        assistantEmoji={assistant?.emoji || undefined}
         onCreateThread={onCreateThread}
         onThreadClick={onThreadClick}
+        onBack={onBack}
       />
     </div>
   );

@@ -1,15 +1,5 @@
-import { Assistant } from "@mocean/mastra/prismaType";
-import { Bot, Calendar, Globe, Image, Sparkles } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import type { Assistant } from "@mocean/mastra/prismaType";
+import { Bot, Sparkles } from "lucide-react";
 
 import { useStore } from "../../../store/useStore";
 
@@ -20,128 +10,44 @@ interface AssistantCardProps {
 
 const AssistantCard: React.FC<AssistantCardProps> = ({
   assistant,
-  onClick,
+  onClick
 }) => {
-  const { activeAssistant } = useStore();
-  const isActive = activeAssistant?.id === assistant.id;
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("zh-CN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
-  };
+  const { activeAssistantId } = useStore();
+  const isActive = activeAssistantId === assistant.id;
 
   return (
-    <Card
-      className={`group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
-        isActive
-          ? "border-brand-primary shadow-md ring-1 ring-brand-primary/20"
-          : ""
+    <div
+      className={`group relative cursor-pointer rounded-lg px-3 py-2.5 transition-all duration-150 ${
+        isActive ? "bg-primary/[0.06]" : "hover:bg-muted/40"
       }`}
       onClick={() => onClick(assistant)}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div
-              className={`flex h-10 w-10 items-center justify-center rounded-lg text-lg font-semibold transition-all duration-200 ${
-                isActive
-                  ? "scale-105 bg-gradient-brand-active text-brand-primary-500"
-                  : "bg-gradient-brand text-brand-main"
-              }`}
-            >
-              {assistant.emoji || <Bot className="h-5 w-5" />}
-            </div>
-            <div>
-              <CardTitle
-                className={`text-base transition-colors ${
-                  isActive
-                    ? "font-semibold text-brand-primary"
-                    : "group-hover:text-primary"
-                }`}
-              >
-                {assistant.name}
-              </CardTitle>
-              <Badge
-                variant={isActive ? "default" : "secondary"}
-                className={`mt-1 text-xs capitalize ${
-                  isActive
-                    ? "bg-brand-primary-100 text-brand-primary hover:bg-brand-primary-200"
-                    : ""
-                }`}
-              >
-                {isActive ? "当前助手" : assistant.type}
-              </Badge>
-            </div>
-          </div>
-
-          <div className="flex space-x-1">
-            {assistant.enableWebSearch && (
-              <Badge variant="outline" className="p-1">
-                <Globe className="h-3 w-3 text-success" />
-              </Badge>
-            )}
-            {assistant.enableGenerateImage && (
-              <Badge variant="outline" className="p-1">
-                <Image className="h-3 w-3 text-brand-primary" />
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {assistant.description && (
-          <CardDescription
-            className="mt-2"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {assistant.description}
-          </CardDescription>
-        )}
-      </CardHeader>
-
-      <CardContent className="pt-0">
+      <div className="flex items-center gap-3">
         <div
-          className={`rounded-md p-3 ${
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm ${
             isActive
-              ? "bg-brand-primary-100 dark:bg-brand-primary-900/30"
-              : "bg-muted/50"
+              ? "bg-primary/10 text-primary"
+              : "bg-muted text-muted-foreground"
           }`}
         >
-          <p
-            className="text-xs text-muted-foreground"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {assistant.prompt}
-          </p>
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex items-center justify-between pt-0 text-xs text-muted-foreground">
-        <div className="flex items-center space-x-1">
-          <Calendar className="h-3 w-3" />
-          <span>{formatDate(assistant.createdAt)}</span>
+          {assistant.emoji || <Bot className="h-4 w-4" />}
         </div>
 
-        {assistant.knowledgeRecognition && (
-          <div className="flex items-center space-x-1">
-            <Sparkles className="h-3 w-3" />
-            <span>知识库</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-sm font-medium text-foreground">
+              {assistant.name}
+            </span>
+            {isActive && <Sparkles className="h-3 w-3 shrink-0 text-primary" />}
           </div>
-        )}
-      </CardFooter>
-    </Card>
+          {assistant.description && (
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {assistant.description}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

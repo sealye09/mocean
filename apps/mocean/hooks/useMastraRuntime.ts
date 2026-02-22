@@ -2,9 +2,10 @@
 
 import {
   AssistantChatTransport,
-  useChatRuntime,
+  useChatRuntime
 } from "@assistant-ui/react-ai-sdk";
-import { UIMessage, generateId } from "ai";
+import type { UIMessage } from "ai";
+import { generateId } from "ai";
 
 import { useStore } from "@/app/store/useStore";
 
@@ -27,25 +28,25 @@ export type PrepareRequestBodyReturnType = {
  */
 export function useMastraRuntime({
   api,
-  initialMessages = [],
+  initialMessages = []
 }: {
   api: string;
   initialMessages?: UIMessage[];
 }) {
-  const { activeThread, activeAssistant } = useStore();
+  const { activeThreadId: activeThread, activeAssistantId } = useStore();
 
-  const { refresh } = useAssistantThreadsSWR(activeAssistant?.id || null);
+  const { refresh } = useAssistantThreadsSWR(activeAssistantId || null);
 
   const runtime = useChatRuntime({
     transport: new AssistantChatTransport({
       api,
       prepareSendMessagesRequest: (requestParams) => {
-        if (!activeAssistant) {
+        if (!activeAssistantId) {
           return {
             ...requestParams,
             body: {
-              ...(requestParams.body || {}),
-            },
+              ...(requestParams.body || {})
+            }
           };
         }
 
@@ -58,9 +59,9 @@ export function useMastraRuntime({
             body: {
               ...(body || {}),
               threadId: generateId(),
-              assistantId: activeAssistant.id,
-              messages: requestParams.messages,
-            },
+              assistantId: activeAssistantId,
+              messages: requestParams.messages
+            }
           };
         }
 
@@ -69,11 +70,11 @@ export function useMastraRuntime({
           body: {
             ...(body || {}),
             threadId: activeThread,
-            assistantId: activeAssistant.id,
-            messages: requestParams.messages,
-          },
+            assistantId: activeAssistantId,
+            messages: requestParams.messages
+          }
         };
-      },
+      }
     }),
     messages: initialMessages,
     onFinish() {
@@ -81,7 +82,7 @@ export function useMastraRuntime({
         console.log("finish");
         void refresh();
       }, 5000);
-    },
+    }
   });
 
   return runtime;

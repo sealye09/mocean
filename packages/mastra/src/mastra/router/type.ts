@@ -1,97 +1,108 @@
-import z from "zod";
+import { GroupSchema, ProviderSchema } from "generated/schemas/models";
+import { z } from "zod";
 
 import { PREFIX } from "../api/base-client";
 import {
   AgentGroupsResponseSchema,
   AgentResponseSchema,
   AgentWithSettingsResponseSchema,
-  AgentsResponseSchema
+  AgentsResponseSchema,
+  createAgentSchema,
+  updateAgentSchema
 } from "../schema/agent";
 import {
-  AssistantResponseSchema,
-  AssistantWithModelsResponseSchema,
-  AssistantsResponseSchema,
-  FullAssistantSchema,
-  chatWithAssistantSchema
+  AssistantFullSchema,
+  AssistantSchema,
+  AssistantWithModelsAndSettingsSchema,
+  SimpleAssistantArraySchema,
+  chatWithAssistantSchema,
+  createAssistantSchema,
+  updateAssistantSchema
 } from "../schema/assistant";
 import {
-  GroupResponseSchema,
   GroupWithModelsResponseSchema,
-  GroupsResponseSchema
+  createGroupSchema,
+  updateGroupSchema
 } from "../schema/group";
 import {
   CreateManyModelsResponseSchema,
   ModelProviderRelationResponseSchema,
   ModelResponseSchema,
   ModelWithProvidersResponseSchema,
-  ModelsResponseSchema
+  ModelsResponseSchema,
+  createModelSchema,
+  modelProviderRelationSchema,
+  updateModelSchema
 } from "../schema/model";
 import {
-  FullProviderSchema,
-  ProviderResponseSchema,
-  ProvidersResponseSchema,
-  ProvidersWithModelsResponseSchema
+  ProviderHierarchyArraySchema,
+  ProviderHierarchySchema,
+  SimpleProvidersArraySchema,
+  createProviderSchema,
+  updateProviderSchema
 } from "../schema/provider";
 
 export const providerRoutes = {
   // 基础版本
   getProviders: {
     path: `${PREFIX}/providers`,
-    responseSchema: ProvidersResponseSchema
+    responseSchema: SimpleProvidersArraySchema
   },
   getEnabledProviders: {
     path: `${PREFIX}/providers/enabled`,
-    responseSchema: ProvidersResponseSchema
+    responseSchema: SimpleProvidersArraySchema
   },
   getProviderById: {
     path: `${PREFIX}/providers/:id`,
-    responseSchema: ProviderResponseSchema.nullable()
+    responseSchema: ProviderSchema.nullable()
   },
   getProvidersByType: {
     path: `${PREFIX}/providers/type/:type`,
-    responseSchema: ProvidersResponseSchema
+    responseSchema: SimpleProvidersArraySchema
   },
   getProvidersByModel: {
     path: `${PREFIX}/providers/by-model/:modelId`,
-    responseSchema: ProvidersResponseSchema
+    responseSchema: SimpleProvidersArraySchema
   },
   // WithModels 版本
   getProvidersWithModels: {
     path: `${PREFIX}/providers/with-models`,
-    responseSchema: ProvidersWithModelsResponseSchema
+    responseSchema: ProviderHierarchyArraySchema
   },
   getEnabledProvidersWithModels: {
     path: `${PREFIX}/providers/enabled/with-models`,
-    responseSchema: ProvidersWithModelsResponseSchema
+    responseSchema: ProviderHierarchyArraySchema
   },
   getProviderWithModelsById: {
     path: `${PREFIX}/providers/:id/with-models`,
-    responseSchema: FullProviderSchema.nullable()
+    responseSchema: ProviderHierarchySchema.nullable()
   },
   getProvidersByTypeWithModels: {
     path: `${PREFIX}/providers/type/:type/with-models`,
-    responseSchema: ProvidersWithModelsResponseSchema
+    responseSchema: ProviderHierarchyArraySchema
   },
   getProvidersByModelWithModels: {
     path: `${PREFIX}/providers/by-model/:modelId/with-models`,
-    responseSchema: ProvidersWithModelsResponseSchema
+    responseSchema: ProviderHierarchyArraySchema
   },
   // 写操作
   createProvider: {
     path: `${PREFIX}/providers`,
-    responseSchema: FullProviderSchema
+    requestSchema: createProviderSchema,
+    responseSchema: ProviderHierarchySchema
   },
   updateProvider: {
     path: `${PREFIX}/providers/:id`,
-    responseSchema: FullProviderSchema
+    requestSchema: updateProviderSchema,
+    responseSchema: ProviderHierarchySchema
   },
   deleteProvider: {
     path: `${PREFIX}/providers/:id`,
-    responseSchema: ProviderResponseSchema
+    responseSchema: ProviderSchema
   },
   toggleProviderEnabled: {
     path: `${PREFIX}/providers/:id/toggle`,
-    responseSchema: FullProviderSchema
+    responseSchema: ProviderHierarchySchema
   }
 } as const;
 
@@ -133,14 +144,17 @@ export const modelRoutes = {
   // 写操作
   createModel: {
     path: `${PREFIX}/models`,
+    requestSchema: createModelSchema,
     responseSchema: ModelWithProvidersResponseSchema
   },
   createManyModels: {
     path: `${PREFIX}/models/batch`,
+    requestSchema: z.array(createModelSchema),
     responseSchema: CreateManyModelsResponseSchema
   },
   updateModel: {
     path: `${PREFIX}/models/:id`,
+    requestSchema: updateModelSchema,
     responseSchema: ModelWithProvidersResponseSchema
   },
   deleteModel: {
@@ -150,10 +164,15 @@ export const modelRoutes = {
   // 关联操作
   addModelProviderRelation: {
     path: `${PREFIX}/models/relations`,
+    requestSchema: modelProviderRelationSchema,
     responseSchema: ModelProviderRelationResponseSchema
   },
   removeModelProviderRelation: {
     path: `${PREFIX}/models/relations`,
+    requestSchema: modelProviderRelationSchema.pick({
+      modelId: true,
+      providerId: true
+    }),
     responseSchema: ModelProviderRelationResponseSchema
   },
   getModelProviderRelations: {
@@ -165,7 +184,7 @@ export const modelRoutes = {
 export const groupRoutes = {
   getGroupsByProvider: {
     path: `${PREFIX}/groups/provider/:providerId`,
-    responseSchema: GroupsResponseSchema
+    responseSchema: z.array(GroupSchema)
   },
   getGroupById: {
     path: `${PREFIX}/groups/:id`,
@@ -173,38 +192,46 @@ export const groupRoutes = {
   },
   createGroup: {
     path: `${PREFIX}/groups`,
-    responseSchema: GroupWithModelsResponseSchema
+    requestSchema: createGroupSchema,
+    responseSchema: GroupSchema
   },
   updateGroup: {
     path: `${PREFIX}/groups/:id`,
-    responseSchema: GroupWithModelsResponseSchema
+    requestSchema: updateGroupSchema,
+    responseSchema: GroupSchema
   },
   deleteGroup: {
     path: `${PREFIX}/groups/:id`,
-    responseSchema: GroupResponseSchema
+    responseSchema: GroupSchema
   }
 } as const;
 
 export const assistantRoutes = {
   getAssistants: {
     path: `${PREFIX}/assistants`,
-    responseSchema: AssistantsResponseSchema
+    responseSchema: SimpleAssistantArraySchema
   },
   getAssistantById: {
     path: `${PREFIX}/assistants/:assistantId`,
-    responseSchema: FullAssistantSchema.nullable()
+    responseSchema: AssistantWithModelsAndSettingsSchema.nullable()
+  },
+  getFullAssistantById: {
+    path: `${PREFIX}/assistants/:assistantId/full`,
+    responseSchema: AssistantFullSchema.nullable()
   },
   createAssistant: {
     path: `${PREFIX}/assistants`,
-    responseSchema: AssistantWithModelsResponseSchema
+    requestSchema: createAssistantSchema,
+    responseSchema: AssistantWithModelsAndSettingsSchema
   },
   updateAssistant: {
     path: `${PREFIX}/assistants/:assistantId`,
-    responseSchema: AssistantWithModelsResponseSchema
+    requestSchema: updateAssistantSchema,
+    responseSchema: AssistantWithModelsAndSettingsSchema
   },
   deleteAssistant: {
     path: `${PREFIX}/assistants/:assistantId`,
-    responseSchema: AssistantResponseSchema
+    responseSchema: AssistantSchema
   },
   chatWithAssistant: {
     path: `${PREFIX}/assistants/chat`,
@@ -236,10 +263,12 @@ export const agentRoutes = {
   },
   createAgent: {
     path: `${PREFIX}/agents`,
+    requestSchema: createAgentSchema,
     responseSchema: AgentWithSettingsResponseSchema
   },
   updateAgent: {
     path: `${PREFIX}/agents/:id`,
+    requestSchema: updateAgentSchema,
     responseSchema: AgentWithSettingsResponseSchema
   },
   deleteAgent: {
@@ -247,7 +276,7 @@ export const agentRoutes = {
     responseSchema: AgentResponseSchema
   },
   getAgentByGroup: {
-    path: `${PREFIX}/agents/group/:group`,
+    path: `${PREFIX}/agents/group/:groupId`,
     responseSchema: AgentsResponseSchema.nullable()
   }
 } as const;

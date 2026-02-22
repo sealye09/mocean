@@ -1,5 +1,6 @@
-import type { StorageThreadType } from "@mocean/mastra/apiClient";
 import { useAssistantsApi } from "@mocean/mastra/apiClient";
+import type { AssistantFullType } from "@mocean/mastra/schemas";
+import type { KeyedMutator } from "swr";
 import useSWR, { useSWRConfig } from "swr";
 
 /**
@@ -48,8 +49,35 @@ export function useAssistantSWR(id: string | null) {
   const { data, error, isLoading, mutate } = useSWR(
     id ? `assistant-${id}` : null,
     async () => {
-      if (!id) return null;
+      if (!id) {
+        return null;
+      }
+
       const result = await getAssistantById(id);
+      return result?.data || null;
+    },
+    defaultSWRConfig
+  );
+
+  return {
+    assistant: data,
+    isLoading,
+    error,
+    refresh: mutate
+  };
+}
+
+/**
+ * 获取单个助手（含有所关系）- 使用 SWR
+ */
+export function useFullAssistant(id: string | null) {
+  const { getFullAssistantById } = useAssistantsApi();
+
+  const { data, error, isLoading, mutate } = useSWR<AssistantFullType | null>(
+    id ? `assistant-with-models-${id}` : null,
+    async () => {
+      if (!id) return null;
+      const result = await getFullAssistantById(id);
       return result?.data || null;
     },
     defaultSWRConfig
@@ -87,31 +115,6 @@ export function useAssistantsWithModels() {
     refresh: mutate
   };
 }
-
-/**
- * 获取单个助手（包含模型）- 使用 SWR
- */
-export function useAssistantWithModels(id: string | null) {
-  const { getAssistantById } = useAssistantsApi();
-
-  const { data, error, isLoading, mutate } = useSWR(
-    id ? `assistant-with-models-${id}` : null,
-    async () => {
-      if (!id) return null;
-      const result = await getAssistantById(id);
-      return result?.data || null;
-    },
-    defaultSWRConfig
-  );
-
-  return {
-    assistant: data,
-    isLoading,
-    error,
-    refresh: mutate
-  };
-}
-
 // ==================== 线程和消息 Hooks ====================
 
 /**
@@ -126,13 +129,12 @@ export function useAssistantThreadsSWR(assistantId: string | null) {
     async () => {
       if (!assistantId) return [];
       const result = await getAssistantThreads(assistantId);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       if (result.error || !result.data) {
         return [];
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      return result.data as StorageThreadType[];
+      return result.data;
     },
     {
       ...defaultSWRConfig,
@@ -168,7 +170,6 @@ export function useAssistantUIMessageSWR(
         threadId
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return result?.data || null;
     },
     defaultSWRConfig
@@ -205,7 +206,9 @@ export function useAssistantUIMessageSWR(
  *   await Promise.all([refreshList(), refreshDetail()]);
  * });
  */
-export function useAssistantActions(customMutate?: () => Promise<unknown>) {
+export function useAssistantActions<T = unknown>(
+  customMutate?: KeyedMutator<T>
+) {
   const { mutate: globalMutate } = useSWRConfig();
   const { createAssistant, updateAssistant, deleteAssistant } =
     useAssistantsApi();
@@ -234,8 +237,20 @@ export function useAssistantActions(customMutate?: () => Promise<unknown>) {
 
   const update = async (
     id: string,
-    data: Parameters<typeof updateAssistant>[1]
+    data: Parameters<typeof updateAssistant>[1],
+    optimisticData?: T
   ) => {
+    if (optimisticData && customMutate) {
+      // 乐观更新：fire-and-forget API + SWR 乐观写入
+      void updateAssistant(id, data);
+      await customMutate(() => optimisticData, {
+        optimisticData,
+        rollbackOnError: true,
+        revalidate: false
+      });
+      return null;
+    }
+    // 无乐观更新：等待 API 完成后刷新
     const result = await updateAssistant(id, data);
     if (result) {
       await refreshData();

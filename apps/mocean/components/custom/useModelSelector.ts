@@ -2,8 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import type { Model, Provider } from "@mocean/mastra/prismaType";
 
-import type { FullProvider } from "@/app/provider/[id]/type";
-import { useEnabledProviders } from "@/hooks/useProvidersSWR";
+import { useEnabledProvidersWithModels } from "@/hooks/useProvidersSWR";
 
 /**
  * 模型分组接口
@@ -17,11 +16,9 @@ export interface ModelGroup {
 /**
  * 选择项接口
  */
-interface ModelSelection {
-  providerId: string;
-  providerName: string;
-  modelId: string;
-  modelName: string;
+export interface ModelSelection {
+  provider: Provider;
+  model: Model;
 }
 
 /**
@@ -39,13 +36,14 @@ export interface ModelSelectorProps {
 export const useModelSelector = ({ value, onChange }: ModelSelectorProps) => {
   const [open, setOpen] = useState(false);
 
-  const { providers } = useEnabledProviders();
+  const { providers } = useEnabledProvidersWithModels();
 
-  const providersWithGroups = useMemo(() => {
-    if (!providers) {
-      return [];
-    }
-    return providers.map((p) => p.items);
+  const models = useMemo(() => {
+    return providers
+      .map((provider) => provider.groups)
+      .flat()
+      .map((group) => group.models)
+      .flat();
   }, [providers]);
 
   /**
@@ -57,8 +55,8 @@ export const useModelSelector = ({ value, onChange }: ModelSelectorProps) => {
     if (!value) {
       return undefined;
     }
-    return providersWithGroups.find((p) => p.id === value.providerId);
-  }, [providersWithGroups, value]);
+    return providers.find((p) => p.id === value.provider.id);
+  }, [providers, value]);
 
   /**
    * 处理模型选择
@@ -70,10 +68,8 @@ export const useModelSelector = ({ value, onChange }: ModelSelectorProps) => {
   const onSelectModel = useCallback(
     (provider: Provider, model: Model) => {
       onChange({
-        providerId: provider.id,
-        providerName: provider.name,
-        modelId: model.id,
-        modelName: model.name
+        provider,
+        model
       });
       setOpen(false);
     },
@@ -82,7 +78,8 @@ export const useModelSelector = ({ value, onChange }: ModelSelectorProps) => {
 
   return {
     open,
-    providersWithGroups,
+    providers,
+    models,
     setOpen,
     selectedProvider,
     onSelectModel

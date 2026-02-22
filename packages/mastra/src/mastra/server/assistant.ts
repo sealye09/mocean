@@ -4,74 +4,59 @@ import type { StorageThreadType } from "@mastra/core/memory";
 import type { RequestContext } from "@mastra/core/request-context";
 import type { UIMessage } from "ai";
 import { createUIMessageStreamResponse } from "ai";
+import type { KnowledgeRecognition } from "generated/prisma/enums";
+import { AssistantFullSchema } from "generated/schemas/composed";
+import { AssistantSchema } from "generated/schemas/models";
 import { z } from "zod";
 
 import { DynamicAgent } from "../agents/dynamicAgent";
+import type { assistantRoutes } from "../router/type";
 import { createCommonRunTime } from "../runtime/CommonRunTime";
 import type {
-  AssistantResponse,
-  AssistantWithModelsResponse,
-  CreateAssistantInput,
-  FullAssistant,
-  UpdateAssistantInput
+  CreateAssistantInputType,
+  FullAssistantType,
+  UpdateAssistantInputType
 } from "../schema/assistant";
-import {
-  AssistantResponseSchema,
-  AssistantWithModelsResponseSchema,
-  FullAssistantSchema
-} from "../schema/assistant";
+import { AssistantWithModelsAndSettingsSchema } from "../schema/assistant";
 import { prisma } from "./index";
 import type { AsyncReturnType } from "./type";
-
-/**
- * Response Schemas
- * 用于 Router 的响应类型验证
- */
-export {
-  AssistantResponseSchema,
-  AssistantsResponseSchema,
-  AssistantWithModelsResponseSchema,
-  FullAssistantSchema as AssistantFullResponseSchema
-} from "../schema/assistant";
 
 /**
  * 获取所有助手
  * @description 从数据库中获取所有助手的列表
  * @returns 包含所有助手信息的数组
  */
-const getAssistants = async (): Promise<AssistantWithModelsResponse[]> => {
+const getAssistants = async (): Promise<
+  z.infer<(typeof assistantRoutes)["getAssistants"]["responseSchema"]>
+> => {
   const assistants = await prisma.assistant.findMany({
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
-  return z.array(AssistantWithModelsResponseSchema).parse(assistants);
+  return z.array(AssistantWithModelsAndSettingsSchema).parse(assistants);
 };
 
 /**
  * 根据ID获取单个助手
- * @description 通过助手ID从数据库中获取特定助手的详细信息
+ * @description 通过助手ID从数据库中获取助手基本信息
  * @param id - 助手的唯一标识符
  * @returns 助手对象，如果不存在则返回null
  */
-const getAssistantById = async (id: string): Promise<FullAssistant | null> => {
+const getAssistantById = async (
+  id: string
+): Promise<
+  z.infer<(typeof assistantRoutes)["getAssistantById"]["responseSchema"]>
+> => {
   const assistant = await prisma.assistant.findUnique({
     where: {
       id
-    },
-    include: {
-      model: true,
-      defaultModel: true,
-      provider: true,
-      settings: true,
-      topics: true,
-      knowledgeBases: true,
-      mcpServers: true
     }
   });
-  return assistant ? FullAssistantSchema.parse(assistant) : null;
+  return assistant
+    ? AssistantWithModelsAndSettingsSchema.parse(assistant)
+    : null;
 };
 
 /**
@@ -81,14 +66,13 @@ const getAssistantById = async (id: string): Promise<FullAssistant | null> => {
  */
 const getFullAssistantById = async (
   id: string
-): Promise<FullAssistant | null> => {
+): Promise<FullAssistantType | null> => {
   const assistant = await prisma.assistant.findUnique({
     where: {
       id
     },
     include: {
       model: true,
-      defaultModel: true,
       provider: true,
       settings: true,
       topics: true,
@@ -96,7 +80,7 @@ const getFullAssistantById = async (
       mcpServers: true
     }
   });
-  return assistant ? FullAssistantSchema.parse(assistant) : null;
+  return assistant ? AssistantFullSchema.parse(assistant) : null;
 };
 
 /**
@@ -106,47 +90,32 @@ const getFullAssistantById = async (
  * @returns 新创建的助手对象，包含生成的ID和时间戳
  */
 const createAssistant = async (
-  assistant: CreateAssistantInput
-): Promise<AssistantWithModelsResponse> => {
-  // 如果 modelId 或 defaultModelId 未提供，自动填充
-  let modelId = assistant.modelId ?? null;
-  let defaultModelId = assistant.defaultModelId ?? null;
-
-  if (!modelId || !defaultModelId) {
-    // 优先从环境变量读取默认模型 ID
-    const defaultModelIdFromEnv = process.env.DEFAULT_MODEL_ID;
-
-    if (defaultModelIdFromEnv) {
-      if (!modelId) modelId = defaultModelIdFromEnv;
-      if (!defaultModelId) defaultModelId = defaultModelIdFromEnv;
-    } else {
-      // 如果环境变量未设置，从数据库查询第一个可用模型
-      const firstModel = await prisma.model.findFirst({
-        orderBy: { sort: "asc" }
-      });
-
-      if (firstModel) {
-        if (!modelId) modelId = firstModel.id;
-        if (!defaultModelId) defaultModelId = firstModel.id;
-      }
-    }
-  }
-
+  assistant: CreateAssistantInputType
+): Promise<
+  z.infer<(typeof assistantRoutes)["createAssistant"]["responseSchema"]>
+> => {
   const newAssistant = await prisma.assistant.create({
     data: {
-      ...assistant,
-      modelId,
-      defaultModelId,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    } as Parameters<typeof prisma.assistant.create>[0]["data"],
+      name: assistant.name,
+      prompt: assistant.prompt,
+      type: assistant.type ?? "assistant",
+      emoji: assistant.emoji ?? undefined,
+      description: assistant.description ?? undefined,
+      enableWebSearch: assistant.enableWebSearch ?? false,
+      webSearchProviderId: assistant.webSearchProviderId ?? undefined,
+      enableGenerateImage: assistant.enableGenerateImage ?? false,
+      knowledgeRecognition:
+        assistant.knowledgeRecognition as KnowledgeRecognition,
+      modelId: assistant.modelId ?? undefined,
+      providerId: assistant.providerId ?? undefined
+    },
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
-  return AssistantWithModelsResponseSchema.parse(newAssistant);
+
+  return AssistantWithModelsAndSettingsSchema.parse(newAssistant);
 };
 
 /**
@@ -158,23 +127,42 @@ const createAssistant = async (
  */
 const updateAssistant = async (
   id: string,
-  assistant: UpdateAssistantInput
-): Promise<AssistantWithModelsResponse> => {
+  assistant: UpdateAssistantInputType
+): Promise<
+  z.infer<(typeof assistantRoutes)["updateAssistant"]["responseSchema"]>
+> => {
+  // Filter out undefined values to avoid overwriting with undefined
+  const updateData: Record<string, unknown> = { updatedAt: new Date() };
+
+  if (assistant.name !== undefined) updateData.name = assistant.name;
+  if (assistant.prompt !== undefined) updateData.prompt = assistant.prompt;
+  if (assistant.type !== undefined) updateData.type = assistant.type;
+  if (assistant.emoji !== undefined) updateData.emoji = assistant.emoji;
+  if (assistant.description !== undefined)
+    updateData.description = assistant.description;
+  if (assistant.enableWebSearch !== undefined)
+    updateData.enableWebSearch = assistant.enableWebSearch;
+  if (assistant.webSearchProviderId !== undefined)
+    updateData.webSearchProviderId = assistant.webSearchProviderId;
+  if (assistant.enableGenerateImage !== undefined)
+    updateData.enableGenerateImage = assistant.enableGenerateImage;
+  if (assistant.knowledgeRecognition !== undefined)
+    updateData.knowledgeRecognition = assistant.knowledgeRecognition;
+  if (assistant.modelId !== undefined) updateData.modelId = assistant.modelId;
+  if (assistant.providerId !== undefined)
+    updateData.providerId = assistant.providerId;
+
   const updatedAssistant = await prisma.assistant.update({
     where: {
       id
     },
-    data: {
-      ...assistant,
-      updatedAt: new Date()
-    },
+    data: updateData as Parameters<typeof prisma.assistant.update>[0]["data"],
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
-  return AssistantWithModelsResponseSchema.parse(updatedAssistant);
+  return AssistantWithModelsAndSettingsSchema.parse(updatedAssistant);
 };
 
 /**
@@ -183,13 +171,17 @@ const updateAssistant = async (
  * @param id - 要删除的助手的唯一标识符
  * @returns 被删除的助手对象
  */
-const deleteAssistant = async (id: string): Promise<AssistantResponse> => {
+const deleteAssistant = async (
+  id: string
+): Promise<
+  z.infer<(typeof assistantRoutes)["deleteAssistant"]["responseSchema"]>
+> => {
   const deletedAssistant = await prisma.assistant.delete({
     where: {
       id
     }
   });
-  return AssistantResponseSchema.parse(deletedAssistant);
+  return AssistantSchema.parse(deletedAssistant);
 };
 
 /**
@@ -205,7 +197,6 @@ const getAssistantWithModelByAssistantId = async (assistantId: string) => {
     },
     include: {
       model: true,
-      defaultModel: true,
       settings: true
     }
   });
@@ -248,7 +239,10 @@ const executeChatWithAssistant = async (
     })
   });
 
-  const aiSdkStream = toAISdkStream(stream, { from: "agent" });
+  const aiSdkStream = toAISdkStream(stream, {
+    from: "agent",
+    sendReasoning: true
+  });
   return createUIMessageStreamResponse({
     stream: aiSdkStream as ReadableStream
   });
