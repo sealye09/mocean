@@ -14,13 +14,15 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body className="bg-primary-light-100 font-bricolage-grotesque flex h-screen flex-col overflow-hidden">
+      <body className="flex h-screen flex-col overflow-hidden bg-primary-light-100 font-bricolage-grotesque">
         <TitleBar />
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
           <SidebarProvider>
             <ToasterProvider>
               <AppSidebar />
-              <main className="flex-1 overflow-hidden">{children}</main>
+              <main className="h-full min-h-0 flex-1 overflow-hidden">
+                {children}
+              </main>
             </ToasterProvider>
           </SidebarProvider>
         </div>
