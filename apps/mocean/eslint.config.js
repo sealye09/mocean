@@ -27,6 +27,8 @@ export default [
       ".env.test.local",
       ".env.production.local",
 
+      "./scripts/*",
+
       // 日志文件
       "*.log",
 

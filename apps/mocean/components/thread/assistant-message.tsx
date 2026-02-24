@@ -1,9 +1,16 @@
 import type { FC } from "react";
-import { ActionBarPrimitive, ErrorPrimitive, MessagePrimitive } from "@assistant-ui/react";
+
+import {
+  ActionBarPrimitive,
+  ErrorPrimitive,
+  MessagePrimitive
+} from "@assistant-ui/react";
 import { CheckIcon, CopyIcon, RefreshCwIcon } from "lucide-react";
+
 import { MarkdownText } from "@/components/markdown-text";
 import { Reasoning, ReasoningGroup } from "@/components/reasoning";
 import { TooltipIconButton } from "@/components/tooltip-icon-button";
+
 import { BranchPicker } from "./shared";
 
 export const AssistantMessage: FC = () => {
