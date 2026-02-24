@@ -403,6 +403,10 @@ async function insertProvidersAndModels(data: ScrapedData) {
 
         // 3. 插入供应商和创建默认分组
         console.log("\n📦 插入供应商数据并创建默认分组...");
+
+        // 记录哪些默认组是有效的，以便后续模型插入时做过滤
+        const validGroupIds = new Set<string>();
+
         for (const provider of data.providers) {
           const providerType = mapProviderIdToType(provider.id);
 
@@ -411,6 +415,9 @@ async function insertProvidersAndModels(data: ScrapedData) {
             console.log(`⏭️  ${provider.id}: 无效的供应商类型，跳过`);
             continue;
           }
+
+          // 记录有效的默认组ID
+          validGroupIds.add(`${provider.id}_default`);
 
           // 检查是否已存在
           const existing = await tx.provider.findUnique({
@@ -475,6 +482,12 @@ async function insertProvidersAndModels(data: ScrapedData) {
           const batch = models.slice(i, i + BATCH_SIZE);
 
           for (const model of batch) {
+            // 如果该模型所属分组不是有效供应商创建的，则跳过
+            if (!validGroupIds.has(model.groupId)) {
+              console.log(`⏭️ 模型 ${model.id} 属于无效或已跳过的供应商，跳过`);
+              continue;
+            }
+
             // 检查是否已存在
             const existing = await tx.model.findUnique({
               where: { id: model.id }
