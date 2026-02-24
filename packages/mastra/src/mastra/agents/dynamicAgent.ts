@@ -1,4 +1,3 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import type { RequestContext } from "@mastra/core/request-context";
 import { LibSQLStore } from "@mastra/libsql";
@@ -72,20 +71,25 @@ export const DynamicAgent = new Agent({
       lastMessages: 10,
       semanticRecall: false,
       generateTitle: {
-        model() {
-          const openaiProvider = createOpenAI({
-            baseURL: process.env.OPENAI_API_BASE_URL,
-            apiKey: process.env.OPENAI_API_KEY
-          });
+        model: ({ requestContext }) => {
+          const assistant = (
+            requestContext as RequestContext<CommonRunTimeType>
+          ).get("assistant");
+          const provider = assistant.provider;
 
-          const model = openaiProvider(
-            process.env.OPENAI_API_MODEL ?? "gpt-4o"
-          );
-
-          return model;
+          if (provider.isSystem) {
+            const model = assistant.model;
+            if (!provider || !provider.apiHost || !provider.apiKey) {
+              throw new Error("Provider not configured");
+            }
+            return {
+              url: provider.apiHost,
+              apiKey: provider.apiKey,
+              id: normalizeModelId(model.id)
+            };
+          }
         },
-        instructions() {
-          return `你是一个专业的聊天标题生成助手。你的任务是根据用户的聊天内容生成一个简洁、准确、有吸引力的标题。
+        instructions: `你是一个专业的聊天标题生成助手。你的任务是根据用户的聊天内容生成一个简洁、准确、有吸引力的标题。
 
                    请遵循以下规则：
                    1. 标题长度控制在10-20个字符以内
@@ -96,8 +100,7 @@ export const DynamicAgent = new Agent({
                    6. 标题要有一定的吸引力，但不能过于夸张
                    7. 只返回标题内容，不要添加任何解释或额外文字
 
-                  请根据用户的聊天内容生成合适的标题。`;
-        }
+                  请根据用户的聊天内容生成合适的标题。`
       }
     }
   })
