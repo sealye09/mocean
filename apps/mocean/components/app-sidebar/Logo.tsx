@@ -1,3 +1,5 @@
+"use client";
+
 import type { FC } from "react";
 
 import Image from "next/image";
@@ -9,7 +11,7 @@ const Logo: FC = () => {
     <div className="flex items-end gap-1 py-3 pl-2">
       <Image
         src={logo}
-        className="h-8 w-8 rounded-full bg-brand-primary-500/90 p-1"
+        className="h-9 w-9 rounded-full border border-greyscale-100 bg-gradient-to-l from-brand-primary-300 to-brand-primary-500 p-0.5 shadow-md"
         alt="Mocean"
       />
 
