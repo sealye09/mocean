@@ -5,21 +5,21 @@ export const designTokens = {
   colors: {
     primary: {
       DEFAULT: "var(--dt-primary)",
-      "light-100": "var(--dt-primary-light-100)",
-      "light-200": "var(--dt-primary-light-200)",
-      "light-300": "var(--dt-primary-light-300)",
-      "dark-100": "var(--dt-primary-dark-100)",
-      "dark-200": "var(--dt-primary-dark-200)",
-      "dark-300": "var(--dt-primary-dark-300)"
+      "100": "var(--dt-primary-100)",
+      "200": "var(--dt-primary-200)",
+      "300": "var(--dt-primary-300)",
+      "700": "var(--dt-primary-700)",
+      "800": "var(--dt-primary-800)",
+      "900": "var(--dt-primary-900)"
     },
     complementary: {
       DEFAULT: "var(--dt-complementary)",
-      "light-100": "var(--dt-complementary-light-100)",
-      "light-200": "var(--dt-complementary-light-200)",
-      "light-300": "var(--dt-complementary-light-300)",
-      "dark-100": "var(--dt-complementary-dark-100)",
-      "dark-200": "var(--dt-complementary-dark-200)",
-      "dark-300": "var(--dt-complementary-dark-300)"
+      "100": "var(--dt-complementary-100)",
+      "200": "var(--dt-complementary-200)",
+      "300": "var(--dt-complementary-300)",
+      "700": "var(--dt-complementary-700)",
+      "800": "var(--dt-complementary-800)",
+      "900": "var(--dt-complementary-900)"
     },
     greyscale: {
       "100": "var(--dt-greyscale-100)",
@@ -35,18 +35,18 @@ export const designTokens = {
     },
     success: {
       DEFAULT: "var(--dt-success)",
-      light: "var(--dt-success-light)",
-      dark: "var(--dt-success-dark)"
+      "100": "var(--dt-success-100)",
+      "700": "var(--dt-success-700)"
     },
     warning: {
       DEFAULT: "var(--dt-warning)",
-      light: "var(--dt-warning-light)",
-      dark: "var(--dt-warning-dark)"
+      "100": "var(--dt-warning-100)",
+      "700": "var(--dt-warning-700)"
     },
     error: {
       DEFAULT: "var(--dt-error)",
-      light: "var(--dt-error-light)",
-      dark: "var(--dt-error-dark)"
+      "100": "var(--dt-error-100)",
+      "700": "var(--dt-error-700)"
     }
   },
 

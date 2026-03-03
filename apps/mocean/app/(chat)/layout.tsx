@@ -26,7 +26,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="h-full">
         <ChatConfig />
       </div>
-      <div className="h-full flex-1 overflow-hidden rounded-tl-[1rem] bg-primary-light-100">
+      <div className="h-full flex-1 overflow-hidden rounded-tl-[1rem] bg-primary-100">
         {children}
       </div>
     </div>

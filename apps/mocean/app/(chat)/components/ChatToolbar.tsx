@@ -72,7 +72,7 @@ export function ChatToolbar() {
   }, [activeAssistantId, refreshUIMessage, router, setActiveThread]);
 
   return (
-    <div className="flex h-11 shrink-0 items-center justify-between border-b border-border/30 px-4">
+    <div className="flex h-11 w-full shrink-0 items-center justify-between border-b border-border/30 px-4">
       {/* Left: model selector */}
       <div className="flex max-w-16 items-center">
         {activeAssistantId && assistant ? (
