@@ -23,10 +23,10 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   }, [threadId, setActiveThread, assistantId, setActiveAssistantId]);
   return (
     <div className="flex h-full">
-      <div className="h-full">
+      <div className="relative z-10 h-full">
         <ChatConfig />
       </div>
-      <div className="h-full flex-1 overflow-hidden rounded-tl-[1rem] bg-primary-100">
+      <div className="h-full flex-1 overflow-hidden rounded-tl-[1rem] bg-primary-100 shadow-[inset_12px_0_10px_-6px_var(--dt-primary)]">
         {children}
       </div>
     </div>

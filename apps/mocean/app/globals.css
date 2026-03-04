@@ -95,7 +95,7 @@
 
     /* Figma Design Token 颜色 - 浅色模式原始值 */
     /* Primary (炭黑色) */
-    --dt-primary: #2C2C2C;
+    --dt-primary: #eaeaea;
     --dt-primary-100: #ffffff;
     --dt-primary-200: #ececec;
     --dt-primary-300: #c4c4c4;
@@ -174,7 +174,6 @@
     --brand-text: 0 0% 88.2%;
     --brand-main: 0 0% 11.8%;
 
-
     /* 品牌主题色 - 暗黑模式，基于 purple/violet */
     --brand-primary-50: 250 100% 98%;
     --brand-primary-100: 251 91% 95%;
@@ -210,10 +209,10 @@
 
     /* Figma Design Token 颜色 - 深色模式覆盖 */
     /* Primary: DEFAULT 换亮色，100/200/300 与 700/800/900 对调 */
-    --dt-primary: #d4d4d4;
-    --dt-primary-100: #2C2C2C;
-    --dt-primary-200: #3C3C3C;
-    --dt-primary-300: #5C5C5C;
+    --dt-primary: #161616;
+    --dt-primary-100: #2c2c2c;
+    --dt-primary-200: #3c3c3c;
+    --dt-primary-300: #5c5c5c;
     --dt-primary-700: #e8e8e8;
     --dt-primary-800: #f0f0f0;
     --dt-primary-900: #ffffff;

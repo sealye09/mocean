@@ -15,21 +15,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning>
-      <body className="flex h-screen flex-col overflow-hidden bg-brand-main font-bricolage-grotesque">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TitleBar />
-          <div className="flex min-h-0 flex-1 overflow-hidden">
-            <SidebarProvider>
-              <ToasterProvider>
-                <AppSidebar />
-                <main className="h-full min-h-0 flex-1 overflow-hidden bg-brand-main">
-                  {children}
-                </main>
-              </ToasterProvider>
-            </SidebarProvider>
-          </div>
-        </ThemeProvider>
+    <html suppressHydrationWarning className="bg-transparent">
+      <body className="h-screen bg-transparent">
+        <div
+          id="app"
+          className="flex h-full flex-col overflow-hidden rounded-[1rem] bg-brand-main font-bricolage-grotesque"
+        >
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <TitleBar />
+            <div className="flex min-h-0 flex-1 overflow-hidden">
+              <SidebarProvider>
+                <ToasterProvider>
+                  <AppSidebar />
+                  <main className="h-full min-h-0 flex-1 overflow-hidden bg-brand-main">
+                    {children}
+                  </main>
+                </ToasterProvider>
+              </SidebarProvider>
+            </div>
+          </ThemeProvider>
+        </div>
       </body>
     </html>
   );
